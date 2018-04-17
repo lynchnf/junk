@@ -1,2 +1,2 @@
-# junk
+# Junk
 Junk Spring MVC application.
