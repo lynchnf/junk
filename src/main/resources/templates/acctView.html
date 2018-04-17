@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Junk</title>
+</head>
+<body>
+<h1>Account</h1>
+<a th:href="@{/}">Dashboard</a>
+<a th:href="@{/acctEdit(acctId=${acct.id})}">Edit</a>
+<a th:href="@{/acctEdit}">Add</a>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <td th:text="${acct.id}"></td>
+    </tr>
+    <tr>
+        <th>Version</th>
+        <td th:text="${acct.version}"></td>
+    </tr>
+    <tr>
+        <th>Name</th>
+        <td th:text="${acct.name}"></td>
+    </tr>
+</table>
+<table border="1">
+    <tr>
+        <td>transactions go here later</td>
+    </tr>
+</table>
+</body>
+</html>

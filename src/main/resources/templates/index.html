@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Junk</title>
+</head>
+<body>
+<h1>Dashboard</h1>
+<a th:href="@{/acctEdit}">Add Acct</a>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <th>Version</th>
+        <th>Name</th>
+    </tr>
+    <tr th:each="acct:${accts}">
+        <td><a th:href="@{/acct(acctId=${acct.id})}" th:text="${acct.id}"></a></td>
+        <td th:text="${acct.version}"></td>
+        <td th:text="${acct.name}"></td>
+    </tr>
+</table>
+</body>
+</html>
