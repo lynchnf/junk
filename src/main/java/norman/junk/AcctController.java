@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AcctController {
@@ -25,19 +26,42 @@ public class AcctController {
     private AcctRepository acctRepository;
 
     @RequestMapping("/acct")
-    public String loadView(@RequestParam("acctId") Long acctId, Model model) {
+    public String loadView(@RequestParam("acctId") Long acctId, Model model, RedirectAttributes redirectAttributes) {
         Optional<Acct> optional = acctRepository.findById(acctId);
         if (optional.isPresent()) {
             model.addAttribute("acct", optional.get());
             return "acctView";
         } else {
-            // TODO Display an error message on whatever page this was called from.
-            return "acctNotFound";
+            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.warn(errorMessage);
+            return "redirect:/";
         }
     }
 
-    @GetMapping("/acctEdit")
-    public String loadEdit(@RequestParam(value = "acctId", required = false) Long acctId, Model model) {
+    @GetMapping("/acctDelete")
+    public String processDelete(@RequestParam(value = "acctId") Long acctId, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Acct> optional = acctRepository.findById(acctId);
+        if (optional.isPresent()) {
+            Acct acct = optional.get();
+            try {
+                acctRepository.delete(acct);
+                String successMessage = "Account successfully deleted, acctId=\"" + acctId + "\"";
+                redirectAttributes.addFlashAttribute("successMessage", successMessage);
+            } catch (Exception e) {
+                String errorMessage = "Account could not be deleted, acctId=\"" + acctId + "\"";
+                redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
+                logger.error(errorMessage, e);
+            }
+        } else {
+            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.warn(errorMessage);
+        }
+        return "redirect:/";
+    }
+        @GetMapping("/acctEdit")
+        public String loadEdit(@RequestParam(value = "acctId", required = false) Long acctId, Model model, RedirectAttributes redirectAttributes) {
         if (acctId == null) {
             model.addAttribute("acctForm", new AcctForm());
             return "acctEdit";
@@ -53,28 +77,17 @@ public class AcctController {
                 model.addAttribute("acctForm", acctForm);
                 return "acctEdit";
             } else {
-                // TODO Display an error message on whatever page this was called from.
-                return "acctNotFound";
+                String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+                logger.warn(errorMessage);
+                return "redirect:/";
             }
         }
     }
 
     @PostMapping("/acctEdit")
-    public String processEdit(@Valid AcctForm acctForm, BindingResult bindingResult) {
+    public String processEdit(@Valid AcctForm acctForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            List<ObjectError> errors = bindingResult.getAllErrors();
-            for (ObjectError error : errors) {
-                logger.debug("error.objectName=\"" + error.getObjectName() + "\"");
-                logger.debug("error.defaultMessage=\"" + error.getDefaultMessage() + "\"");
-            }
-            return "acctEdit";
-        }
-        // TODO Why does this server side validation blank out the name field?
-        if (acctForm.getName() != null && acctForm.getName().equalsIgnoreCase("server")) {
-            FieldError fieldError = new FieldError("acctForm", "name", "server side field error");
-            bindingResult.addError(fieldError);
-            ObjectError objectError = new ObjectError("acctForm", "server side global error");
-            bindingResult.addError(objectError);
             return "acctEdit";
         }
         Long acctId = acctForm.getId();
@@ -82,23 +95,44 @@ public class AcctController {
             Acct acct = new Acct();
             acct.setVersion(0);
             acct.setName(acctForm.getName());
-            Acct save = acctRepository.save(acct);// TODO Insert needs to start after id=3.
-            // TODO If save throws an error, we must display it.
-            // TODO Otherwise, display a success message on whatever page this was called from.
-            return "redirect:/acct?acctId=" + save.getId();
+            Acct save;
+            try {
+                save = acctRepository.save(acct);
+                String successMessage = "Account successfully added, acctId=\"" + save.getId() + "\"";
+                redirectAttributes.addFlashAttribute("successMessage", successMessage);
+                redirectAttributes.addAttribute("acctId",save.getId());
+                return "redirect:/acct?acctId={acctId}";
+            } catch (Exception e) {
+                String errorMessage = "New account could not be added";
+                redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
+                logger.error(errorMessage, e);
+                return "redirect:/";
+            }
         } else {
             Optional<Acct> optional = acctRepository.findById(acctId);
             if (optional.isPresent()) {
-                Acct acct = optional.get();
+                Acct acct = new Acct();
+                acct.setId(optional.get().getId());
                 acct.setVersion(acctForm.getVersion());
                 acct.setName(acctForm.getName());
-                Acct save = acctRepository.save(acct);// TODO Version does not work.
-                // TODO If save throws an error, we must display it.
-                // TODO Otherwise, display a success message on whatever page this was called from.
-                return "redirect:/acct?acctId=" + save.getId();
+                Acct save = null;
+                try {
+                    save = acctRepository.save(acct);
+                    String successMessage = "Account successfully updated, acctId=\"" + save.getId() + "\"";
+                    redirectAttributes.addFlashAttribute("successMessage", successMessage);
+                    redirectAttributes.addAttribute("acctId",save.getId());
+                } catch (Exception e) {
+                    String errorMessage = "Account could not be updated, acctId=\"" + acctId + "\"";
+                    redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
+                    logger.error(errorMessage, e);
+                    redirectAttributes.addAttribute("acctId",acctId);
+                }
+                return "redirect:/acct?acctId={acctId}";
             } else {
-                // TODO Display an error message on whatever page this was called from.
-                return "acctNotFound";
+                String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+                logger.warn(errorMessage);
+                return "redirect:/";
             }
         }
     }

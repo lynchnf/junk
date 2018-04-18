@@ -12,8 +12,14 @@
 <body>
 <h1>Account Edit</h1>
 <a th:href="@{/}">Dashboard</a>
+<ul style="color: green" th:if="${successMessage}">
+    <li th:text="${successMessage}"></li>
+</ul>
+<ul style="color: red" th:if="${errorMessage}">
+    <li th:text="${errorMessage}"></li>
+</ul>
 <form th:action="@{/acctEdit}" th:object="${acctForm}" method="post">
-    <ul th:if="${#fields.hasAnyErrors()}">
+    <ul style="color: red" th:if="${#fields.hasAnyErrors()}">
         <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
     </ul>
     <input type="hidden" th:field="*{id}">

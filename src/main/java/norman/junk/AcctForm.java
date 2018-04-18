@@ -1,13 +1,9 @@
 package norman.junk;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 public class AcctForm {
     private Long id;
     private Integer version;
-    @NotNull
-    @Size(min = 1, max = 10)
+    @RequiredField
     private String name;
 
     public Long getId() {

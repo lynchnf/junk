@@ -7,6 +7,12 @@
 <body>
 <h1>Dashboard</h1>
 <a th:href="@{/acctEdit}">Add Acct</a>
+<ul style="color: green" th:if="${successMessage}">
+    <li th:text="${successMessage}"></li>
+</ul>
+<ul style="color: red" th:if="${errorMessage}">
+    <li th:text="${errorMessage}"></li>
+</ul>
 <table border="1">
     <tr>
         <th>Id</th>
