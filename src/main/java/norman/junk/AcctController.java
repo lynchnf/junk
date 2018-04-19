@@ -1,6 +1,5 @@
 package norman.junk;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -11,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,8 +57,9 @@ public class AcctController {
         }
         return "redirect:/";
     }
-        @GetMapping("/acctEdit")
-        public String loadEdit(@RequestParam(value = "acctId", required = false) Long acctId, Model model, RedirectAttributes redirectAttributes) {
+
+    @GetMapping("/acctEdit")
+    public String loadEdit(@RequestParam(value = "acctId", required = false) Long acctId, Model model, RedirectAttributes redirectAttributes) {
         if (acctId == null) {
             model.addAttribute("acctForm", new AcctForm());
             return "acctEdit";
@@ -93,14 +91,13 @@ public class AcctController {
         Long acctId = acctForm.getId();
         if (acctId == null) {
             Acct acct = new Acct();
-            acct.setVersion(0);
             acct.setName(acctForm.getName());
             Acct save;
             try {
                 save = acctRepository.save(acct);
                 String successMessage = "Account successfully added, acctId=\"" + save.getId() + "\"";
                 redirectAttributes.addFlashAttribute("successMessage", successMessage);
-                redirectAttributes.addAttribute("acctId",save.getId());
+                redirectAttributes.addAttribute("acctId", save.getId());
                 return "redirect:/acct?acctId={acctId}";
             } catch (Exception e) {
                 String errorMessage = "New account could not be added";
@@ -120,12 +117,12 @@ public class AcctController {
                     save = acctRepository.save(acct);
                     String successMessage = "Account successfully updated, acctId=\"" + save.getId() + "\"";
                     redirectAttributes.addFlashAttribute("successMessage", successMessage);
-                    redirectAttributes.addAttribute("acctId",save.getId());
+                    redirectAttributes.addAttribute("acctId", save.getId());
                 } catch (Exception e) {
                     String errorMessage = "Account could not be updated, acctId=\"" + acctId + "\"";
                     redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
                     logger.error(errorMessage, e);
-                    redirectAttributes.addAttribute("acctId",acctId);
+                    redirectAttributes.addAttribute("acctId", acctId);
                 }
                 return "redirect:/acct?acctId={acctId}";
             } else {

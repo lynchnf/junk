@@ -9,11 +9,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class DashboardController {
     @Autowired
     private AcctRepository acctRepository;
+    @Autowired
+    private DataFileRepository dataFileRepository;
 
     @RequestMapping("/")
     public String loadDashboard(Model model) {
         Iterable<Acct> accts = acctRepository.findAll();
         model.addAttribute("accts", accts);
+        Iterable<DataFile> dataFiles = dataFileRepository.findAll();
+        model.addAttribute("dataFiles", dataFiles);
         return "index";
     }
 }

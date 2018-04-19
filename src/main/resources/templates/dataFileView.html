@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Junk</title>
+</head>
+<body>
+<h1>Data File</h1>
+<a th:href="@{/}">Dashboard</a>
+<ul style="color: green" th:if="${successMessage}">
+    <li th:text="${successMessage}"></li>
+</ul>
+<ul style="color: red" th:if="${errorMessage}">
+    <li th:text="${errorMessage}"></li>
+</ul>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <td th:text="${dataFile.id}"></td>
+    </tr>
+    <tr>
+        <th>Version</th>
+        <td th:text="${dataFile.version}"></td>
+    </tr>
+    <tr>
+        <th>Original Filename</th>
+        <td th:text="${dataFile.originalFilename}"></td>
+    </tr>
+    <tr>
+        <th>Content Type</th>
+        <td th:text="${dataFile.contentType}"></td>
+    </tr>
+    <tr>
+        <th>Empty</th>
+        <td th:text="${dataFile.empty}"></td>
+    </tr>
+    <tr>
+        <th>Size</th>
+        <td th:text="${dataFile.size}"></td>
+    </tr>
+    <tr>
+        <th>Upload Timestamp</th>
+        <td th:text="${dataFile.uploadTimestamp}"></td>
+    </tr>
+</table>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <th>Version</th>
+        <th>Seq</th>
+        <th>Text</th>
+    </tr>
+    <tr th:each="dataLine:${dataFile.dataLines}">
+        <td th:text="${dataLine.id}"></td>
+        <td th:text="${dataLine.version}"></td>
+        <td th:text="${dataLine.seq}"></td>
+        <td th:text="${dataLine.text}"></td>
+</table>
+</body>
+</html>

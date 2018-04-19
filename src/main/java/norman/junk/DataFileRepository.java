@@ -4,4 +4,4 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AcctRepository extends CrudRepository<Acct, Long> {}
+public interface DataFileRepository extends CrudRepository<DataFile, Long> {}

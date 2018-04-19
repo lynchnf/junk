@@ -11,7 +11,7 @@ public class Acct {
     @GeneratedValue
     private Long id;
     @Version
-    private Integer version;
+    private Integer version = 0;
     private String name;
 
     public Long getId() {

@@ -13,16 +13,56 @@
 <ul style="color: red" th:if="${errorMessage}">
     <li th:text="${errorMessage}"></li>
 </ul>
-<table border="1">
+<table border="2">
     <tr>
-        <th>Id</th>
-        <th>Version</th>
-        <th>Name</th>
-    </tr>
-    <tr th:each="acct:${accts}">
-        <td><a th:href="@{/acct(acctId=${acct.id})}" th:text="${acct.id}"></a></td>
-        <td th:text="${acct.version}"></td>
-        <td th:text="${acct.name}"></td>
+        <td>
+            <table border="1">
+                <tr>
+                    <th>Id</th>
+                    <th>Version</th>
+                    <th>Name</th>
+                </tr>
+                <tr th:each="acct:${accts}">
+                    <td><a th:href="@{/acct(acctId=${acct.id})}" th:text="${acct.id}"></a></td>
+                    <td th:text="${acct.version}"></td>
+                    <td th:text="${acct.name}"></td>
+                </tr>
+            </table>
+        </td>
+        <td>
+
+            <form th:action="@{/dataFileUpload}" method="post" enctype="multipart/form-data">
+                <table border="1">
+                    <tr>
+                        <td>File to upload:</td>
+                        <td><input type="file" name="multipartFile"/></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><button>Upload</button></td>
+                    </tr>
+                </table>
+            </form>
+            <table border="1">
+                <tr>
+                    <th>Id</th>
+                    <th>Version</th>
+                    <th>Original Filename</th>
+                    <th>Content Type</th>
+                    <th>Empty</th>
+                    <th>Size</th>
+                    <th>Upload Timestamp</th>
+                </tr>
+                <tr th:each="dataFile:${dataFiles}">
+                    <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.id}"></a></td>
+                    <td th:text="${dataFile.version}"></td>
+                    <td th:text="${dataFile.originalFilename}"></td>
+                    <td th:text="${dataFile.contentType}"></td>
+                    <td th:text="${dataFile.empty}"></td>
+                    <td th:text="${dataFile.size}"></td>
+                    <td th:text="${dataFile.uploadTimestamp}"></td>
+            </table>
+        </td>
     </tr>
 </table>
 </body>
