@@ -19,18 +19,17 @@
             <table border="1">
                 <tr>
                     <th>Id</th>
-                    <th>Version</th>
                     <th>Name</th>
+                    <th>Type</th>
                 </tr>
                 <tr th:each="acct:${accts}">
                     <td><a th:href="@{/acct(acctId=${acct.id})}" th:text="${acct.id}"></a></td>
-                    <td th:text="${acct.version}"></td>
                     <td th:text="${acct.name}"></td>
+                    <td th:text="${acct.type}"></td>
                 </tr>
             </table>
         </td>
         <td>
-
             <form th:action="@{/dataFileUpload}" method="post" enctype="multipart/form-data">
                 <table border="1">
                     <tr>
@@ -39,14 +38,15 @@
                     </tr>
                     <tr>
                         <td></td>
-                        <td><button>Upload</button></td>
+                        <td>
+                            <button>Upload</button>
+                        </td>
                     </tr>
                 </table>
             </form>
             <table border="1">
                 <tr>
                     <th>Id</th>
-                    <th>Version</th>
                     <th>Original Filename</th>
                     <th>Content Type</th>
                     <th>Empty</th>
@@ -55,12 +55,11 @@
                 </tr>
                 <tr th:each="dataFile:${dataFiles}">
                     <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.id}"></a></td>
-                    <td th:text="${dataFile.version}"></td>
                     <td th:text="${dataFile.originalFilename}"></td>
                     <td th:text="${dataFile.contentType}"></td>
                     <td th:text="${dataFile.empty}"></td>
-                    <td th:text="${dataFile.size}"></td>
-                    <td th:text="${dataFile.uploadTimestamp}"></td>
+                    <td th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></td>
+                    <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
             </table>
         </td>
     </tr>

@@ -25,10 +25,10 @@ public class DataFileController {
 
     @PostMapping("/dataFileUpload")
     public String processUpload(@RequestParam(value = "multipartFile") MultipartFile multipartFile, RedirectAttributes redirectAttributes) {
-        DataFile save;
         try {
-            save = saveUploadedFile(multipartFile);
-            String successMessage = "Data file successfully uploaded, dataFileId=\"" + save.getId() + "\"";
+            DataFile dataFile = saveUploadedFile(multipartFile);
+            OfxParseResponse response = OfxParseUtils.parseUploadedFile(dataFile);
+            String successMessage = "Data file successfully uploaded, dataFileId=\"" + dataFile.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
         } catch (JunkException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -50,7 +50,7 @@ public class DataFileController {
         }
     }
 
-    private DataFile saveUploadedFile(@RequestParam(value = "multipartFile") MultipartFile multipartFile) throws JunkException {
+    private DataFile saveUploadedFile(MultipartFile multipartFile) throws JunkException {
         DataFile dataFile = new DataFile();
         dataFile.setOriginalFilename(multipartFile.getOriginalFilename());
         dataFile.setContentType(multipartFile.getContentType());

@@ -24,18 +24,53 @@
     </ul>
     <input type="hidden" th:field="*{id}">
     <input type="hidden" th:field="*{version}">
+    <input type="hidden" th:field="*{oldAcctNbr}">
+    <input type="hidden" th:field="*{oldEffDate}">
     <table border="1">
         <tr>
+        <tr th:if="*{id}">
             <th>Id</th>
             <td th:text="*{id}"></td>
         </tr>
         <tr>
-            <th>Version</th>
-            <td th:text="*{version}"></td>
-        </tr>
-        <tr>
             <th>Name</th>
             <td><input th:field="*{name}" th:errorclass="fieldError"></td>
+        </tr>
+        <tr>
+            <th>Begin Date (M/d/yyyy)</th>
+            <td><input th:field="*{beginDate}" th:errorclass="fieldError"></td>
+        </tr>
+        <tr>
+            <th>Begin Balance</th>
+            <td><input th:field="*{beginBalance}" th:errorclass="fieldError"></td>
+        </tr>
+        <tr>
+            <th>Organization</th>
+            <td><input th:field="*{organization}" th:errorclass="fieldError"></td>
+        </tr>
+        <tr>
+            <th>FID</th>
+            <td><input th:field="*{fid}" th:errorclass="fieldError"></td>
+        </tr>
+        <tr>
+            <th>Bank Id</th>
+            <td><input th:field="*{bankId}" th:errorclass="fieldError"></td>
+        </tr>
+        <tr>
+            <th>Type</th>
+            <td><select th:field="*{type}" th:errorclass="fieldError">
+                <option value="">Please select ...</option>
+                <option th:each="acctType:${T(norman.junk.AcctType).values()}" th:value="${acctType}"
+                        th:text="${acctType}"></option>
+            </select></td>
+        </tr>
+        <tr>
+            <th>Acct Nbr</th>
+            <td><input th:field="*{acctNbr}" th:errorclass="fieldError"></td>
+        </tr>
+        <tr th:if="*{id}">
+            <th>Eff Date (M/d/yyyy)</th>
+            <td><input th:field="*{effDate}" th:errorclass="fieldError"></td>
         </tr>
     </table>
     <button>Save</button>

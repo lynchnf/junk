@@ -9,7 +9,6 @@
 <a th:href="@{/}">Dashboard</a>
 <a th:href="@{/acctEdit(acctId=${acct.id})}">Edit</a>
 <a th:href="@{/acctEdit}">Add</a>
-<a th:href="@{/acctDelete(acctId=${acct.id})}" onclick="confirm('Are you sure?');">Delete</a>
 <ul style="color: green" th:if="${successMessage}">
     <li th:text="${successMessage}"></li>
 </ul>
@@ -22,17 +21,72 @@
         <td th:text="${acct.id}"></td>
     </tr>
     <tr>
-        <th>Version</th>
-        <td th:text="${acct.version}"></td>
-    </tr>
-    <tr>
         <th>Name</th>
         <td th:text="${acct.name}"></td>
+    </tr>
+    <tr>
+        <th>Begin Date</th>
+        <td th:text="${#dates.format(acct.beginDate,'M/d/yyyy')}"></td>
+    </tr>
+    <tr>
+        <th>Begin Balance</th>
+        <td th:text="${#numbers.formatDecimal(acct.beginBalance,1,'DEFAULT',2,'DEFAULT')}"></td>
+    </tr>
+    <tr>
+        <th>Organization</th>
+        <td th:text="${acct.organization}"></td>
+    </tr>
+    <tr>
+        <th>FID</th>
+        <td th:text="${acct.fid}"></td>
+    </tr>
+    <tr>
+        <th>Bank Id</th>
+        <td th:text="${acct.bankId}"></td>
+    </tr>
+    <tr>
+        <th>Type</th>
+        <td th:text="${acct.type}"></td>
+    </tr>
+    <tr th:if="${currentAcctNbr}">
+        <th>Acct Nbr</th>
+        <td th:text="${currentAcctNbr.acctNbr}"></td>
+    </tr>
+    <tr th:if="${currentAcctNbr}">
+        <th>Eff Date</th>
+        <td th:text="${#dates.format(currentAcctNbr.effDate,'M/d/yyyy')}"></td>
     </tr>
 </table>
 <table border="1">
     <tr>
-        <td>transactions go here later</td>
+        <th>Id</th>
+        <th>Acct Nbr</th>
+        <th>Eff Date</th>
+    </tr>
+    <tr th:each="acctNbr:${acct.acctNbrs}">
+        <td th:text="${acctNbr.id}"></td>
+        <td th:text="${acctNbr.acctNbr}"></td>
+        <td th:text="${#dates.format(acctNbr.effDate,'M/d/yyyy')}"></td>
+    </tr>
+</table>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <th>Type</th>
+        <th>Post Date</th>
+        <th>Amount</th>
+        <th>Check Number</th>
+        <th>Name</th>
+        <th>Memo</th>
+    </tr>
+    <tr th:each="tran:${acct.trans}">
+        <td><a th:href="@{/tran(tranId=${tran.id})}" th:text="${tran.id}"></a></td>
+        <td th:text="${tran.type}"></td>
+        <td th:text="${#dates.format(tran.postDate,'M/d/yyyy')}"></td>
+        <td th:text="${#numbers.formatDecimal(tran.amount,1,'DEFAULT',2,'DEFAULT')}"></td>
+        <td th:text="${tran.checkNumber}"></td>
+        <td th:text="${tran.name}"></td>
+        <td th:text="${tran.memo}"></td>
     </tr>
 </table>
 </body>

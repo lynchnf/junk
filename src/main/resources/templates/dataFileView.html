@@ -19,10 +19,6 @@
         <td th:text="${dataFile.id}"></td>
     </tr>
     <tr>
-        <th>Version</th>
-        <td th:text="${dataFile.version}"></td>
-    </tr>
-    <tr>
         <th>Original Filename</th>
         <td th:text="${dataFile.originalFilename}"></td>
     </tr>
@@ -36,24 +32,22 @@
     </tr>
     <tr>
         <th>Size</th>
-        <td th:text="${dataFile.size}"></td>
+        <td th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></td>
     </tr>
     <tr>
         <th>Upload Timestamp</th>
-        <td th:text="${dataFile.uploadTimestamp}"></td>
+        <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
     </tr>
 </table>
 <table border="1">
     <tr>
         <th>Id</th>
-        <th>Version</th>
         <th>Seq</th>
         <th>Text</th>
     </tr>
     <tr th:each="dataLine:${dataFile.dataLines}">
         <td th:text="${dataLine.id}"></td>
-        <td th:text="${dataLine.version}"></td>
-        <td th:text="${dataLine.seq}"></td>
+        <td th:text="${#numbers.formatInteger(dataLine.seq,1,'DEFAULT')}"></td>
         <td th:text="${dataLine.text}"></td>
 </table>
 </body>

@@ -1,9 +1,11 @@
 package norman.junk;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
 
 @Entity
 public class Acct {
@@ -13,6 +15,18 @@ public class Acct {
     @Version
     private Integer version = 0;
     private String name;
+    @Temporal(TemporalType.DATE)
+    private Date beginDate;
+    private BigDecimal beginBalance;
+    private String organization;
+    private String fid;
+    private String bankId;
+    @Enumerated(EnumType.STRING)
+    private AcctType type;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "acct")
+    private List<AcctNbr> acctNbrs = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "acct")
+    private List<Tran> trans = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -38,8 +52,67 @@ public class Acct {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return "Acct{" + "id=" + id + ", version=" + version + ", name='" + name + '\'' + '}';
+    public Date getBeginDate() {
+        return beginDate;
+    }
+
+    public void setBeginDate(Date beginDate) {
+        this.beginDate = beginDate;
+    }
+
+    public BigDecimal getBeginBalance() {
+        return beginBalance;
+    }
+
+    public void setBeginBalance(BigDecimal beginBalance) {
+        this.beginBalance = beginBalance;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
+    }
+
+    public String getFid() {
+        return fid;
+    }
+
+    public void setFid(String fid) {
+        this.fid = fid;
+    }
+
+    public String getBankId() {
+        return bankId;
+    }
+
+    public void setBankId(String bankId) {
+        this.bankId = bankId;
+    }
+
+    public AcctType getType() {
+        return type;
+    }
+
+    public void setType(AcctType type) {
+        this.type = type;
+    }
+
+    public List<AcctNbr> getAcctNbrs() {
+        return acctNbrs;
+    }
+
+    public void setAcctNbrs(List<AcctNbr> acctNbrs) {
+        this.acctNbrs = acctNbrs;
+    }
+
+    public List<Tran> getTrans() {
+        return trans;
+    }
+
+    public void setTrans(List<Tran> trans) {
+        this.trans = trans;
     }
 }

@@ -1,0 +1,60 @@
+package norman.junk;
+
+import java.util.Date;
+
+import javax.persistence.*;
+
+@Entity
+public class AcctNbr {
+    @Id
+    @GeneratedValue
+    private Long id;
+    @Version
+    private Integer version = 0;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ACCT_ID", nullable = false)
+    private Acct acct;
+    private String acctNbr;
+    @Temporal(TemporalType.DATE)
+    private Date effDate;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public Acct getAcct() {
+        return acct;
+    }
+
+    public void setAcct(Acct acct) {
+        this.acct = acct;
+    }
+
+    public String getAcctNbr() {
+        return acctNbr;
+    }
+
+    public void setAcctNbr(String acctNbr) {
+        this.acctNbr = acctNbr;
+    }
+
+    public Date getEffDate() {
+        return effDate;
+    }
+
+    public void setEffDate(Date effDate) {
+        this.effDate = effDate;
+    }
+}
