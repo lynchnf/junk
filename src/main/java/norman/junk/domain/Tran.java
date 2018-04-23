@@ -1,4 +1,4 @@
-package norman.junk;
+package norman.junk.domain;
 
 import java.math.BigDecimal;
 import java.util.Date;

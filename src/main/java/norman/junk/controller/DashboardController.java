@@ -1,9 +1,14 @@
-package norman.junk;
+package norman.junk.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import norman.junk.domain.Acct;
+import norman.junk.domain.DataFile;
+import norman.junk.repository.AcctRepository;
+import norman.junk.repository.DataFileRepository;
 
 @Controller
 public class DashboardController {

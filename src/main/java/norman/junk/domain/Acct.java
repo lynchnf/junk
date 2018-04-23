@@ -1,38 +1,32 @@
-package norman.junk;
+package norman.junk.domain;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-@AfterDateIfValueChange(newDate = "effDate", oldDate = "oldEffDate", newString = "acctNbr", oldString = "oldAcctNbr")
-public class AcctForm {
+@Entity
+public class Acct {
+    @Id
+    @GeneratedValue
     private Long id;
-    private Integer version;
-    @NotBlank
+    @Version
+    private Integer version = 0;
     private String name;
-    @NotNull
-    @DateTimeFormat(pattern = "M/d/yyyy")
+    @Temporal(TemporalType.DATE)
     private Date beginDate;
-    @NotNull
-    @Digits(integer = 3, fraction = 2)
     private BigDecimal beginBalance;
     private String organization;
     private String fid;
     private String bankId;
-    @NotNull
+    @Enumerated(EnumType.STRING)
     private AcctType type;
-    @NotBlank
-    private String acctNbr;
-    @DateTimeFormat(pattern = "M/d/yyyy")
-    private Date effDate;
-    private String oldAcctNbr;
-    @DateTimeFormat(pattern = "M/d/yyyy")
-    private Date oldEffDate;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "acct")
+    private List<AcctNbr> acctNbrs = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "acct")
+    private List<Tran> trans = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -106,35 +100,19 @@ public class AcctForm {
         this.type = type;
     }
 
-    public String getAcctNbr() {
-        return acctNbr;
+    public List<AcctNbr> getAcctNbrs() {
+        return acctNbrs;
     }
 
-    public void setAcctNbr(String acctNbr) {
-        this.acctNbr = acctNbr;
+    public void setAcctNbrs(List<AcctNbr> acctNbrs) {
+        this.acctNbrs = acctNbrs;
     }
 
-    public String getOldAcctNbr() {
-        return oldAcctNbr;
+    public List<Tran> getTrans() {
+        return trans;
     }
 
-    public void setOldAcctNbr(String oldAcctNbr) {
-        this.oldAcctNbr = oldAcctNbr;
-    }
-
-    public Date getEffDate() {
-        return effDate;
-    }
-
-    public void setEffDate(Date effDate) {
-        this.effDate = effDate;
-    }
-
-    public Date getOldEffDate() {
-        return oldEffDate;
-    }
-
-    public void setOldEffDate(Date oldEffDate) {
-        this.oldEffDate = oldEffDate;
+    public void setTrans(List<Tran> trans) {
+        this.trans = trans;
     }
 }

@@ -1,4 +1,4 @@
-package norman.junk;
+package norman.junk.domain;
 
 public enum CorrectAction {
     FRED, THUD

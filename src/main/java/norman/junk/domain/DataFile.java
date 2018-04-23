@@ -1,4 +1,4 @@
-package norman.junk;
+package norman.junk.domain;
 
 import java.util.ArrayList;
 import java.util.Date;

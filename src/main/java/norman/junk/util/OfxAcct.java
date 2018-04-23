@@ -1,4 +1,6 @@
-package norman.junk;
+package norman.junk.util;
+
+import norman.junk.domain.AcctType;
 
 public class OfxAcct {
     private String bankId;

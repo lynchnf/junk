@@ -60,7 +60,7 @@
             <th>Type</th>
             <td><select th:field="*{type}" th:errorclass="fieldError">
                 <option value="">Please select ...</option>
-                <option th:each="acctType:${T(norman.junk.AcctType).values()}" th:value="${acctType}"
+                <option th:each="acctType:${T(norman.junk.domain.AcctType).values()}" th:value="${acctType}"
                         th:text="${acctType}"></option>
             </select></td>
         </tr>

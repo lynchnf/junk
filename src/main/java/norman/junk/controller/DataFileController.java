@@ -1,4 +1,4 @@
-package norman.junk;
+package norman.junk.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import norman.junk.JunkException;
+import norman.junk.domain.DataFile;
+import norman.junk.domain.DataLine;
+import norman.junk.repository.DataFileRepository;
+import norman.junk.util.OfxParseResponse;
+import norman.junk.util.OfxParseUtils;
 
 @Controller
 public class DataFileController {

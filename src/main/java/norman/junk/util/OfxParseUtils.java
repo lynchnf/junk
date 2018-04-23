@@ -1,4 +1,4 @@
-package norman.junk;
+package norman.junk.util;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -9,6 +9,9 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import norman.junk.JunkException;
+import norman.junk.domain.*;
 
 public class OfxParseUtils {
     private static final Logger logger = LoggerFactory.getLogger(OfxParseUtils.class);
