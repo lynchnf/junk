@@ -9,13 +9,15 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import norman.junk.domain.Acct;
+import norman.junk.domain.AcctNbr;
 import norman.junk.domain.AcctType;
 import norman.junk.validation.AfterDateIfValueChange;
 
-@AfterDateIfValueChange(newDate = "effDate", oldDate = "oldEffDate", newString = "acctNbr", oldString = "oldAcctNbr")
+@AfterDateIfValueChange(newDate = "effDate", oldDate = "oldEffDate", newString = "number", oldString = "oldNumber")
 public class AcctForm {
     private Long id;
-    private Integer version;
+    private Integer version = 0;
     @NotBlank
     private String name;
     @NotNull
@@ -30,12 +32,31 @@ public class AcctForm {
     @NotNull
     private AcctType type;
     @NotBlank
-    private String acctNbr;
+    private String number;
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date effDate;
-    private String oldAcctNbr;
+    private String oldNumber;
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date oldEffDate;
+    private Long dataFileId;
+
+    public AcctForm() {}
+
+    public AcctForm(Acct acct, AcctNbr acctNbr) {
+        id = acct.getId();
+        version = acct.getVersion();
+        name = acct.getName();
+        beginDate = acct.getBeginDate();
+        beginBalance = acct.getBeginBalance();
+        organization = acct.getOrganization();
+        fid = acct.getFid();
+        bankId = acct.getBankId();
+        type = acct.getType();
+        number = acctNbr.getNumber();
+        oldNumber = acctNbr.getNumber();
+        effDate = acctNbr.getEffDate();
+        oldEffDate = acctNbr.getEffDate();
+    }
 
     public Long getId() {
         return id;
@@ -109,20 +130,12 @@ public class AcctForm {
         this.type = type;
     }
 
-    public String getAcctNbr() {
-        return acctNbr;
+    public String getNumber() {
+        return number;
     }
 
-    public void setAcctNbr(String acctNbr) {
-        this.acctNbr = acctNbr;
-    }
-
-    public String getOldAcctNbr() {
-        return oldAcctNbr;
-    }
-
-    public void setOldAcctNbr(String oldAcctNbr) {
-        this.oldAcctNbr = oldAcctNbr;
+    public void setNumber(String number) {
+        this.number = number;
     }
 
     public Date getEffDate() {
@@ -133,11 +146,48 @@ public class AcctForm {
         this.effDate = effDate;
     }
 
+    public String getOldNumber() {
+        return oldNumber;
+    }
+
+    public void setOldNumber(String oldNumber) {
+        this.oldNumber = oldNumber;
+    }
+
     public Date getOldEffDate() {
         return oldEffDate;
     }
 
     public void setOldEffDate(Date oldEffDate) {
         this.oldEffDate = oldEffDate;
+    }
+
+    public Long getDataFileId() {
+        return dataFileId;
+    }
+
+    public void setDataFileId(Long dataFileId) {
+        this.dataFileId = dataFileId;
+    }
+
+    public Acct toAcct() {
+        Acct acct = new Acct();
+        acct.setId(id);
+        acct.setVersion(version);
+        acct.setName(name);
+        acct.setBeginDate(beginDate);
+        acct.setBeginBalance(beginBalance);
+        acct.setOrganization(organization);
+        acct.setFid(fid);
+        acct.setBankId(bankId);
+        acct.setType(type);
+        return acct;
+    }
+
+    public AcctNbr toAcctNbr() {
+        AcctNbr acctNbr = new AcctNbr();
+        acctNbr.setNumber(number);
+        acctNbr.setEffDate(effDate);
+        return acctNbr;
     }
 }

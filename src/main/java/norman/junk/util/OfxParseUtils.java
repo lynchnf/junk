@@ -15,11 +15,6 @@ import norman.junk.domain.*;
 
 public class OfxParseUtils {
     private static final Logger logger = LoggerFactory.getLogger(OfxParseUtils.class);
-
-    private enum State {
-        OFX, FI, BANKACCTFROM, CCACCTFROM, BANKTRANLIST, STMTTRN
-    }
-
     private static final String FI = "<FI>";
     private static final String FI_END = "</FI>";
     private static final String ORG = "<ORG>";
@@ -48,6 +43,12 @@ public class OfxParseUtils {
     private static final String CATEGORY = "<CATEGORY>";
     private static final String MEMO = "<MEMO>";
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMddHHmmss");
+
+    private enum State {
+        OFX, FI, BANKACCTFROM, CCACCTFROM, BANKTRANLIST, STMTTRN
+    }
+
+    private OfxParseUtils() {}
 
     public static OfxParseResponse parseUploadedFile(DataFile dataFile) throws JunkException {
         OfxParseResponse response = new OfxParseResponse();

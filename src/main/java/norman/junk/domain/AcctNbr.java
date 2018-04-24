@@ -14,7 +14,7 @@ public class AcctNbr {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCT_ID", nullable = false)
     private Acct acct;
-    private String acctNbr;
+    private String number;
     @Temporal(TemporalType.DATE)
     private Date effDate;
 
@@ -42,12 +42,12 @@ public class AcctNbr {
         this.acct = acct;
     }
 
-    public String getAcctNbr() {
-        return acctNbr;
+    public String getNumber() {
+        return number;
     }
 
-    public void setAcctNbr(String acctNbr) {
-        this.acctNbr = acctNbr;
+    public void setNumber(String number) {
+        this.number = number;
     }
 
     public Date getEffDate() {

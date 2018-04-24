@@ -15,10 +15,11 @@ public class DataFile {
     private Integer version = 0;
     private String originalFilename;
     private String contentType;
-    private Boolean empty;
     private Long size;
     @Temporal(TemporalType.TIMESTAMP)
     private Date uploadTimestamp;
+    @Enumerated(EnumType.STRING)
+    private DataFileStatus status;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "dataFile")
     private List<DataLine> dataLines = new ArrayList<>();
 
@@ -54,14 +55,6 @@ public class DataFile {
         this.contentType = contentType;
     }
 
-    public Boolean getEmpty() {
-        return empty;
-    }
-
-    public void setEmpty(Boolean empty) {
-        this.empty = empty;
-    }
-
     public Long getSize() {
         return size;
     }
@@ -78,17 +71,19 @@ public class DataFile {
         this.uploadTimestamp = uploadTimestamp;
     }
 
+    public DataFileStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DataFileStatus status) {
+        this.status = status;
+    }
+
     public List<DataLine> getDataLines() {
         return dataLines;
     }
 
     public void setDataLines(List<DataLine> dataLines) {
         this.dataLines = dataLines;
-    }
-
-    @Override
-    public String toString() {
-        return "DataFile{" + "id=" + id + ", version=" + version + ", originalFilename='" + originalFilename + '\'' + ", contentType='" + contentType + '\'' + ", empty=" + empty + ", size=" + size
-                + ", uploadTimestamp=" + uploadTimestamp + '}';
     }
 }

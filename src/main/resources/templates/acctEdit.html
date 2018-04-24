@@ -10,7 +10,7 @@
     </style>
 </head>
 <body>
-<h1>Account Edit</h1>
+<h1 th:text="${(acctForm.dataFileId != null)?'Account Edit from Upload':'Account Edit'}"></h1>
 <a th:href="@{/}">Dashboard</a>
 <ul style="color: green" th:if="${successMessage}">
     <li th:text="${successMessage}"></li>
@@ -24,8 +24,9 @@
     </ul>
     <input type="hidden" th:field="*{id}">
     <input type="hidden" th:field="*{version}">
-    <input type="hidden" th:field="*{oldAcctNbr}">
+    <input type="hidden" th:field="*{oldNumber}">
     <input type="hidden" th:field="*{oldEffDate}">
+    <input type="hidden" th:field="*{dataFileId}">
     <table border="1">
         <tr>
         <tr th:if="*{id}">
@@ -65,15 +66,15 @@
             </select></td>
         </tr>
         <tr>
-            <th>Acct Nbr</th>
-            <td><input th:field="*{acctNbr}" th:errorclass="fieldError"></td>
+            <th>Number</th>
+            <td><input th:field="*{number}" th:errorclass="fieldError"></td>
         </tr>
         <tr th:if="*{id}">
             <th>Eff Date (M/d/yyyy)</th>
             <td><input th:field="*{effDate}" th:errorclass="fieldError"></td>
         </tr>
     </table>
-    <button>Save</button>
+    <button th:text="${(acctForm.dataFileId != null)?'Save and Continue Upload':'Save'}"></button>
 </form>
 </body>
 </html>

@@ -3,8 +3,7 @@ package norman.junk.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +17,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import norman.junk.JunkException;
-import norman.junk.domain.DataFile;
-import norman.junk.domain.DataLine;
+import norman.junk.domain.*;
+import norman.junk.repository.AcctNbrRepository;
+import norman.junk.repository.AcctRepository;
 import norman.junk.repository.DataFileRepository;
+import norman.junk.repository.TranRepository;
+import norman.junk.util.ControllerUtils;
 import norman.junk.util.OfxParseResponse;
 import norman.junk.util.OfxParseUtils;
 
@@ -28,19 +30,80 @@ import norman.junk.util.OfxParseUtils;
 public class DataFileController {
     private static final Logger logger = LoggerFactory.getLogger(DataFileController.class);
     @Autowired
+    private AcctRepository acctRepository;
+    @Autowired
+    private AcctNbrRepository acctNbrRepository;
+    @Autowired
     private DataFileRepository dataFileRepository;
+    @Autowired
+    private TranRepository tranRepository;
 
     @PostMapping("/dataFileUpload")
-    public String processUpload(@RequestParam(value = "multipartFile") MultipartFile multipartFile, RedirectAttributes redirectAttributes) {
+    public String processUpload(@RequestParam(value = "multipartFile") MultipartFile multipartFile, Model model, RedirectAttributes redirectAttributes) {
+        if (multipartFile.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Upload file is empty or missing.");
+            return "redirect:/";
+        }
+        // Try to upload the file and save it to the database.
+        DataFile dataFile;
         try {
-            DataFile dataFile = saveUploadedFile(multipartFile);
-            OfxParseResponse response = OfxParseUtils.parseUploadedFile(dataFile);
-            String successMessage = "Data file successfully uploaded, dataFileId=\"" + dataFile.getId() + "\"";
-            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+            dataFile = saveUploadedFile(multipartFile);
         } catch (JunkException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/";
         }
-        return "redirect:/";
+        // Try to parse the uploaded database.
+        OfxParseResponse response;
+        try {
+            response = OfxParseUtils.parseUploadedFile(dataFile);
+            dataFile.setStatus(DataFileStatus.PARSED);
+            dataFile = dataFileRepository.save(dataFile);
+        } catch (JunkException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/";
+        }
+        // Does this account already exist? Do multiple accounts exist? Try to find out using financial institution id
+        // (which identifies the bank) and the account id (which is the account number).
+        //
+        // Note: The code I've written is probably overkill. It allows for the case where there are two (or more)
+        // account number records that all point to the same account record. I think that is a possible, but unlikely
+        // scenario.
+        String ofxFid = response.getOfxInst().getFid();
+        String ofxAcctId = response.getOfxAcct().getAcctId();
+        List<AcctNbr> acctNbrsByFidAndNumber = acctNbrRepository.findByAcct_FidAndNumber(ofxFid, ofxAcctId);
+        Map<Long, Acct> acctMap = new HashMap<>();
+        for (AcctNbr acctNbr : acctNbrsByFidAndNumber) {
+            Acct acct = acctNbr.getAcct();
+            acctMap.put(acct.getId(), acct);
+        }
+        // If we found exactly one account, save the new transactions.
+        if (acctMap.size() == 1) {
+            Acct acct = acctMap.values().iterator().next();
+            ControllerUtils.saveTrans(acct, dataFile, response, acctRepository, dataFileRepository, tranRepository, redirectAttributes);
+            return "redirect:/";
+        }
+        if (acctMap.size() > 1) {
+            // If we found multiple accounts, things are really fucked up.
+            redirectAttributes.addFlashAttribute("errorMessage", "UNEXPECTED ERROR: Multiple Account Records found for fid=\"" + ofxFid + "\", number=\"" + ofxAcctId + "\"");
+            return "redirect:/";
+        }
+        // Otherwise, we found no account number records. Try again using just the financial institution id.
+        List<Acct> acctsByFid = acctRepository.findByFid(ofxFid);
+        // If we found one or more accounts, we will need to go to an account disambiguation page to get input from the user.
+        if (acctsByFid.size() > 0) {
+            model.addAttribute("dataFileId", dataFile.getId());
+            model.addAttribute("ofxInst", response.getOfxInst());
+            model.addAttribute("ofxAcct", response.getOfxAcct());
+            List<AcctNbr> acctNbrs = new ArrayList<>();
+            for (Acct acct : acctsByFid) {
+                acctNbrs.addAll(acctNbrRepository.findTopByAcct_IdOrderByEffDateDesc(acct.getId()));
+            }
+            model.addAttribute("acctNbrs", acctNbrs);
+            return "dataFileAcct";
+        } else {
+            // Otherwise, the user must create a new account.
+            return ControllerUtils.newAcctFromDataFile(model, dataFile, response);
+        }
     }
 
     @RequestMapping("/dataFile")
@@ -61,9 +124,9 @@ public class DataFileController {
         DataFile dataFile = new DataFile();
         dataFile.setOriginalFilename(multipartFile.getOriginalFilename());
         dataFile.setContentType(multipartFile.getContentType());
-        dataFile.setEmpty(multipartFile.isEmpty());
         dataFile.setSize(multipartFile.getSize());
         dataFile.setUploadTimestamp(new Date());
+        dataFile.setStatus(DataFileStatus.UPLOADED);
         dataFile = readLines(multipartFile, dataFile);
         return dataFileRepository.save(dataFile);
     }

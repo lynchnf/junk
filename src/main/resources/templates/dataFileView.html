@@ -27,16 +27,16 @@
         <td th:text="${dataFile.contentType}"></td>
     </tr>
     <tr>
-        <th>Empty</th>
-        <td th:text="${dataFile.empty}"></td>
-    </tr>
-    <tr>
         <th>Size</th>
         <td th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></td>
     </tr>
     <tr>
         <th>Upload Timestamp</th>
         <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td th:text="${dataFile.status}"></td>
     </tr>
 </table>
 <table border="1">

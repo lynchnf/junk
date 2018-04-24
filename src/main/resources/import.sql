@@ -12,10 +12,10 @@ INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,mem
 INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (202000,0,200000,'FEE','2018-01-15',-1,null,'Late fee',null);
 INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (203000,0,200000,'PAYMENT','2018-01-25',101,null,'Thank you',null);
 
-INSERT INTO acct_nbr (id,version,acct_id,acct_nbr,eff_date) VALUES (110000,0,100000,'12345678901','2018-01-01');
+INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (110000,0,100000,'12345678901','2018-01-01');
 
-INSERT INTO acct_nbr (id,version,acct_id,acct_nbr,eff_date) VALUES (210000,0,200000,'1234-5678-9012-3456','2018-01-01');
-INSERT INTO acct_nbr (id,version,acct_id,acct_nbr,eff_date) VALUES (220000,0,200000,'1234-5678-8765-4321','2018-01-16');
-INSERT INTO acct_nbr (id,version,acct_id,acct_nbr,eff_date) VALUES (230000,0,200000,'1234-5678-0123-4567','2018-01-26');
+INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (210000,0,200000,'1234-5678-9012-3456','2018-01-01');
+INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (220000,0,200000,'1234-5678-8765-4321','2018-01-16');
+INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (230000,0,200000,'1234-5678-0123-4567','2018-01-26');
 
-INSERT INTO acct_nbr (id,version,acct_id,acct_nbr,eff_date) VALUES (310000,0,300000,'9012-3456-7890-1234','2018-01-01');
+INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (310000,0,300000,'9012-3456-7890-1234','2018-01-01');

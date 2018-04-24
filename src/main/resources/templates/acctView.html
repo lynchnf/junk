@@ -49,8 +49,8 @@
         <td th:text="${acct.type}"></td>
     </tr>
     <tr th:if="${currentAcctNbr}">
-        <th>Acct Nbr</th>
-        <td th:text="${currentAcctNbr.acctNbr}"></td>
+        <th>Number</th>
+        <td th:text="${currentAcctNbr.number}"></td>
     </tr>
     <tr th:if="${currentAcctNbr}">
         <th>Eff Date</th>
@@ -60,12 +60,12 @@
 <table border="1">
     <tr>
         <th>Id</th>
-        <th>Acct Nbr</th>
+        <th>Number</th>
         <th>Eff Date</th>
     </tr>
     <tr th:each="acctNbr:${acct.acctNbrs}">
         <td th:text="${acctNbr.id}"></td>
-        <td th:text="${acctNbr.acctNbr}"></td>
+        <td th:text="${acctNbr.number}"></td>
         <td th:text="${#dates.format(acctNbr.effDate,'M/d/yyyy')}"></td>
     </tr>
 </table>

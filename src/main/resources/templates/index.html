@@ -49,17 +49,17 @@
                     <th>Id</th>
                     <th>Original Filename</th>
                     <th>Content Type</th>
-                    <th>Empty</th>
                     <th>Size</th>
                     <th>Upload Timestamp</th>
+                    <th>Status</th>
                 </tr>
                 <tr th:each="dataFile:${dataFiles}">
                     <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.id}"></a></td>
                     <td th:text="${dataFile.originalFilename}"></td>
                     <td th:text="${dataFile.contentType}"></td>
-                    <td th:text="${dataFile.empty}"></td>
                     <td th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></td>
                     <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
+                    <td th:text="${dataFile.status}"></td>
             </table>
         </td>
     </tr>
