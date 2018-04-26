@@ -9,6 +9,7 @@ import norman.junk.domain.Acct;
 import norman.junk.domain.DataFile;
 import norman.junk.repository.AcctRepository;
 import norman.junk.repository.DataFileRepository;
+import norman.junk.repository.TranRepository;
 
 @Controller
 public class DashboardController {
@@ -16,6 +17,8 @@ public class DashboardController {
     private AcctRepository acctRepository;
     @Autowired
     private DataFileRepository dataFileRepository;
+    @Autowired
+    private TranRepository tranRepository;
 
     @RequestMapping("/")
     public String loadDashboard(Model model) {

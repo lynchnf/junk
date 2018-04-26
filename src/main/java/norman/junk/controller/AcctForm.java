@@ -6,6 +6,7 @@ import java.util.Date;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -19,19 +20,24 @@ public class AcctForm {
     private Long id;
     private Integer version = 0;
     @NotBlank
+    @Size(max = 50)
     private String name;
     @NotNull
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date beginDate;
     @NotNull
-    @Digits(integer = 3, fraction = 2)
+    @Digits(integer = 5, fraction = 2)
     private BigDecimal beginBalance;
+    @Size(max = 50)
     private String organization;
+    @Size(max = 20)
     private String fid;
+    @Size(max = 20)
     private String bankId;
     @NotNull
     private AcctType type;
     @NotBlank
+    @Size(max = 50)
     private String number;
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date effDate;

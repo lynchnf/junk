@@ -14,14 +14,20 @@ public class Acct {
     private Long id;
     @Version
     private Integer version = 0;
+    @Column(length = 50)
     private String name;
     @Temporal(TemporalType.DATE)
     private Date beginDate;
+    @Column(scale = 5, precision = 2)
     private BigDecimal beginBalance;
+    @Column(length = 50)
     private String organization;
+    @Column(length = 20)
     private String fid;
+    @Column(length = 20)
     private String bankId;
     @Enumerated(EnumType.STRING)
+    @Column(length = 10)
     private AcctType type;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "acct")
     private List<AcctNbr> acctNbrs = new ArrayList<>();

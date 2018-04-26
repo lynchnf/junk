@@ -14,6 +14,7 @@ public class AcctNbr {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCT_ID", nullable = false)
     private Acct acct;
+    @Column(length = 50)
     private String number;
     @Temporal(TemporalType.DATE)
     private Date effDate;

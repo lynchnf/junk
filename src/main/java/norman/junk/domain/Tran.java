@@ -16,20 +16,30 @@ public class Tran {
     @JoinColumn(name = "ACCT_ID", nullable = false)
     private Acct acct;
     @Enumerated(EnumType.STRING)
+    @Column(length = 10)
     private TranType type;
     @Temporal(TemporalType.DATE)
     private Date postDate;
     @Temporal(TemporalType.DATE)
     private Date userDate;
+    @Column(scale = 5, precision = 2)
     private BigDecimal amount;
+    @Column(length = 255)
     private String fitId;
+    @Column(length = 10)
     private String sic;
+    @Column(length = 10)
     private String checkNumber;
+    @Column(length = 255)
     private String correctFitId;
     @Enumerated(EnumType.STRING)
+    @Column(length = 10)
     private CorrectAction correctAction;
+    @Column(length = 255)
     private String name;
+    @Column(length = 10)
     private String category;
+    @Column(length = 255)
     private String memo;
 
     public Long getId() {

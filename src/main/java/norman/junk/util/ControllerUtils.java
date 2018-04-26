@@ -53,7 +53,7 @@ public class ControllerUtils {
         }
         try {
             acctRepository.save(acct);
-            dataFile.setStatus(DataFileStatus.TRANS_SAVED);
+            dataFile.setStatus(DataFileStatus.TRAN_SAVED);
             dataFileRepository.save(dataFile);
             String successMessage = "Account successfully updated with " + count + " transactions, acctId=\"" + acct.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
