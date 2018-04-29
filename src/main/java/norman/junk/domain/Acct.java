@@ -18,7 +18,7 @@ public class Acct {
     private String name;
     @Temporal(TemporalType.DATE)
     private Date beginDate;
-    @Column(scale = 5, precision = 2)
+    @Column(precision = 9, scale = 2)
     private BigDecimal beginBalance;
     @Column(length = 50)
     private String organization;

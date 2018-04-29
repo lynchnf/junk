@@ -26,7 +26,7 @@ public class AcctForm {
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date beginDate;
     @NotNull
-    @Digits(integer = 5, fraction = 2)
+    @Digits(integer = 7, fraction = 3)
     private BigDecimal beginBalance;
     @Size(max = 50)
     private String organization;

@@ -22,7 +22,7 @@ public class Tran {
     private Date postDate;
     @Temporal(TemporalType.DATE)
     private Date userDate;
-    @Column(scale = 5, precision = 2)
+    @Column(precision = 9, scale = 2)
     private BigDecimal amount;
     @Column(length = 255)
     private String fitId;
