@@ -7,24 +7,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import norman.junk.domain.Acct;
 import norman.junk.domain.DataFile;
-import norman.junk.repository.AcctRepository;
-import norman.junk.repository.DataFileRepository;
-import norman.junk.repository.TranRepository;
+import norman.junk.service.AcctService;
+import norman.junk.service.DataFileService;
 
 @Controller
 public class DashboardController {
     @Autowired
-    private AcctRepository acctRepository;
+    private AcctService acctService;
     @Autowired
-    private DataFileRepository dataFileRepository;
-    @Autowired
-    private TranRepository tranRepository;
+    private DataFileService dataFileService;
 
     @RequestMapping("/")
     public String loadDashboard(Model model) {
-        Iterable<Acct> accts = acctRepository.findAll();
+        Iterable<Acct> accts = acctService.findAllAccts();
         model.addAttribute("accts", accts);
-        Iterable<DataFile> dataFiles = dataFileRepository.findAll();
+        Iterable<DataFile> dataFiles = dataFileService.findAllDataFiles();
         model.addAttribute("dataFiles", dataFiles);
         return "index";
     }

@@ -12,20 +12,19 @@ import norman.junk.domain.Acct;
 import norman.junk.domain.DataFile;
 import norman.junk.domain.DataFileStatus;
 import norman.junk.domain.Tran;
-import norman.junk.repository.AcctRepository;
-import norman.junk.repository.DataFileRepository;
-import norman.junk.repository.TranRepository;
+import norman.junk.service.AcctService;
+import norman.junk.service.DataFileService;
 
 public class ControllerUtils {
     private static final Logger logger = LoggerFactory.getLogger(ControllerUtils.class);
 
     private ControllerUtils() {}
 
-    public static void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctRepository acctRepository, DataFileRepository dataFileRepository, TranRepository tranRepository,
+    public static void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService, DataFileService dataFileService,
             RedirectAttributes redirectAttributes) {
         int count = 0;
         for (OfxStmtTran ofxStmtTran : response.getOfxStmtTrans()) {
-            List<Tran> trans = tranRepository.findByAcct_IdAndFitId(acct.getId(), ofxStmtTran.getFitId());
+            List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
             if (trans.size() > 1) {
                 String errorMessage = "UNEXPECTED ERROR: Multiple transactions found for acctId=\"" + acct.getId() + ", fitId=\"" + ofxStmtTran.getFitId() + "\"";
                 logger.error(errorMessage);
@@ -52,9 +51,9 @@ public class ControllerUtils {
             }
         }
         try {
-            acctRepository.save(acct);
+            acctService.saveAcct(acct);
             dataFile.setStatus(DataFileStatus.TRAN_SAVED);
-            dataFileRepository.save(dataFile);
+            dataFileService.saveDataFile(dataFile);
             String successMessage = "Account successfully updated with " + count + " transactions, acctId=\"" + acct.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
         } catch (Exception e) {

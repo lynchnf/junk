@@ -1,6 +1,5 @@
 package norman.junk.controller;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -22,10 +21,8 @@ import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.DataFile;
 import norman.junk.domain.DataFileStatus;
-import norman.junk.repository.AcctNbrRepository;
-import norman.junk.repository.AcctRepository;
-import norman.junk.repository.DataFileRepository;
-import norman.junk.repository.TranRepository;
+import norman.junk.service.AcctService;
+import norman.junk.service.DataFileService;
 import norman.junk.util.ControllerUtils;
 import norman.junk.util.OfxParseResponse;
 import norman.junk.util.OfxParseUtils;
@@ -34,26 +31,21 @@ import norman.junk.util.OfxParseUtils;
 public class AcctController {
     private static final Logger logger = LoggerFactory.getLogger(AcctController.class);
     @Autowired
-    private AcctRepository acctRepository;
+    private AcctService acctService;
     @Autowired
-    private AcctNbrRepository acctNbrRepository;
-    @Autowired
-    private DataFileRepository dataFileRepository;
-    @Autowired
-    private TranRepository tranRepository;
+    private DataFileService dataFileService;
 
     @RequestMapping("/acct")
     public String loadView(@RequestParam("acctId") Long acctId, Model model, RedirectAttributes redirectAttributes) {
-        Optional<Acct> optionalAcct = acctRepository.findById(acctId);
+        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
         // If no account, we gots an error.
         if (acctNotFound(acctId, optionalAcct, redirectAttributes)) return "redirect:/";
         // Prepare to view account and current account number.
         Acct acct = optionalAcct.get();
         model.addAttribute("acct", acct);
-        List<AcctNbr> acctNbrs = acctNbrRepository.findTopByAcct_IdOrderByEffDateDesc(acct.getId());
-        if (!acctNbrs.isEmpty()) {
-            AcctNbr currentAcctNbr = acctNbrs.iterator().next();
-            model.addAttribute("currentAcctNbr", currentAcctNbr);
+        Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+        if (optionalAcctNbr.isPresent()) {
+            model.addAttribute("currentAcctNbr", optionalAcctNbr.get());
         }
         return "acctView";
     }
@@ -66,13 +58,12 @@ public class AcctController {
             return "acctEdit";
         }
         // If no account, we gots an error.
-        Optional<Acct> optionalAcct = acctRepository.findById(acctId);
+        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
         if (acctNotFound(acctId, optionalAcct, redirectAttributes)) return "redirect:/";
         // Prepare to edit account and current account number.
         Acct acct = optionalAcct.get();
-        List<AcctNbr> acctNbrs = acctNbrRepository.findTopByAcct_IdOrderByEffDateDesc(acct.getId());
-        AcctNbr acctNbr = acctNbrs.iterator().next();
-        AcctForm acctForm = new AcctForm(acct, acctNbr);
+        Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+        AcctForm acctForm = new AcctForm(acct, optionalAcctNbr.get());
         model.addAttribute("acctForm", acctForm);
         return "acctEdit";
     }
@@ -86,18 +77,18 @@ public class AcctController {
         Acct acct;
         if (acctId != null) {
             // If no account, we gots an error.
-            Optional<Acct> optionalAcct = acctRepository.findById(acctId);
+            Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
             if (acctNotFound(acctId, optionalAcct, redirectAttributes)) return "redirect:/";
-            // Prepare to save existing account.
+            // Prepare to saveDataFile existing account.
             acct = acctForm.toAcct();
-            // If either the acctNumber or effective date changed, prepare to save current account number.
+            // If either the acctNumber or effective date changed, prepare to saveDataFile current account number.
             if (!acctForm.getNumber().equals(acctForm.getOldNumber()) || !acctForm.getEffDate().equals(acctForm.getOldEffDate())) {
                 AcctNbr acctNbr = acctForm.toAcctNbr();
                 acctNbr.setAcct(acct);
                 acct.getAcctNbrs().add(acctNbr);
             }
         } else {
-            // If no acct id, prepare to save new account.
+            // If no acct id, prepare to saveDataFile new account.
             acct = acctForm.toAcct();
             AcctNbr acctNbr = acctForm.toAcctNbr();
             // For new accounts, effective date of account number is beginning date of account.
@@ -105,10 +96,10 @@ public class AcctController {
             acctNbr.setAcct(acct);
             acct.getAcctNbrs().add(acctNbr);
         }
-        // Try to save account.
+        // Try to saveDataFile account.
         Acct save;
         try {
-            save = acctRepository.save(acct);
+            save = acctService.saveAcct(acct);
             String successMessage = "Account successfully added, acctId=\"" + save.getId() + "\"";
             if (acctId != null) successMessage = "Account successfully updated, acctId=\"" + save.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
@@ -129,13 +120,13 @@ public class AcctController {
         if (acctForm.getDataFileId() == null) return "redirect:/acct?acctId={acctId}";
         // If no data file, we gots an error.
         Long dataFileId = acctForm.getDataFileId();
-        Optional<DataFile> optionalDataFile = dataFileRepository.findById(dataFileId);
+        Optional<DataFile> optionalDataFile = dataFileService.findDataFileById(dataFileId);
         if (dataFileNotFound(acctId, redirectAttributes, optionalDataFile)) return "redirect:/";
         // Update the status of the data file to say we saved the account.
         DataFile dataFile = optionalDataFile.get();
         dataFile.setStatus(DataFileStatus.ACCT_SAVED);
         try {
-            dataFile = dataFileRepository.save(dataFile);
+            dataFile = dataFileService.saveDataFile(dataFile);
         } catch (Exception e) {
             String errorMessage = "Data file could not be updated, dataFileId=\"" + dataFileId + "\"";
             redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
@@ -151,14 +142,14 @@ public class AcctController {
             return "redirect:/";
         }
         // Save the new transactions.
-        ControllerUtils.saveTrans(save, dataFile, response, acctRepository, dataFileRepository, tranRepository, redirectAttributes);
+        ControllerUtils.saveTrans(save, dataFile, response, acctService, dataFileService, redirectAttributes);
         return "redirect:/";
     }
 
     @GetMapping("/acctUpload")
     public String loadUpload(@RequestParam(value = "dataFileId") Long dataFileId, @RequestParam(value = "acctId", required = false) Long acctId, Model model, RedirectAttributes redirectAttributes) {
         // If no data file, we gots an error.
-        Optional<DataFile> optionalDataFile = dataFileRepository.findById(dataFileId);
+        Optional<DataFile> optionalDataFile = dataFileService.findDataFileById(dataFileId);
         if (dataFileNotFound(acctId, redirectAttributes, optionalDataFile)) return "redirect:/";
         // If data file will not parse, we gots an error.
         DataFile dataFile = optionalDataFile.get();
@@ -172,13 +163,12 @@ public class AcctController {
         // If no acct id, new account.
         if (acctId == null) return ControllerUtils.newAcctFromDataFile(model, dataFile, response);
         // If no account, we gots an error.
-        Optional<Acct> optionalAcct = acctRepository.findById(acctId);
+        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
         if (acctNotFound(acctId, optionalAcct, redirectAttributes)) return "redirect:/";
         // Prepare to edit account and current account number.
         Acct acct = optionalAcct.get();
-        List<AcctNbr> acctNbrs = acctNbrRepository.findTopByAcct_IdOrderByEffDateDesc(acct.getId());
-        AcctNbr acctNbr = acctNbrs.iterator().next();
-        AcctForm acctForm = new AcctForm(acct, acctNbr);
+        Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+        AcctForm acctForm = new AcctForm(acct, optionalAcctNbr.get());
         acctForm.setNumber(response.getOfxAcct().getAcctId());
         acctForm.setDataFileId(dataFile.getId());
         model.addAttribute("acctForm", acctForm);
