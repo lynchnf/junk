@@ -13,12 +13,15 @@ public class DataFile {
     private Long id;
     @Version
     private Integer version = 0;
+    @Column(length = 100)
     private String originalFilename;
+    @Column(length = 100)
     private String contentType;
     private Long size;
     @Temporal(TemporalType.TIMESTAMP)
     private Date uploadTimestamp;
     @Enumerated(EnumType.STRING)
+    @Column(length = 10)
     private DataFileStatus status;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "dataFile")
     private List<DataLine> dataLines = new ArrayList<>();

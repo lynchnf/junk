@@ -13,6 +13,7 @@ public class DataLine {
     @JoinColumn(name = "DATA_FILE_ID", nullable = false)
     private DataFile dataFile;
     private Integer seq;
+    @Column(length = 255)
     private String text;
 
     public Long getId() {
