@@ -18,14 +18,16 @@
         <td>
             <table border="1">
                 <tr>
-                    <th>Id</th>
                     <th>Name</th>
                     <th>Type</th>
+                    <th>Balance</th>
+                    <th>Last Tran Date</th>
                 </tr>
-                <tr th:each="acct:${accts}">
-                    <td><a th:href="@{/acct(acctId=${acct.id})}" th:text="${acct.id}"></a></td>
-                    <td th:text="${acct.name}"></td>
-                    <td th:text="${acct.type}"></td>
+                <tr th:each="acctSummary:${acctSummaries}">
+                    <td><a th:href="@{/acct(acctId=${acctSummary.id})}" th:text="${acctSummary.name}"></a></td>
+                    <td th:text="${acctSummary.type}"></td>
+                    <td th:text="${#numbers.formatDecimal(acctSummary.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
+                    <td th:text="${#dates.format(acctSummary.lastTranDate,'M/d/yyyy')}"></td>
                 </tr>
             </table>
         </td>

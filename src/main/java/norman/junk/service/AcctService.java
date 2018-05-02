@@ -1,5 +1,8 @@
 package norman.junk.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,5 +57,24 @@ public class AcctService {
 
     public List<Tran> findTransByAcctIdAndFitId(Long acctId, String fitId) {
         return tranRepository.findByAcct_IdAndFitId(acctId, fitId);
+    }
+
+    public List<AcctSummaryBean> findAllAcctSummaries() {
+        List<AcctSummaryBean> acctSummaries = new ArrayList<>();
+        Iterable<Acct> accts = acctRepository.findAll();
+        for (Acct acct : accts) {
+            BigDecimal balance = acct.getBeginBalance();
+            Date lastTranDate = acct.getBeginDate();
+            List<Tran> trans = acct.getTrans();
+            for (Tran tran : trans) {
+                balance = balance.add(tran.getAmount());
+                if (lastTranDate.before(tran.getPostDate())) {
+                    lastTranDate = tran.getPostDate();
+                }
+            }
+            AcctSummaryBean acctSummary = new AcctSummaryBean(acct.getId(), acct.getName(), acct.getType(), balance, lastTranDate);
+            acctSummaries.add(acctSummary);
+        }
+        return acctSummaries;
     }
 }

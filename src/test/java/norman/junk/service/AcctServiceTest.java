@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
+import norman.junk.domain.AcctType;
 import norman.junk.domain.Tran;
 import norman.junk.repository.AcctNbrRepository;
 import norman.junk.repository.AcctRepository;
@@ -64,20 +65,35 @@ public class AcctServiceTest {
     public void setUp() throws Exception {
         // New account before saving.
         acct0.setName("New Account");
+        acct0.setType(AcctType.CC);
+        acct0.setBeginBalance(BigDecimal.valueOf(-450L));
+        acct0.setBeginDate(DF.parse("2018-01-01"));
         // New account after saving.
         acct1.setId(1L);
         acct1.setName("New Account");
+        acct1.setType(AcctType.CC);
+        acct1.setBeginBalance(BigDecimal.valueOf(-450L));
+        acct1.setBeginDate(DF.parse("2018-01-01"));
         // Existing account.
         acct2.setId(2L);
         acct2.setName("Existing account");
+        acct2.setType(AcctType.CHECKING);
+        acct2.setBeginBalance(BigDecimal.valueOf(88L));
+        acct2.setBeginDate(DF.parse("2018-01-01"));
         // Existing account with FID.
         acct3.setId(3L);
         acct3.setName("Existing account with FID");
         acct3.setFid("123");
+        acct3.setType(AcctType.CC);
+        acct3.setBeginBalance(BigDecimal.valueOf(166L));
+        acct3.setBeginDate(DF.parse("2018-01-01"));
         // Another account with same FID.
         acct4.setId(4L);
         acct4.setName("Another account with same FID");
         acct4.setFid("123");
+        acct4.setType(AcctType.CHECKING);
+        acct4.setBeginBalance(BigDecimal.valueOf(-672L));
+        acct4.setBeginDate(DF.parse("2018-01-01"));
         // Attach account numbers to existing account.
         acctNbr21.setId(21L);
         acctNbr21.setNumber("0101");
@@ -166,5 +182,21 @@ public class AcctServiceTest {
     @Test
     public void findTransByAcctIdAndFitId() {
         List<Tran> trans = acctService.findTransByAcctIdAndFitId(2L, "90123456");
+    }
+
+    @Test
+    public void findAllAcctSummaries() throws Exception {
+        List<AcctSummaryBean> acctSummaries = acctService.findAllAcctSummaries();
+        assertEquals(4, acctSummaries.size());
+        for (AcctSummaryBean acctSummary : acctSummaries) {
+            if (acctSummary.getId() == 2L) {
+                assertEquals("Existing account", acctSummary.getName());
+                assertEquals(AcctType.CHECKING, acctSummary.getType());
+                BigDecimal expected = BigDecimal.valueOf(589L);
+                BigDecimal actual = acctSummary.getBalance();
+                assertEquals(0, expected.compareTo(actual));
+                assertEquals(DF.parse("2018-01-30"), acctSummary.getLastTranDate());
+            }
+        }
     }
 }
