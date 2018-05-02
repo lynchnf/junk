@@ -58,4 +58,9 @@ public class AcctNbr {
     public void setEffDate(Date effDate) {
         this.effDate = effDate;
     }
+
+    @Override
+    public String toString() {
+        return "AcctNbr{" + "id=" + id + ", version=" + version + ", number='" + number + '\'' + ", effDate=" + effDate + '}';
+    }
 }

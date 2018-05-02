@@ -161,4 +161,9 @@ public class Tran {
     public void setMemo(String memo) {
         this.memo = memo;
     }
+
+    @Override
+    public String toString() {
+        return "Tran{" + "id=" + id + ", version=" + version + ", postDate=" + postDate + ", amount=" + amount + '}';
+    }
 }

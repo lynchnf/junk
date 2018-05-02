@@ -20,8 +20,7 @@ public class ControllerUtils {
 
     private ControllerUtils() {}
 
-    public static void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService, DataFileService dataFileService,
-            RedirectAttributes redirectAttributes) {
+    public static void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService, DataFileService dataFileService, RedirectAttributes redirectAttributes) {
         int count = 0;
         for (OfxStmtTran ofxStmtTran : response.getOfxStmtTrans()) {
             List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());

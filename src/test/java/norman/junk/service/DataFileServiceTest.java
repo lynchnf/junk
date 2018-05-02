@@ -1,23 +1,22 @@
-package norman.junk;
-
-import static org.junit.Assert.assertTrue;
+package norman.junk.service;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AppTest {
+public class DataFileServiceTest {
     @Before
     public void setUp() throws Exception {}
 
     @After
     public void tearDown() throws Exception {}
 
-    /**
-     * Rigorous Test :-)
-     */
     @Test
-    public void main() {
-        assertTrue(true);
-    }
+    public void saveDataFile() {}
+
+    @Test
+    public void findDataFileById() {}
+
+    @Test
+    public void findAllDataFiles() {}
 }
