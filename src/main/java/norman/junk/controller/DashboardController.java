@@ -8,9 +8,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import norman.junk.domain.DataFile;
+import norman.junk.domain.Payee;
 import norman.junk.service.AcctService;
 import norman.junk.service.AcctSummaryBean;
 import norman.junk.service.DataFileService;
+import norman.junk.service.PayeeService;
 
 @Controller
 public class DashboardController {
@@ -18,6 +20,8 @@ public class DashboardController {
     private AcctService acctService;
     @Autowired
     private DataFileService dataFileService;
+    @Autowired
+    private PayeeService payeeService;
 
     @RequestMapping("/")
     public String loadDashboard(Model model) {
@@ -25,6 +29,8 @@ public class DashboardController {
         model.addAttribute("acctSummaries", acctSummaries);
         Iterable<DataFile> dataFiles = dataFileService.findAllDataFiles();
         model.addAttribute("dataFiles", dataFiles);
+        Iterable<Payee> payees = payeeService.findAllPayees();
+        model.addAttribute("payees", payees);
         return "index";
     }
 }

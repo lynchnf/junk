@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Junk</title>
+    <style>
+        .fieldError {
+            background-color: pink;
+        }
+    </style>
+</head>
+<body>
+<h1>Payee Edit</h1>
+<a th:href="@{/}">Dashboard</a>
+<ul style="color: green" th:if="${successMessage}">
+    <li th:text="${successMessage}"></li>
+</ul>
+<ul style="color: red" th:if="${errorMessage}">
+    <li th:text="${errorMessage}"></li>
+</ul>
+<form th:action="@{/payeeEdit}" th:object="${payeeForm}" method="post">
+    <ul style="color: red" th:if="${#fields.hasAnyErrors()}">
+        <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+    </ul>
+    <input type="hidden" th:field="*{id}">
+    <input type="hidden" th:field="*{version}">
+    <table border="1">
+        <tr>
+        <tr th:if="*{id}">
+            <th>Id</th>
+            <td th:text="*{id}"></td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td><input th:field="*{name}" th:errorclass="fieldError"></td>
+        </tr>
+    </table>
+    <button>Save</button>
+</form>
+</body>
+</html>

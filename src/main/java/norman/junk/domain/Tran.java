@@ -1,7 +1,9 @@
 package norman.junk.domain;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -41,6 +43,8 @@ public class Tran {
     private String category;
     @Column(length = 255)
     private String memo;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "tran")
+    private List<Payment> payments = new ArrayList<>();
 
     public Long getId() {
         return id;

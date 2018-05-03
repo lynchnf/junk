@@ -19,3 +19,8 @@ INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (220000,0,20000
 INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (230000,0,200000,'1234-5678-0123-4567','2018-01-26');
 
 INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (310000,0,300000,'9012-3456-7890-1234','2018-01-01');
+
+INSERT INTO payee (id,version,name) values (600000,0,'State Power and Light');
+INSERT INTO payee (id,version,name) values (700000,0,'Mobile Phones');
+INSERT INTO payee (id,version,name) values (800000,0,'National Gas');
+INSERT INTO payee (id,version,name) values (900000,0,'Village of Wherever');

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Junk</title>
+</head>
+<body>
+<h1>Payee</h1>
+<a th:href="@{/}">Dashboard</a>
+<a th:href="@{/payeeEdit(payeeId=${payee.id})}">Edit</a>
+<a th:href="@{/payeeEdit}">Add</a>
+<ul style="color: green" th:if="${successMessage}">
+    <li th:text="${successMessage}"></li>
+</ul>
+<ul style="color: red" th:if="${errorMessage}">
+    <li th:text="${errorMessage}"></li>
+</ul>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <td th:text="${payee.id}"></td>
+    </tr>
+    <tr>
+        <th>Name</th>
+        <td th:text="${payee.name}"></td>
+    </tr>
+</table>
+</body>
+</html>
