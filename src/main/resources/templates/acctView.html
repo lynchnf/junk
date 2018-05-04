@@ -1,93 +1,128 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
     <title>Junk</title>
 </head>
 <body>
-<h1>Account</h1>
-<a th:href="@{/}">Dashboard</a>
-<a th:href="@{/acctEdit(acctId=${acct.id})}">Edit</a>
-<a th:href="@{/acctEdit}">Add</a>
-<ul style="color: green" th:if="${successMessage}">
-    <li th:text="${successMessage}"></li>
-</ul>
-<ul style="color: red" th:if="${errorMessage}">
-    <li th:text="${errorMessage}"></li>
-</ul>
-<table border="1">
-    <tr>
-        <th>Id</th>
-        <td th:text="${acct.id}"></td>
-    </tr>
-    <tr>
-        <th>Name</th>
-        <td th:text="${acct.name}"></td>
-    </tr>
-    <tr>
-        <th>Begin Date</th>
-        <td th:text="${#dates.format(acct.beginDate,'M/d/yyyy')}"></td>
-    </tr>
-    <tr>
-        <th>Begin Balance</th>
-        <td th:text="${#numbers.formatDecimal(acct.beginBalance,1,'DEFAULT',2,'DEFAULT')}"></td>
-    </tr>
-    <tr>
-        <th>Organization</th>
-        <td th:text="${acct.organization}"></td>
-    </tr>
-    <tr>
-        <th>FID</th>
-        <td th:text="${acct.fid}"></td>
-    </tr>
-    <tr>
-        <th>Bank Id</th>
-        <td th:text="${acct.bankId}"></td>
-    </tr>
-    <tr>
-        <th>Type</th>
-        <td th:text="${acct.type}"></td>
-    </tr>
-    <tr th:if="${currentAcctNbr}">
-        <th>Number</th>
-        <td th:text="${currentAcctNbr.number}"></td>
-    </tr>
-    <tr th:if="${currentAcctNbr}">
-        <th>Eff Date</th>
-        <td th:text="${#dates.format(currentAcctNbr.effDate,'M/d/yyyy')}"></td>
-    </tr>
-</table>
-<table border="1">
-    <tr>
-        <th>Id</th>
-        <th>Number</th>
-        <th>Eff Date</th>
-    </tr>
-    <tr th:each="acctNbr:${acct.acctNbrs}">
-        <td th:text="${acctNbr.id}"></td>
-        <td th:text="${acctNbr.number}"></td>
-        <td th:text="${#dates.format(acctNbr.effDate,'M/d/yyyy')}"></td>
-    </tr>
-</table>
-<table border="1">
-    <tr>
-        <th>Id</th>
-        <th>Type</th>
-        <th>Post Date</th>
-        <th>Amount</th>
-        <th>Check Number</th>
-        <th>Name</th>
-        <th>Memo</th>
-    </tr>
-    <tr th:each="tran:${acct.trans}">
-        <td><a th:href="@{/tran(tranId=${tran.id})}" th:text="${tran.id}"></a></td>
-        <td th:text="${tran.type}"></td>
-        <td th:text="${#dates.format(tran.postDate,'M/d/yyyy')}"></td>
-        <td th:text="${#numbers.formatDecimal(tran.amount,1,'DEFAULT',2,'DEFAULT')}"></td>
-        <td th:text="${tran.checkNumber}"></td>
-        <td th:text="${tran.name}"></td>
-        <td th:text="${tran.memo}"></td>
-    </tr>
-</table>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <a class="navbar-brand" th:href="@{/}">Home</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/acctEdit}">Add Acct</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/payeeEdit}">Add Payee</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<main class="container-fluid">
+    <h1>Account</h1>
+    <ul class="alert alert-success" th:if="${successMessage}">
+        <li th:text="${successMessage}"></li>
+    </ul>
+    <ul class="alert alert-danger" th:if="${errorMessage}">
+        <li th:text="${errorMessage}"></li>
+    </ul>
+    <div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Name</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${acct.name}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Begin Date</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${#dates.format(acct.beginDate,'M/d/yyyy')}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Begin Balance</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext"
+                   th:text="${#numbers.formatDecimal(acct.beginBalance,1,'DEFAULT',2,'DEFAULT')}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Organization</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${acct.organization}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">FID</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${acct.fid}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Bank Id</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${acct.bankId}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Type</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${acct.type}"></p>
+            </div>
+        </div>
+        <div class="form-group row" th:if="${currentAcctNbr}">
+            <label class="col-sm-3 col-form-label">Number</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${currentAcctNbr.number}"></p>
+            </div>
+        </div>
+        <div class="form-group row" th:if="${currentAcctNbr}">
+            <label class="col-sm-3 col-form-label">Eff Date</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${#dates.format(currentAcctNbr.effDate,'M/d/yyyy')}"></p>
+            </div>
+        </div>
+        <a class="btn btn-primary" th:href="@{/acctEdit(acctId=${acct.id})}">Edit</a>
+    </div>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Number</th>
+            <th>Eff Date</th>
+        </tr>
+        <tr th:each="acctNbr:${acct.acctNbrs}">
+            <td th:text="${acctNbr.number}"></td>
+            <td th:text="${#dates.format(acctNbr.effDate,'M/d/yyyy')}"></td>
+        </tr>
+    </table>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Type</th>
+            <th>Post Date</th>
+            <th>Amount</th>
+            <th>Check Number</th>
+            <th>Name</th>
+            <th>Memo</th>
+        </tr>
+        <tr th:each="tran:${acct.trans}">
+            <td><a th:href="@{/tran(tranId=${tran.id})}" th:text="${tran.type}"></a></td>
+            <td th:text="${#dates.format(tran.postDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(tran.amount,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${tran.checkNumber}"></td>
+            <td th:text="${tran.name}"></td>
+            <td th:text="${tran.memo}"></td>
+        </tr>
+    </table>
+</main>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/popper-1.14.3.min.js"></script>
+<script src="js/bootstrap-4.1.1.min.js"></script>
 </body>
 </html>

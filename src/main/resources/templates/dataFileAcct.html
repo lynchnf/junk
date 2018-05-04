@@ -1,68 +1,95 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
     <title>Junk</title>
-    <style>
-        .fieldError {
-            background-color: pink;
-        }
-    </style>
 </head>
 <body>
-<h1>Data File Upload to Account</h1>
-<a th:href="@{/}">Dashboard</a>
-<ul style="color: green" th:if="${successMessage}">
-    <li th:text="${successMessage}"></li>
-</ul>
-<ul style="color: red" th:if="${errorMessage}">
-    <li th:text="${errorMessage}"></li>
-</ul>
-<p>Data has been uploaded and it cannot be determined unambiguously which account it belongs to.</p>
-
-<table border="1">
-    <tr>
-        <th>Organization</th>
-        <td th:text="${ofxInst.organization}"></td>
-    </tr>
-    <tr>
-        <th>FID</th>
-        <td th:text="${ofxInst.fid}"></td>
-    </tr>
-    <tr>
-        <th>Bank Id</th>
-        <td th:text="${ofxAcct.bankId}"></td>
-    </tr>
-    <tr>
-        <th>Number</th>
-        <td th:text="${ofxAcct.acctId}"></td>
-    </tr>
-    <tr>
-        <th>Type</th>
-        <td th:text="${ofxAcct.type}"></td>
-    </tr>
-</table>
-<p>Maybe one of the following accounts has changed it's account number. If so, please select that account.</p>
-<table border="1">
-    <tr>
-        <th>Acct Id</th>
-        <th>Name</th>
-        <th>Begin Date</th>
-        <th>Type</th>
-        <th>Number</th>
-        <th>Eff Date</th>
-    </tr>
-    <tr th:each="acctNbr:${acctNbrs}">
-        <td><a th:href="@{/acctUpload(dataFileId=${dataFileId},acctId=${acctNbr.acct.id})}"
-               th:text="${acctNbr.acct.id}"></a></td>
-        <td th:text="${acctNbr.acct.name}"></td>
-        <td th:text="${#dates.format(acctNbr.acct.beginDate,'M/d/yyyy')}"></td>
-        <td th:text="${acctNbr.acct.type}"></td>
-        <td th:text="${acctNbr.number}"></td>
-        <td th:text="${#dates.format(acctNbr.effDate,'M/d/yyyy')}"></td>
-    </tr>
-</table>
-<p>Maybe it's a completely new account. If so, please click <a
-        th:href="@{/acctUpload(dataFileId=${dataFileId})}">here</a>.</p>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <a class="navbar-brand" th:href="@{/}">Home</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/acctEdit}">Add Acct</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/payeeEdit}">Add Payee</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<main class="container-fluid">
+    <h1>Data File Upload to Account</h1>
+    <ul class="alert alert-success" th:if="${successMessage}">
+        <li th:text="${successMessage}"></li>
+    </ul>
+    <ul class="alert alert-danger" th:if="${errorMessage}">
+        <li th:text="${errorMessage}"></li>
+    </ul>
+    <p>Data has been uploaded and it cannot be determined unambiguously which account it belongs to.</p>
+    <div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Organization</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${ofxInst.organization}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">FID</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${ofxInst.fid}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Bank Id</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${ofxAcct.bankId}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Acct Id</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${ofxAcct.acctId}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Type</label>
+            <div class="col-sm-9">
+                <p class="form-control-plaintext" th:text="${ofxAcct.type}"></p>
+            </div>
+        </div>
+    </div>
+    <p>Maybe one of the following accounts has changed it's account number. If so, please select that account.</p>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Name</th>
+            <th>Begin Date</th>
+            <th>Type</th>
+            <th>Number</th>
+            <th>Eff Date</th>
+        </tr>
+        <tr th:each="acctNbr:${acctNbrs}">
+            <td><a th:href="@{/acctUpload(dataFileId=${dataFileId},acctId=${acctNbr.acct.id})}"
+                   th:text="${acctNbr.acct.name}"></a></td>
+            <td th:text="${#dates.format(acctNbr.acct.beginDate,'M/d/yyyy')}"></td>
+            <td th:text="${acctNbr.acct.type}"></td>
+            <td th:text="${acctNbr.number}"></td>
+            <td th:text="${#dates.format(acctNbr.effDate,'M/d/yyyy')}"></td>
+        </tr>
+    </table>
+    <p>Maybe it's a completely new account. If so, please click <a th:href="@{/acctUpload(dataFileId=${dataFileId})}">here</a>.
+    </p>
+</main>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/popper-1.14.3.min.js"></script>
+<script src="js/bootstrap-4.1.1.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Junk</title>
+    <style>
+        .fieldError {
+            background-color: pink;
+        }
+    </style>
+</head>
+<body>
+<h1>Data File Upload to Account</h1>
+<a th:href="@{/}">Dashboard</a>
+<ul style="color: green" th:if="${successMessage}">
+    <li th:text="${successMessage}"></li>
+</ul>
+<ul style="color: red" th:if="${errorMessage}">
+    <li th:text="${errorMessage}"></li>
+</ul>
+<p>Data has been uploaded and it cannot be determined unambiguously which account it belongs to.</p>
+
+<table border="1">
+    <tr>
+        <th>Organization</th>
+        <td th:text="${ofxInst.organization}"></td>
+    </tr>
+    <tr>
+        <th>FID</th>
+        <td th:text="${ofxInst.fid}"></td>
+    </tr>
+    <tr>
+        <th>Bank Id</th>
+        <td th:text="${ofxAcct.bankId}"></td>
+    </tr>
+    <tr>
+        <th>Number</th>
+        <td th:text="${ofxAcct.acctId}"></td>
+    </tr>
+    <tr>
+        <th>Type</th>
+        <td th:text="${ofxAcct.type}"></td>
+    </tr>
+</table>
+<p>Maybe one of the following accounts has changed it's account number. If so, please select that account.</p>
+<table border="1">
+    <tr>
+        <th>Acct Id</th>
+        <th>Name</th>
+        <th>Begin Date</th>
+        <th>Type</th>
+        <th>Number</th>
+        <th>Eff Date</th>
+    </tr>
+    <tr th:each="acctNbr:${acctNbrs}">
+        <td><a th:href="@{/acctUpload(dataFileId=${dataFileId},acctId=${acctNbr.acct.id})}"
+               th:text="${acctNbr.acct.id}"></a></td>
+        <td th:text="${acctNbr.acct.name}"></td>
+        <td th:text="${#dates.format(acctNbr.acct.beginDate,'M/d/yyyy')}"></td>
+        <td th:text="${acctNbr.acct.type}"></td>
+        <td th:text="${acctNbr.number}"></td>
+        <td th:text="${#dates.format(acctNbr.effDate,'M/d/yyyy')}"></td>
+    </tr>
+</table>
+<p>Maybe it's a completely new account. If so, please click <a
+        th:href="@{/acctUpload(dataFileId=${dataFileId})}">here</a>.</p>
+</body>
+</html>
