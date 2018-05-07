@@ -75,12 +75,10 @@
         <div class="col-md-4">
             <table class="table table-sm table-striped">
                 <tr>
-                    <th>Id</th>
                     <th>Name</th>
                 </tr>
                 <tr th:each="payee:${payees}">
-                    <td><a th:href="@{/payee(payeeId=${payee.id})}" th:text="${payee.id}"></a></td>
-                    <td th:text="${payee.name}"></td>
+                    <td><a th:href="@{/payee(payeeId=${payee.id})}" th:text="${payee.name}"></a></td>
                 </tr>
             </table>
         </div>

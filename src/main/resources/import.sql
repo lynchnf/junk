@@ -24,3 +24,9 @@ INSERT INTO payee (id,version,name) values (600000,0,'State Power and Light');
 INSERT INTO payee (id,version,name) values (700000,0,'Mobile Phones');
 INSERT INTO payee (id,version,name) values (800000,0,'National Gas');
 INSERT INTO payee (id,version,name) values (900000,0,'Village of Wherever');
+
+INSERT INTO pay_acct (id,version,payee_id,nickname,number) values (610000,0,600000,null,'123');
+INSERT INTO pay_acct (id,version,payee_id,nickname,number) values (710000,0,700000,'My Phone','123');
+INSERT INTO pay_acct (id,version,payee_id,nickname,number) values (720000,0,700000,'Wifes Phones','124');
+INSERT INTO pay_acct (id,version,payee_id,nickname,number) values (810000,0,800000,null,'123');
+INSERT INTO pay_acct (id,version,payee_id,nickname,number) values (910000,0,900000,null,'123');

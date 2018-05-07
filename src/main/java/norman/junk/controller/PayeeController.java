@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import norman.junk.domain.Payee;
-import norman.junk.service.DataFileService;
 import norman.junk.service.PayeeService;
 
 @Controller
@@ -25,8 +24,6 @@ public class PayeeController {
     private static final Logger logger = LoggerFactory.getLogger(PayeeController.class);
     @Autowired
     private PayeeService payeeService;
-    @Autowired
-    private DataFileService dataFileService;
 
     @RequestMapping("/payee")
     public String loadView(@RequestParam("payeeId") Long payeeId, Model model, RedirectAttributes redirectAttributes) {
