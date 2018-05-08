@@ -15,8 +15,8 @@ public class Payable {
     @Version
     private Integer version = 0;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PAY_ACCT_ID", nullable = false)
-    private PayAcct payAcct;
+    @JoinColumn(name = "PAYEE_ID", nullable = false)
+    private Payee payee;
     @Temporal(TemporalType.DATE)
     private Date dueDate;
     @Column(precision = 9, scale = 2)
@@ -40,12 +40,12 @@ public class Payable {
         this.version = version;
     }
 
-    public PayAcct getPayAcct() {
-        return payAcct;
+    public Payee getPayee() {
+        return payee;
     }
 
-    public void setPayAcct(PayAcct payAcct) {
-        this.payAcct = payAcct;
+    public void setPayee(Payee payee) {
+        this.payee = payee;
     }
 
     public Date getDueDate() {

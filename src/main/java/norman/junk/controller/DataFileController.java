@@ -115,6 +115,13 @@ public class DataFileController {
         }
     }
 
+    @RequestMapping("/dataFileList")
+    public String loadView(Model model) {
+        Iterable<DataFile> dataFiles = dataFileService.findAllDataFiles();
+        model.addAttribute("dataFiles", dataFiles);
+        return "dataFileList";
+    }
+
     private DataFile saveUploadedFile(MultipartFile multipartFile) throws JunkException {
         DataFile dataFile = new DataFile();
         dataFile.setOriginalFilename(multipartFile.getOriginalFilename());

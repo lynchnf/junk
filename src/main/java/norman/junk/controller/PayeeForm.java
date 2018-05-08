@@ -11,6 +11,11 @@ public class PayeeForm {
     @NotBlank
     @Size(max = 50)
     private String name;
+    @NotBlank
+    @Size(max = 50)
+    private String number;
+    @Size(max = 50)
+    private String nickname;
     @Size(max = 50)
     private String address1;
     @Size(max = 50)
@@ -30,6 +35,8 @@ public class PayeeForm {
         id = payee.getId();
         version = payee.getVersion();
         name = payee.getName();
+        number = payee.getNumber();
+        nickname = payee.getNickname();
         address1 = payee.getAddress1();
         address2 = payee.getAddress2();
         city = payee.getCity();
@@ -60,6 +67,22 @@ public class PayeeForm {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getAddress1() {
@@ -115,6 +138,8 @@ public class PayeeForm {
         payee.setId(id);
         payee.setVersion(version);
         payee.setName(name);
+        payee.setNumber(number);
+        payee.setNickname(nickname);
         payee.setAddress1(address1);
         payee.setAddress2(address2);
         payee.setCity(city);

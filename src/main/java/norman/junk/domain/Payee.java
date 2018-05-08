@@ -15,6 +15,10 @@ public class Payee {
     @Column(length = 50)
     private String name;
     @Column(length = 50)
+    private String number;
+    @Column(length = 50)
+    private String nickname;
+    @Column(length = 50)
     private String address1;
     @Column(length = 50)
     private String address2;
@@ -27,7 +31,7 @@ public class Payee {
     @Column(length = 20)
     private String phoneNumber;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "payee")
-    private List<PayAcct> payAccts = new ArrayList<>();
+    private List<Payable> payables = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -51,6 +55,22 @@ public class Payee {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getAddress1() {
@@ -101,11 +121,11 @@ public class Payee {
         this.phoneNumber = phoneNumber;
     }
 
-    public List<PayAcct> getPayAccts() {
-        return payAccts;
+    public List<Payable> getPayables() {
+        return payables;
     }
 
-    public void setPayAccts(List<PayAcct> payAccts) {
-        this.payAccts = payAccts;
+    public void setPayables(List<Payable> payables) {
+        this.payables = payables;
     }
 }

@@ -41,6 +41,13 @@ public class PayeeController {
         return "payeeView";
     }
 
+    @RequestMapping("/payeeList")
+    public String loadView(Model model) {
+        Iterable<Payee> payees = payeeService.findAllPayees();
+        model.addAttribute("payees", payees);
+        return "payeeList";
+    }
+
     @GetMapping("/payeeEdit")
     public String loadEdit(@RequestParam(value = "payeeId", required = false) Long payeeId, Model model, RedirectAttributes redirectAttributes) {
         // If no payee id, new account.

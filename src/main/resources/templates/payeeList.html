@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
+    <title>Junk</title>
+</head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+<main class="container-fluid">
+    <h1>Payee List</h1>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Name</th>
+            <th>Number</th>
+            <th>Nickname</th>
+        </tr>
+        <tr th:each="payee:${payees}">
+            <td><a th:href="@{/payee(payeeId=${payee.id})}" th:text="${payee.name}"></a></td>
+            <td th:text="${payee.number}"></td>
+            <td th:text="${payee.nickname}"></td>
+        </tr>
+    </table>
+</main>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/popper-1.14.3.min.js"></script>
+<script src="js/bootstrap-4.1.1.min.js"></script>
+</body>
+</html>

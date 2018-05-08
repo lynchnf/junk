@@ -1,5 +1,6 @@
 package norman.junk.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -22,6 +23,7 @@ import norman.junk.domain.AcctNbr;
 import norman.junk.domain.DataFile;
 import norman.junk.domain.DataFileStatus;
 import norman.junk.service.AcctService;
+import norman.junk.service.AcctSummaryBean;
 import norman.junk.service.DataFileService;
 import norman.junk.util.ControllerUtils;
 import norman.junk.util.OfxParseResponse;
@@ -48,6 +50,13 @@ public class AcctController {
             model.addAttribute("currentAcctNbr", optionalAcctNbr.get());
         }
         return "acctView";
+    }
+
+    @RequestMapping("/acctList")
+    public String loadList(Model model) {
+        List<AcctSummaryBean> acctSummaries = acctService.findAllAcctSummaries();
+        model.addAttribute("acctSummaries", acctSummaries);
+        return "acctList";
     }
 
     @GetMapping("/acctEdit")
