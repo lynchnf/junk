@@ -7,76 +7,77 @@
     <title>Junk</title>
 </head>
 <body>
-<header th:replace="fragments/header :: header"></header>
+<header th:replace="fragments/header::header"></header>
 <main class="container-fluid">
     <h1>Payee</h1>
-    <div th:replace="fragments/alerts :: alerts"></div>
-    <div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Name</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.name}"></p>
-            </div>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Name</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.name}"></p>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Number</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.number}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Nickname</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.nickname}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Address 1</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.address1}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Address 2</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.address2}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">City</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.city}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">State</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.state}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Zip Code</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.zipCode}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Phone Number</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${payee.phoneNumber}"></p>
-            </div>
-        </div>
-        <a class="btn btn-primary" th:href="@{/payeeEdit(payeeId=${payee.id})}">Edit</a>
     </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Number</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.number}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Nickname</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.nickname}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Address 1</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.address1}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Address 2</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.address2}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">City</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.city}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">State</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.state}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Zip Code</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.zipCode}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Phone Number</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${payee.phoneNumber}"></p>
+        </div>
+    </div>
+    <a class="btn btn-primary" th:href="@{/payeeEdit(payeeId=${payee.id})}">Edit</a>
     <table class="table table-sm table-striped">
         <tr>
-            <th>Id</th>
+            <th>Due Date</th>
+            <th>Amount Due</th>
         </tr>
         <tr th:each="payable:${payee.payables}">
-            <td><a th:href="@{/payable(payableId=${payable.id})}" th:text="${payable.id}"></a></td>
+            <td><a th:href="@{/payable(payableId=${payable.id})}"
+                   th:text="${#dates.format(payable.dueDate,'M/d/yyyy')}"></a></td>
+            <td th:text="${#numbers.formatDecimal(payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>
     </table>
-    <a class="btn btn-secondary" th:href="@{/payAcctEdit(payeeId=${payee.id})}">Add PayAcct</a>
+    <a class="btn btn-secondary" th:href="@{/payableEdit(payeeId=${payee.id})}">Add Payable</a>
 </main>
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/popper-1.14.3.min.js"></script>

@@ -7,41 +7,39 @@
     <title>Junk</title>
 </head>
 <body>
-<header th:replace="fragments/header :: header"></header>
+<header th:replace="fragments/header::header"></header>
 <main class="container-fluid">
     <h1>Data File</h1>
-    <div th:replace="fragments/alerts :: alerts"></div>
-    <div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Original Filename</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${dataFile.originalFilename}"></p>
-            </div>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Original Filename</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${dataFile.originalFilename}"></p>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Content Type</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${dataFile.contentType}"></p>
-            </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Content Type</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${dataFile.contentType}"></p>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Size</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></p>
-            </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Size</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></p>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Upload Timestamp</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext"
-                   th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></p>
-            </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Upload Timestamp</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext"
+               th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></p>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Status</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${dataFile.status}"></p>
-            </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Status</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${dataFile.status}"></p>
         </div>
     </div>
     <table class="table table-sm table-striped">

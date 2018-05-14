@@ -1,9 +1,7 @@
 package norman.junk.domain;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.*;
 
@@ -20,9 +18,13 @@ public class Payable {
     @Temporal(TemporalType.DATE)
     private Date dueDate;
     @Column(precision = 9, scale = 2)
-    private BigDecimal amount;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "payable")
-    private List<Payment> payments = new ArrayList<>();
+    private BigDecimal amountDue;
+    @Column(precision = 9, scale = 2)
+    private BigDecimal previousBalance;
+    @Column(precision = 9, scale = 2)
+    private BigDecimal previousPaidAmount;
+    @Temporal(TemporalType.DATE)
+    private Date statementDate;
 
     public Long getId() {
         return id;
@@ -56,19 +58,35 @@ public class Payable {
         this.dueDate = dueDate;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getAmountDue() {
+        return amountDue;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setAmountDue(BigDecimal amountDue) {
+        this.amountDue = amountDue;
     }
 
-    public List<Payment> getPayments() {
-        return payments;
+    public BigDecimal getPreviousBalance() {
+        return previousBalance;
     }
 
-    public void setPayments(List<Payment> payments) {
-        this.payments = payments;
+    public void setPreviousBalance(BigDecimal previousBalance) {
+        this.previousBalance = previousBalance;
+    }
+
+    public BigDecimal getPreviousPaidAmount() {
+        return previousPaidAmount;
+    }
+
+    public void setPreviousPaidAmount(BigDecimal previousPaidAmount) {
+        this.previousPaidAmount = previousPaidAmount;
+    }
+
+    public Date getStatementDate() {
+        return statementDate;
+    }
+
+    public void setStatementDate(Date statementDate) {
+        this.statementDate = statementDate;
     }
 }

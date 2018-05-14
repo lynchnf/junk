@@ -7,68 +7,66 @@
     <title>Junk</title>
 </head>
 <body>
-<header th:replace="fragments/header :: header"></header>
+<header th:replace="fragments/header::header"></header>
 <main class="container-fluid">
     <h1>Account</h1>
-    <div th:replace="fragments/alerts :: alerts"></div>
-    <div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Name</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${acct.name}"></p>
-            </div>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Name</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${acct.name}"></p>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Begin Date</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${#dates.format(acct.beginDate,'M/d/yyyy')}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Begin Balance</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext"
-                   th:text="${#numbers.formatDecimal(acct.beginBalance,1,'DEFAULT',2,'DEFAULT')}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Organization</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${acct.organization}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">FID</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${acct.fid}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Bank Id</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${acct.bankId}"></p>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Type</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${acct.type}"></p>
-            </div>
-        </div>
-        <div class="form-group row" th:if="${currentAcctNbr}">
-            <label class="col-sm-3 col-form-label">Number</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${currentAcctNbr.number}"></p>
-            </div>
-        </div>
-        <div class="form-group row" th:if="${currentAcctNbr}">
-            <label class="col-sm-3 col-form-label">Eff Date</label>
-            <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="${#dates.format(currentAcctNbr.effDate,'M/d/yyyy')}"></p>
-            </div>
-        </div>
-        <a class="btn btn-primary" th:href="@{/acctEdit(acctId=${acct.id})}">Edit</a>
     </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Begin Date</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${#dates.format(acct.beginDate,'M/d/yyyy')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Begin Balance</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext"
+               th:text="${#numbers.formatDecimal(acct.beginBalance,1,'DEFAULT',2,'DEFAULT')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Organization</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${acct.organization}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">FID</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${acct.fid}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Bank Id</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${acct.bankId}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Type</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${acct.type}"></p>
+        </div>
+    </div>
+    <div class="form-group row" th:if="${currentAcctNbr}">
+        <label class="col-sm-3 col-form-label">Number</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${currentAcctNbr.number}"></p>
+        </div>
+    </div>
+    <div class="form-group row" th:if="${currentAcctNbr}">
+        <label class="col-sm-3 col-form-label">Eff Date</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${#dates.format(currentAcctNbr.effDate,'M/d/yyyy')}"></p>
+        </div>
+    </div>
+    <a class="btn btn-primary" th:href="@{/acctEdit(acctId=${acct.id})}">Edit</a>
     <table class="table table-sm table-striped">
         <tr>
             <th>Number</th>

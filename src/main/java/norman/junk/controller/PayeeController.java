@@ -50,7 +50,7 @@ public class PayeeController {
 
     @GetMapping("/payeeEdit")
     public String loadEdit(@RequestParam(value = "payeeId", required = false) Long payeeId, Model model, RedirectAttributes redirectAttributes) {
-        // If no payee id, new account.
+        // If no payee id, new payee.
         if (payeeId == null) {
             model.addAttribute("payeeForm", new PayeeForm());
             return "payeeEdit";

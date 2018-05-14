@@ -7,13 +7,13 @@
     <title>Junk</title>
 </head>
 <body>
-<header th:replace="fragments/header :: header"></header>
+<header th:replace="fragments/header::header"></header>
 <main class="container-fluid">
     <h1 th:text="${(acctForm.dataFileId != null)?'Account Edit from Upload':'Account Edit'}"></h1>
-    <div th:replace="fragments/alerts :: alerts"></div>
+    <div th:replace="fragments/alerts::alerts"></div>
     <form th:action="@{/acctEdit}" th:object="${acctForm}" method="post">
         <ul class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
-            <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+            <li th:each="err:${#fields.allErrors()}" th:text="${err}"></li>
         </ul>
         <input type="hidden" th:field="*{id}"/>
         <input type="hidden" th:field="*{version}"/>
@@ -59,7 +59,7 @@
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">Type</label>
             <div class="col-sm-9">
-                <select th:field="*{type}" class="form-control" th:errorclass="is-invalid">
+                <select class="form-control" th:field="*{type}" th:errorclass="is-invalid">
                     <option value="">Please select ...</option>
                     <option th:each="acctType:${T(norman.junk.domain.AcctType).values()}" th:value="${acctType}"
                             th:text="${acctType}"></option>

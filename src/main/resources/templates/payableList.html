@@ -9,19 +9,20 @@
 <body>
 <header th:replace="fragments/header::header"></header>
 <main class="container-fluid">
-    <h1>Data File List</h1>
+    <h1>Payable List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <table class="table table-sm table-striped">
         <tr>
-            <th>Original Filename</th>
-            <th>Upload Timestamp</th>
-            <th>Status</th>
+            <th>Payee</th>
+            <th>Due Date</th>
+            <th>Amount Due</th>
         </tr>
-        <tr th:each="dataFile:${dataFiles}">
-            <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.originalFilename}"></a>
-            </td>
-            <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
-            <td th:text="${dataFile.status}"></td>
+        <tr th:each="payable:${payables}">
+            <td><a th:href="@{/payable(payableId=${payable.id})}"
+                   th:text="${(payable.payee.nickname != null)?payable.payee.nickname:payable.payee.name}"></a></td>
+            <td th:text="${#dates.format(payable.dueDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+        </tr>
     </table>
 </main>
 <script src="js/jquery-3.3.1.min.js"></script>
