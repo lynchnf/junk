@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
+    <title>Junk</title>
+</head>
+<body>
+<header th:replace="fragments/header::header"></header>
+<main class="container-fluid">
+    <h1>Payable List</h1>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Payee</th>
+            <th>Due Date</th>
+            <th>Amount Due</th>
+        </tr>
+        <tr th:each="payable:${payables}">
+            <td><a th:href="@{/payable(payableId=${payable.id})}"
+                   th:text="${(payable.payee.nickname != null)?payable.payee.nickname:payable.payee.name}"></a></td>
+            <td th:text="${#dates.format(payable.dueDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+        </tr>
+    </table>
+</main>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/popper-1.14.3.min.js"></script>
+<script src="js/bootstrap-4.1.1.min.js"></script>
+</body>
+</html>

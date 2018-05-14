@@ -1,5 +1,6 @@
 package norman.junk.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -22,6 +23,7 @@ import norman.junk.domain.AcctNbr;
 import norman.junk.domain.DataFile;
 import norman.junk.domain.DataFileStatus;
 import norman.junk.service.AcctService;
+import norman.junk.service.AcctSummaryBean;
 import norman.junk.service.DataFileService;
 import norman.junk.util.ControllerUtils;
 import norman.junk.util.OfxParseResponse;
@@ -39,7 +41,12 @@ public class AcctController {
     public String loadView(@RequestParam("acctId") Long acctId, Model model, RedirectAttributes redirectAttributes) {
         Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
         // If no account, we gots an error.
-        if (acctNotFound(acctId, optionalAcct, redirectAttributes)) return "redirect:/";
+        if (!optionalAcct.isPresent()) {
+            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.error(errorMessage);
+            return "redirect:/";
+        }
         // Prepare to view account and current account number.
         Acct acct = optionalAcct.get();
         model.addAttribute("acct", acct);
@@ -50,6 +57,13 @@ public class AcctController {
         return "acctView";
     }
 
+    @RequestMapping("/acctList")
+    public String loadList(Model model) {
+        List<AcctSummaryBean> acctSummaries = acctService.findAllAcctSummaries();
+        model.addAttribute("acctSummaries", acctSummaries);
+        return "acctList";
+    }
+
     @GetMapping("/acctEdit")
     public String loadEdit(@RequestParam(value = "acctId", required = false) Long acctId, Model model, RedirectAttributes redirectAttributes) {
         // If no acct id, new account.
@@ -57,9 +71,14 @@ public class AcctController {
             model.addAttribute("acctForm", new AcctForm());
             return "acctEdit";
         }
-        // If no account, we gots an error.
         Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-        if (acctNotFound(acctId, optionalAcct, redirectAttributes)) return "redirect:/";
+        // If no account, we gots an error.
+        if (!optionalAcct.isPresent()) {
+            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.error(errorMessage);
+            return "redirect:/";
+        }
         // Prepare to edit account and current account number.
         Acct acct = optionalAcct.get();
         Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
@@ -76,9 +95,14 @@ public class AcctController {
         Long acctId = acctForm.getId();
         Acct acct;
         if (acctId != null) {
-            // If no account, we gots an error.
             Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-            if (acctNotFound(acctId, optionalAcct, redirectAttributes)) return "redirect:/";
+            // If no account, we gots an error.
+            if (!optionalAcct.isPresent()) {
+                String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+                logger.error(errorMessage);
+                return "redirect:/";
+            }
             // Prepare to saveDataFile existing account.
             acct = acctForm.toAcct();
             // If either the acctNumber or effective date changed, prepare to saveDataFile current account number.
@@ -118,10 +142,15 @@ public class AcctController {
         }
         // If no datafile id, we're done.
         if (acctForm.getDataFileId() == null) return "redirect:/acct?acctId={acctId}";
-        // If no data file, we gots an error.
         Long dataFileId = acctForm.getDataFileId();
         Optional<DataFile> optionalDataFile = dataFileService.findDataFileById(dataFileId);
-        if (dataFileNotFound(acctId, redirectAttributes, optionalDataFile)) return "redirect:/";
+        // If no data file, we gots an error.
+        if (!optionalDataFile.isPresent()) {
+            String errorMessage = "Data File not found, dataFileId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.error(errorMessage);
+            return "redirect:/";
+        }
         // Update the status of the data file to say we saved the account.
         DataFile dataFile = optionalDataFile.get();
         dataFile.setStatus(DataFileStatus.ACCT_SAVED);
@@ -148,9 +177,14 @@ public class AcctController {
 
     @GetMapping("/acctUpload")
     public String loadUpload(@RequestParam(value = "dataFileId") Long dataFileId, @RequestParam(value = "acctId", required = false) Long acctId, Model model, RedirectAttributes redirectAttributes) {
-        // If no data file, we gots an error.
         Optional<DataFile> optionalDataFile = dataFileService.findDataFileById(dataFileId);
-        if (dataFileNotFound(acctId, redirectAttributes, optionalDataFile)) return "redirect:/";
+        // If no data file, we gots an error.
+        if (!optionalDataFile.isPresent()) {
+            String errorMessage = "Data File not found, dataFileId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.error(errorMessage);
+            return "redirect:/";
+        }
         // If data file will not parse, we gots an error.
         DataFile dataFile = optionalDataFile.get();
         OfxParseResponse response;
@@ -162,9 +196,14 @@ public class AcctController {
         }
         // If no acct id, new account.
         if (acctId == null) return ControllerUtils.newAcctFromDataFile(model, dataFile, response);
-        // If no account, we gots an error.
         Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-        if (acctNotFound(acctId, optionalAcct, redirectAttributes)) return "redirect:/";
+        // If no account, we gots an error.
+        if (!optionalAcct.isPresent()) {
+            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.error(errorMessage);
+            return "redirect:/";
+        }
         // Prepare to edit account and current account number.
         Acct acct = optionalAcct.get();
         Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
@@ -173,25 +212,5 @@ public class AcctController {
         acctForm.setDataFileId(dataFile.getId());
         model.addAttribute("acctForm", acctForm);
         return "acctEdit";
-    }
-
-    private boolean acctNotFound(Long acctId, Optional<Acct> optionalAcct, RedirectAttributes redirectAttributes) {
-        if (!optionalAcct.isPresent()) {
-            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean dataFileNotFound(@RequestParam(value = "acctId", required = false) Long acctId, RedirectAttributes redirectAttributes, Optional<DataFile> optionalDataFile) {
-        if (!optionalDataFile.isPresent()) {
-            String errorMessage = "Data File not found, dataFileId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
-            return true;
-        }
-        return false;
     }
 }

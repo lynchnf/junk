@@ -25,16 +25,16 @@ public class AcctService {
     @Autowired
     private TranRepository tranRepository;
 
-    public Acct saveAcct(Acct acct) {
-        return acctRepository.save(acct);
+    public Iterable<Acct> findAllAccts() {
+        return acctRepository.findAll();
     }
 
     public Optional<Acct> findAcctById(Long acctId) {
         return acctRepository.findById(acctId);
     }
 
-    public Iterable<Acct> findAllAccts() {
-        return acctRepository.findAll();
+    public Acct saveAcct(Acct acct) {
+        return acctRepository.save(acct);
     }
 
     public List<Acct> findAcctsByFid(String fid) {

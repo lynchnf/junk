@@ -1,80 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
     <title>Junk</title>
-    <style>
-        .fieldError {
-            background-color: pink;
-        }
-    </style>
 </head>
 <body>
-<h1 th:text="${(acctForm.dataFileId != null)?'Account Edit from Upload':'Account Edit'}"></h1>
-<a th:href="@{/}">Dashboard</a>
-<ul style="color: green" th:if="${successMessage}">
-    <li th:text="${successMessage}"></li>
-</ul>
-<ul style="color: red" th:if="${errorMessage}">
-    <li th:text="${errorMessage}"></li>
-</ul>
-<form th:action="@{/acctEdit}" th:object="${acctForm}" method="post">
-    <ul style="color: red" th:if="${#fields.hasAnyErrors()}">
-        <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
-    </ul>
-    <input type="hidden" th:field="*{id}">
-    <input type="hidden" th:field="*{version}">
-    <input type="hidden" th:field="*{oldNumber}">
-    <input type="hidden" th:field="*{oldEffDate}">
-    <input type="hidden" th:field="*{dataFileId}">
-    <table border="1">
-        <tr>
-        <tr th:if="*{id}">
-            <th>Id</th>
-            <td th:text="*{id}"></td>
-        </tr>
-        <tr>
-            <th>Name</th>
-            <td><input th:field="*{name}" th:errorclass="fieldError"></td>
-        </tr>
-        <tr>
-            <th>Begin Date (M/d/yyyy)</th>
-            <td><input th:field="*{beginDate}" th:errorclass="fieldError"></td>
-        </tr>
-        <tr>
-            <th>Begin Balance</th>
-            <td><input th:field="*{beginBalance}" th:errorclass="fieldError"></td>
-        </tr>
-        <tr>
-            <th>Organization</th>
-            <td><input th:field="*{organization}" th:errorclass="fieldError"></td>
-        </tr>
-        <tr>
-            <th>FID</th>
-            <td><input th:field="*{fid}" th:errorclass="fieldError"></td>
-        </tr>
-        <tr>
-            <th>Bank Id</th>
-            <td><input th:field="*{bankId}" th:errorclass="fieldError"></td>
-        </tr>
-        <tr>
-            <th>Type</th>
-            <td><select th:field="*{type}" th:errorclass="fieldError">
-                <option value="">Please select ...</option>
-                <option th:each="acctType:${T(norman.junk.domain.AcctType).values()}" th:value="${acctType}"
-                        th:text="${acctType}"></option>
-            </select></td>
-        </tr>
-        <tr>
-            <th>Number</th>
-            <td><input th:field="*{number}" th:errorclass="fieldError"></td>
-        </tr>
-        <tr th:if="*{id}">
-            <th>Eff Date (M/d/yyyy)</th>
-            <td><input th:field="*{effDate}" th:errorclass="fieldError"></td>
-        </tr>
-    </table>
-    <button th:text="${(acctForm.dataFileId != null)?'Save and Continue Upload':'Save'}"></button>
-</form>
+<header th:replace="fragments/header::header"></header>
+<main class="container-fluid">
+    <h1 th:text="${(acctForm.dataFileId != null)?'Account Edit from Upload':'Account Edit'}"></h1>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <form th:action="@{/acctEdit}" th:object="${acctForm}" method="post">
+        <ul class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+            <li th:each="err:${#fields.allErrors()}" th:text="${err}"></li>
+        </ul>
+        <input type="hidden" th:field="*{id}"/>
+        <input type="hidden" th:field="*{version}"/>
+        <input type="hidden" th:field="*{oldNumber}"/>
+        <input type="hidden" th:field="*{oldEffDate}"/>
+        <input type="hidden" th:field="*{dataFileId}"/>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Name</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{name}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Begin Date (M/d/yyyy)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{beginDate}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Begin Balance</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{beginBalance}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Organization</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{organization}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">FID</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{fid}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Bank Id</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{bankId}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Type</label>
+            <div class="col-sm-9">
+                <select class="form-control" th:field="*{type}" th:errorclass="is-invalid">
+                    <option value="">Please select ...</option>
+                    <option th:each="acctType:${T(norman.junk.domain.AcctType).values()}" th:value="${acctType}"
+                            th:text="${acctType}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Number</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{number}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row" th:if="*{id}">
+            <label class="col-sm-3 col-form-label">Eff Date (M/d/yyyy)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{effDate}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary"
+                th:text="${(acctForm.dataFileId != null)?'Save and Continue Upload':'Save'}"></button>
+    </form>
+</main>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/popper-1.14.3.min.js"></script>
+<script src="js/bootstrap-4.1.1.min.js"></script>
 </body>
 </html>

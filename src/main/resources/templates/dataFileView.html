@@ -1,54 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
     <title>Junk</title>
 </head>
 <body>
-<h1>Data File</h1>
-<a th:href="@{/}">Dashboard</a>
-<ul style="color: green" th:if="${successMessage}">
-    <li th:text="${successMessage}"></li>
-</ul>
-<ul style="color: red" th:if="${errorMessage}">
-    <li th:text="${errorMessage}"></li>
-</ul>
-<table border="1">
-    <tr>
-        <th>Id</th>
-        <td th:text="${dataFile.id}"></td>
-    </tr>
-    <tr>
-        <th>Original Filename</th>
-        <td th:text="${dataFile.originalFilename}"></td>
-    </tr>
-    <tr>
-        <th>Content Type</th>
-        <td th:text="${dataFile.contentType}"></td>
-    </tr>
-    <tr>
-        <th>Size</th>
-        <td th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></td>
-    </tr>
-    <tr>
-        <th>Upload Timestamp</th>
-        <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
-    </tr>
-    <tr>
-        <th>Status</th>
-        <td th:text="${dataFile.status}"></td>
-    </tr>
-</table>
-<table border="1">
-    <tr>
-        <th>Id</th>
-        <th>Seq</th>
-        <th>Text</th>
-    </tr>
-    <tr th:each="dataLine:${dataFile.dataLines}">
-        <td th:text="${dataLine.id}"></td>
-        <td th:text="${#numbers.formatInteger(dataLine.seq,1,'DEFAULT')}"></td>
-        <td th:text="${dataLine.text}"></td>
-</table>
+<header th:replace="fragments/header::header"></header>
+<main class="container-fluid">
+    <h1>Data File</h1>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Original Filename</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${dataFile.originalFilename}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Content Type</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${dataFile.contentType}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Size</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Upload Timestamp</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext"
+               th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Status</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${dataFile.status}"></p>
+        </div>
+    </div>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Seq</th>
+            <th>Text</th>
+        </tr>
+        <tr th:each="dataLine:${dataFile.dataLines}">
+            <td th:text="${#numbers.formatInteger(dataLine.seq,1,'DEFAULT')}"></td>
+            <td th:text="${dataLine.text}"></td>
+        </tr>
+    </table>
+</main>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/popper-1.14.3.min.js"></script>
+<script src="js/bootstrap-4.1.1.min.js"></script>
 </body>
 </html>

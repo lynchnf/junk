@@ -1,22 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
     <title>Junk</title>
 </head>
 <body>
-<h1>Dashboard</h1>
-<a th:href="@{/acctEdit}">Add Acct</a>
-<ul style="color: green" th:if="${successMessage}">
-    <li th:text="${successMessage}"></li>
-</ul>
-<ul style="color: red" th:if="${errorMessage}">
-    <li th:text="${errorMessage}"></li>
-</ul>
-<table border="2">
-    <tr>
-        <td>
-            <table border="1">
+<header th:replace="fragments/header::header"></header>
+<main class="container-fluid">
+    <h1>Dashboard</h1>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <div class="row">
+        <div class="col-md-4">
+            <table class="table table-sm table-striped">
                 <tr>
                     <th>Name</th>
                     <th>Type</th>
@@ -30,41 +27,46 @@
                     <td th:text="${#dates.format(acctSummary.lastTranDate,'M/d/yyyy')}"></td>
                 </tr>
             </table>
-        </td>
-        <td>
-            <form th:action="@{/dataFileUpload}" method="post" enctype="multipart/form-data">
-                <table border="1">
-                    <tr>
-                        <td>File to upload:</td>
-                        <td><input type="file" name="multipartFile"/></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button>Upload</button>
-                        </td>
-                    </tr>
-                </table>
+        </div>
+        <div class="col-md-4">
+            <form class="form-inline" th:action="@{/dataFileUpload}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="multipartFile">File to upload</label>
+                    <input type="file" class="form-control-file" id="multipartFile" name="multipartFile"/></td>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
             </form>
-            <table border="1">
+            <table class="table table-sm table-striped">
                 <tr>
-                    <th>Id</th>
                     <th>Original Filename</th>
-                    <th>Content Type</th>
-                    <th>Size</th>
                     <th>Upload Timestamp</th>
                     <th>Status</th>
                 </tr>
                 <tr th:each="dataFile:${dataFiles}">
-                    <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.id}"></a></td>
-                    <td th:text="${dataFile.originalFilename}"></td>
-                    <td th:text="${dataFile.contentType}"></td>
-                    <td th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></td>
+                    <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.originalFilename}"></a>
+                    </td>
                     <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
                     <td th:text="${dataFile.status}"></td>
             </table>
-        </td>
-    </tr>
-</table>
+        </div>
+        <div class="col-md-4">
+            <table class="table table-sm table-striped">
+                <tr>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>Nickname</th>
+                </tr>
+                <tr th:each="payee:${payees}">
+                    <td><a th:href="@{/payee(payeeId=${payee.id})}" th:text="${payee.name}"></a></td>
+                    <td th:text="${payee.number}"></td>
+                    <td th:text="${payee.nickname}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</main>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/popper-1.14.3.min.js"></script>
+<script src="js/bootstrap-4.1.1.min.js"></script>
 </body>
 </html>
