@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Entity
 public class AcctNbr {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Version
     private Integer version = 0;
