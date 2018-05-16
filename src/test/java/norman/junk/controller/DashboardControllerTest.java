@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import norman.junk.service.AcctService;
 import norman.junk.service.DataFileService;
+import norman.junk.service.PayeeService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(DashboardController.class)
@@ -24,6 +25,8 @@ public class DashboardControllerTest {
     private AcctService acctService;
     @MockBean
     private DataFileService dataFileService;
+    @MockBean
+    private PayeeService payeeService;
 
     @Test
     public void loadDashboard() throws Exception {
