@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import norman.junk.domain.Acct;
@@ -180,19 +181,19 @@ public class AcctForm {
         Acct acct = new Acct();
         acct.setId(id);
         acct.setVersion(version);
-        acct.setName(name);
+        acct.setName(StringUtils.trimToNull(name));
         acct.setBeginDate(beginDate);
         acct.setBeginBalance(beginBalance);
-        acct.setOrganization(organization);
-        acct.setFid(fid);
-        acct.setBankId(bankId);
+        acct.setOrganization(StringUtils.trimToNull(organization));
+        acct.setFid(StringUtils.trimToNull(fid));
+        acct.setBankId(StringUtils.trimToNull(bankId));
         acct.setType(type);
         return acct;
     }
 
     public AcctNbr toAcctNbr() {
         AcctNbr acctNbr = new AcctNbr();
-        acctNbr.setNumber(number);
+        acctNbr.setNumber(StringUtils.trimToNull(number));
         acctNbr.setEffDate(effDate);
         return acctNbr;
     }
