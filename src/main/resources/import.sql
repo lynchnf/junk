@@ -1,26 +1,26 @@
-INSERT INTO acct (id,version,name,begin_date,begin_balance,type) VALUES (100000,0,'Bank of Foo','2018-01-01',0.00,'CHECKING');
-INSERT INTO acct (id,version,name,begin_date,begin_balance,type) VALUES (200000,0,'Bar Banks','2018-01-01',0.00,'CC');
-INSERT INTO acct (id,version,name,begin_date,begin_balance,type) VALUES (300000,0,'Baz Financial','2018-01-01',0.00,'CC');
+INSERT INTO `acct` (`bank_id`, `begin_balance`, `begin_date`, `fid`, `name`, `organization`, `type`, `version`) VALUES ('071904779',63865.83,'2018-04-01','1402','Joint Checking','U.S. Bank','CHECKING',0);
+INSERT INTO `acct` (`bank_id`, `begin_balance`, `begin_date`, `fid`, `name`, `organization`, `type`, `version`) VALUES (NULL,-417.18,'2018-04-01','5959','Planetary (BoA)','Bank of America','CC',0);
+INSERT INTO `acct` (`bank_id`, `begin_balance`, `begin_date`, `fid`, `name`, `organization`, `type`, `version`) VALUES (NULL,-960.41,'2018-04-01','5959','Spirit (BoA)','Bank of America','CC',0);
+INSERT INTO `acct` (`bank_id`, `begin_balance`, `begin_date`, `fid`, `name`, `organization`, `type`, `version`) VALUES (NULL,-3127.67,'2018-04-01','10898','United (Chase)','B1','CC',0);
+INSERT INTO `acct` (`bank_id`, `begin_balance`, `begin_date`, `fid`, `name`, `organization`, `type`, `version`) VALUES (NULL,-167.24,'2018-04-01','8734','BancorpSouth','BancorpSouth','CC',0);
 
-INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (101000,0,100000,'DEBIT','2018-01-05',-10,null,'McDonalds',null);
-INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (102000,0,100000,'CHECK','2018-01-10',-20,'1234','Jewel Osco',null);
-INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (103000,0,100000,'DEBIT','2018-01-15',-30,null,'ATM','1st and Main');
-INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (104000,0,100000,'CREDIT','2018-01-20',100,null,'Paycheck',null);
-INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (105000,0,100000,'DEBIT','2018-01-25',-40,null,'Jewel Osco',null);
+INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('2018-04-01','154548628101',0,(SELECT id FROM acct WHERE name = 'Joint Checking'));
+INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('2018-04-01','4400669867048688',0,(SELECT id FROM acct WHERE name = 'Planetary (BoA)'));
+INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('2018-04-01','5466331113878784',0,(SELECT id FROM acct WHERE name = 'Spirit (BoA)'));
+INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('2018-04-01','4388576031903035',0,(SELECT id FROM acct WHERE name = 'United (Chase)'));
+INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('2018-04-01','5491087740200722',0,(SELECT id FROM acct WHERE name = 'BancorpSouth'));
 
-INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (201000,0,200000,'DEBIT','2018-01-05',-100,null,'Amazon',null);
-INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (202000,0,200000,'FEE','2018-01-15',-1,null,'Late fee',null);
-INSERT INTO tran (id,version,acct_id,type,post_date,amount,check_number,name,memo) VALUES (203000,0,200000,'PAYMENT','2018-01-25',101,null,'Thank you',null);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES ('P.O. Box 851001',NULL,'Dallas','Bank of America','Planetary (BoA)','4400669867048688','800-421-2110','TX',0,'75285-1001');
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES ('P.O. Box 851001',NULL,'Dallas','Bank of America','Spirit (BoA)','5466331113878784','800-421-2110','TX',0,'75285-1001');
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Chase','United (Chase)','4388576031903035',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES ('PO Box 4390',NULL,'Tupelo','BancorpSouth',NULL,'5491087740200722','800-844-2723','MS',0,'38803-4390');
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'State Farm','Kerry''s car','later',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'State Farm','Norman''s car','later',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'ComCast',NULL,'later',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Verizon',NULL,'later',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Nicor',NULL,'later',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'ComEd',NULL,'later',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Village of Lisle','Lisle utitilies','later',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'DuPage County Public Works',NULL,'later',NULL,NULL,0,NULL);
 
-INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (110000,0,100000,'12345678901','2018-01-01');
-
-INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (210000,0,200000,'1234-5678-9012-3456','2018-01-01');
-INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (220000,0,200000,'1234-5678-8765-4321','2018-01-16');
-INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (230000,0,200000,'1234-5678-0123-4567','2018-01-26');
-
-INSERT INTO acct_nbr (id,version,acct_id,number,eff_date) VALUES (310000,0,300000,'9012-3456-7890-1234','2018-01-01');
-
-INSERT INTO payee (id,version,name,number,nickname) VALUES (600000,0,'State Power and Light',123,null);
-INSERT INTO payee (id,version,name,number,nickname) VALUES (700000,0,'Mobile Phones',456,'my phone');
-INSERT INTO payee (id,version,name,number,nickname) VALUES (800000,0,'Mobile Phones',457,'wifes phone');
-INSERT INTO payee (id,version,name,number,nickname) VALUES (900000,0,'Village of Wherever',789,'utilities');
+INSERT INTO `payable` (`amount_due`, `due_date`, `previous_balance`, `previous_paid_amount`, `statement_date`, `version`, `payee_id`) VALUES (917.58,'2018-06-17',0.00,0.00,'2018-05-20',0,(SELECT id FROM payee WHERE nickname = 'Planetary (BoA)'));
