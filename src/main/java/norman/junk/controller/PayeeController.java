@@ -40,7 +40,7 @@ public class PayeeController {
     }
 
     @RequestMapping("/payeeList")
-    public String loadView(Model model) {
+    public String loadList(Model model) {
         Iterable<Payee> payees = payeeService.findAllPayees();
         model.addAttribute("payees", payees);
         return "payeeList";

@@ -45,7 +45,7 @@ public class PayableController {
     }
 
     @RequestMapping("/payableList")
-    public String loadView(Model model) {
+    public String loadList(Model model) {
         Iterable<Payable> payables = payableService.findAllPayables();
         model.addAttribute("payables", payables);
         return "payableList";

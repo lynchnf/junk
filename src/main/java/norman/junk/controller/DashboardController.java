@@ -23,7 +23,7 @@ public class DashboardController {
     private PayeeService payeeService;
 
     @RequestMapping("/")
-    public String loadDashboard(Model model) {
+    public String loadView(Model model) {
         List<AcctSummaryBean> acctSummaries = acctService.findAllAcctSummaries();
         model.addAttribute("acctSummaries", acctSummaries);
         Iterable<DataFile> dataFiles = dataFileService.findAllDataFiles();
