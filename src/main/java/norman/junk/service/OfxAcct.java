@@ -1,4 +1,4 @@
-package norman.junk.util;
+package norman.junk.service;
 
 import norman.junk.domain.AcctType;
 

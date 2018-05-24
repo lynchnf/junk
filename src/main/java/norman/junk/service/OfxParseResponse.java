@@ -1,4 +1,4 @@
-package norman.junk.util;
+package norman.junk.service;
 
 import java.util.ArrayList;
 import java.util.List;

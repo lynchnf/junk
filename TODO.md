@@ -1,11 +1,9 @@
 # To Do List
 
 ## Current
-- TASK: Create payment service.
 - Add confirm code and transaction number to payment.
-- Show version on navigation bar.
 - View single transaction.
-- On account view, show balance for every tran.
+- On account view, show balance for every transaction.
 - On payee list, show balance for each payee. 
 - On payee view, show balance for each payable.
 - On payable list, show balance for each payable.
@@ -15,9 +13,13 @@
 - Simple reconcile of account.
 - Reprocess data file.
 - Match transactions and payments.
-- Paging, sorting, and filtering on all list pages.
+- Paging, sorting, and filtering on ALL list pages.
+- Make payments report.
+- Import payments from html.
 
 ## Icebox
+- Show version on navigation bar.
+- Add in security.
 - Many-to-many relationship betweens payables and payments.
 - Pay accounts between payees and payables.
 - Auto create payables based on cron string.
@@ -61,3 +63,4 @@
 - List payments.
 - View single payment.
 - Edit or add payment.
+- Package to war for deployment in Tomcat.

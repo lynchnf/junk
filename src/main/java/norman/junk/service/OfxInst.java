@@ -1,4 +1,4 @@
-package norman.junk.util;
+package norman.junk.service;
 
 public class OfxInst {
     private String organization;

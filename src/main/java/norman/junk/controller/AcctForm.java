@@ -14,6 +14,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.AcctType;
+import norman.junk.service.OfxParseResponse;
 import norman.junk.validation.AfterDateIfValueChange;
 
 @AfterDateIfValueChange(newDate = "effDate", oldDate = "oldEffDate", newString = "number", oldString = "oldNumber")
@@ -63,6 +64,14 @@ public class AcctForm {
         oldNumber = acctNbr.getNumber();
         effDate = acctNbr.getEffDate();
         oldEffDate = acctNbr.getEffDate();
+    }
+
+    public AcctForm(OfxParseResponse response) {
+        organization = response.getOfxInst().getOrganization();
+        fid = response.getOfxInst().getFid();
+        bankId = response.getOfxAcct().getBankId();
+        type = response.getOfxAcct().getType();
+        number = response.getOfxAcct().getAcctId();
     }
 
     public Long getId() {

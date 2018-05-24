@@ -115,10 +115,10 @@ public class PayableController {
                 logger.error(errorMessage);
                 return "redirect:/";
             }
-            // Prepare to save existing payable.
+            // Prepare to savePayment existing payable.
             payable = payableForm.toPayable();
         } else {
-            // If no payable id, prepare to save new payable.
+            // If no payable id, prepare to savePayment new payable.
             payable = payableForm.toPayable();
         }
         Long payeeId = payableForm.getPayeeId();
@@ -131,7 +131,7 @@ public class PayableController {
             return "redirect:/";
         }
         payable.setPayee(optionalPayee.get());
-        // Try to save payable.
+        // Try to savePayment payable.
         Payable save;
         try {
             save = payableService.savePayable(payable);

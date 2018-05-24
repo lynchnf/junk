@@ -86,13 +86,13 @@ public class PayeeController {
                 logger.error(errorMessage);
                 return "redirect:/";
             }
-            // Prepare to save existing payee.
+            // Prepare to savePayment existing payee.
             payee = payeeForm.toPayee();
         } else {
-            // If no payee id, prepare to save new payee.
+            // If no payee id, prepare to savePayment new payee.
             payee = payeeForm.toPayee();
         }
-        // Try to save payee.
+        // Try to savePayment payee.
         Payee save;
         try {
             save = payeeService.savePayee(payee);

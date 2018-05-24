@@ -19,8 +19,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
-import norman.junk.repository.PaymentRepository;
 import norman.junk.service.PayableService;
+import norman.junk.service.PaymentService;
 
 @Controller
 public class PaymentController {
@@ -28,11 +28,11 @@ public class PaymentController {
     @Autowired
     private PayableService payableService;
     @Autowired
-    private PaymentRepository paymentService;
+    private PaymentService paymentService;
 
     @RequestMapping("/payment")
     public String loadView(@RequestParam("paymentId") Long paymentId, Model model, RedirectAttributes redirectAttributes) {
-        Optional<Payment> optionalPayment = paymentService.findById(paymentId);
+        Optional<Payment> optionalPayment = paymentService.findPaymentById(paymentId);
         // If no payment, we gots an error.
         if (!optionalPayment.isPresent()) {
             String errorMessage = "Payment not found, paymentId=\"" + paymentId + "\"";
@@ -48,7 +48,7 @@ public class PaymentController {
 
     @RequestMapping("/paymentList")
     public String loadView(Model model) {
-        Iterable<Payment> payments = paymentService.findAll();
+        Iterable<Payment> payments = paymentService.findAllPayments();
         model.addAttribute("payments", payments);
         return "paymentList";
     }
@@ -86,7 +86,7 @@ public class PaymentController {
             model.addAttribute("paymentForm", paymentForm);
             return "paymentEdit";
         }
-        Optional<Payment> optionalPayment = paymentService.findById(paymentId);
+        Optional<Payment> optionalPayment = paymentService.findPaymentById(paymentId);
         // If no payment, we gots an error.
         if (!optionalPayment.isPresent()) {
             String errorMessage = "Payment not found, paymentId=\"" + paymentId + "\"";
@@ -109,7 +109,7 @@ public class PaymentController {
         Long paymentId = paymentForm.getId();
         Payment payment;
         if (paymentId != null) {
-            Optional<Payment> optionalPayment = paymentService.findById(paymentId);
+            Optional<Payment> optionalPayment = paymentService.findPaymentById(paymentId);
             // If no payment, we gots an error.
             if (!optionalPayment.isPresent()) {
                 String errorMessage = "Payment not found, paymentId=\"" + paymentId + "\"";
@@ -117,10 +117,10 @@ public class PaymentController {
                 logger.error(errorMessage);
                 return "redirect:/";
             }
-            // Prepare to save existing payment.
+            // Prepare to savePayment existing payment.
             payment = paymentForm.toPayment();
         } else {
-            // If no payment id, prepare to save new payment.
+            // If no payment id, prepare to savePayment new payment.
             payment = paymentForm.toPayment();
         }
         Long payableId = paymentForm.getPayableId();
@@ -133,10 +133,10 @@ public class PaymentController {
             return "redirect:/";
         }
         payment.setPayable(optionalPayable.get());
-        // Try to save payment.
+        // Try to savePayment payment.
         Payment save;
         try {
-            save = paymentService.save(payment);
+            save = paymentService.savePayment(payment);
             String successMessage = "Payment successfully added, paymentId=\"" + save.getId() + "\"";
             if (paymentId != null) successMessage = "Payment successfully updated, paymentId=\"" + save.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
