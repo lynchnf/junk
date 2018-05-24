@@ -1,7 +1,6 @@
 package norman.junk.controller;
 
 import norman.junk.domain.Tran;
-import norman.junk.repository.TranRepository;
 import norman.junk.service.TranService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,7 @@ public class TranController {
 
     @RequestMapping("/tran")
     public String loadView(@RequestParam("tranId") Long tranId, Model model, RedirectAttributes redirectAttributes) {
-        Optional<Tran> optionalTran = tranService.findById(tranId);
+        Optional<Tran> optionalTran = tranService.findTranById(tranId);
         // If no tran, we gots an error.
         if (!optionalTran.isPresent()) {
             String errorMessage = "Tran not found, tranId=\"" + tranId + "\"";

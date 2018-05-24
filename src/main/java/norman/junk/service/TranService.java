@@ -12,7 +12,7 @@ public class TranService {
     @Autowired
     TranRepository tranRepository;
 
-    public Optional<Tran> findById(Long tranId) {
+    public Optional<Tran> findTranById(Long tranId) {
         return tranRepository.findById(tranId);
     }
 }
