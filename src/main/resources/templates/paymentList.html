@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
+    <title>Junk</title>
+</head>
+<body>
+<header th:replace="fragments/header::header"></header>
+<main class="container-fluid">
+    <h1>Payment List</h1>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Payee</th>
+            <th>Due Date</th>
+            <th>Amount Due</th>
+            <th>Paid Date</th>
+            <th>Amount Paid</th>
+        </tr>
+        <tr th:each="payment:${payments}">
+            <td><a th:href="@{/payment(paymentId=${payment.id})}"
+                   th:text="${(payment.payable.payee.nickname != null)?payment.payable.payee.nickname:payment.payable.payee.name}"></a>
+            </td>
+            <td th:text="${#dates.format(payment.payable.dueDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payment.payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#dates.format(payment.paidDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payment.amountPaid,1,'DEFAULT',2,'DEFAULT')}"></td>
+        </tr>
+    </table>
+</main>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/popper-1.14.3.min.js"></script>
+<script src="js/bootstrap-4.1.1.min.js"></script>
+</body>
+</html>

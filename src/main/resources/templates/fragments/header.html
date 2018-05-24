@@ -37,6 +37,12 @@
                     </div>
                 </li>
                 <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown">Payments</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" th:href="@{/paymentList}">Payment List</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown">Data Files</a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" th:href="@{/dataFileList}">Data File List</a>
@@ -44,6 +50,7 @@
                 </li>
             </ul>
         </div>
+        <div class="small">Version: foo-bar</div>
     </nav>
 </header>
 <script src="js/jquery-3.3.1.min.js"></script>

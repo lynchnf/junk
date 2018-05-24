@@ -1,7 +1,9 @@
 package norman.junk.domain;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -25,6 +27,8 @@ public class Payable {
     private BigDecimal previousPaidAmount;
     @Temporal(TemporalType.DATE)
     private Date statementDate;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "payable")
+    private List<Payment> payments = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -88,5 +92,13 @@ public class Payable {
 
     public void setStatementDate(Date statementDate) {
         this.statementDate = statementDate;
+    }
+
+    public List<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
     }
 }

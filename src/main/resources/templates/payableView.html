@@ -34,22 +34,36 @@
     <div class="form-group row">
         <label class="col-sm-3 col-form-label">Previous Balance</label>
         <div class="col-sm-9">
-            <p class="form-control-plaintext" th:text="${payable.previousBalance}"></p>
+            <p class="form-control-plaintext"
+               th:text="${#numbers.formatDecimal(payable.previousBalance,1,'DEFAULT',2,'DEFAULT')}"></p>
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-3 col-form-label">Previously Paid Amount</label>
         <div class="col-sm-9">
-            <p class="form-control-plaintext" th:text="${payable.previousPaidAmount}"></p>
+            <p class="form-control-plaintext"
+               th:text="${#numbers.formatDecimal(payable.previousPaidAmount,1,'DEFAULT',2,'DEFAULT')}"></p>
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-3 col-form-label">Statement Date</label>
         <div class="col-sm-9">
-            <p class="form-control-plaintext" th:text="${payable.statementDate}"></p>
+            <p class="form-control-plaintext" th:text="${#dates.format(payable.statementDate,'M/d/yyyy')}"></p>
         </div>
     </div>
     <a class="btn btn-primary" th:href="@{/payableEdit(payableId=${payable.id})}">Edit</a>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Paid Date</th>
+            <th>Amount Paid</th>
+        </tr>
+        <tr th:each="payment:${payable.payments}">
+            <td><a th:href="@{/payment(paymentId=${payment.id})}"
+                   th:text="${#dates.format(payment.paidDate,'M/d/yyyy')}"></a></td>
+            <td th:text="${#numbers.formatDecimal(payment.amountPaid,1,'DEFAULT',2,'DEFAULT')}"></td>
+        </tr>
+    </table>
+    <a class="btn btn-secondary" th:href="@{/paymentEdit(payableId=${payable.id})}">Add Payment</a>
 </main>
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/popper-1.14.3.min.js"></script>
