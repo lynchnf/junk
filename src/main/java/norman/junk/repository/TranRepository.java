@@ -1,10 +1,9 @@
 package norman.junk.repository;
 
-import java.util.List;
-
+import norman.junk.domain.Tran;
 import org.springframework.data.repository.Repository;
 
-import norman.junk.domain.Tran;
+import java.util.List;
 
 public interface TranRepository extends Repository<Tran, Long> {
     List<Tran> findByAcct_IdAndFitId(Long acctId, String fitId);

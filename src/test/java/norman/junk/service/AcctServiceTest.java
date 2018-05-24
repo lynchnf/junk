@@ -1,15 +1,12 @@
 package norman.junk.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
+import norman.junk.domain.Acct;
+import norman.junk.domain.AcctNbr;
+import norman.junk.domain.AcctType;
+import norman.junk.domain.Tran;
+import norman.junk.repository.AcctNbrRepository;
+import norman.junk.repository.AcctRepository;
+import norman.junk.repository.TranRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,13 +18,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import norman.junk.domain.Acct;
-import norman.junk.domain.AcctNbr;
-import norman.junk.domain.AcctType;
-import norman.junk.domain.Tran;
-import norman.junk.repository.AcctNbrRepository;
-import norman.junk.repository.AcctRepository;
-import norman.junk.repository.TranRepository;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 public class AcctServiceTest {
@@ -145,7 +144,8 @@ public class AcctServiceTest {
     }
 
     @After
-    public void tearDown() throws Exception {}
+    public void tearDown() throws Exception {
+    }
 
     @Test
     public void saveAcct() {

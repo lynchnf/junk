@@ -1,7 +1,7 @@
 package norman.junk.repository;
 
+import norman.junk.domain.Payee;
 import org.springframework.data.repository.CrudRepository;
 
-import norman.junk.domain.Payee;
-
-public interface PayeeRepository extends CrudRepository<Payee, Long> {}
+public interface PayeeRepository extends CrudRepository<Payee, Long> {
+}

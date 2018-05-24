@@ -1,15 +1,13 @@
 package norman.junk.controller;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
-
+import norman.junk.domain.Payable;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import norman.junk.domain.Payable;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class PayableForm {
     private Long id;
@@ -30,7 +28,8 @@ public class PayableForm {
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date statementDate;
 
-    public PayableForm() {}
+    public PayableForm() {
+    }
 
     public PayableForm(Payable payable) {
         id = payable.getId();

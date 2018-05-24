@@ -1,9 +1,9 @@
 package norman.junk.service;
 
+import norman.junk.domain.AcctType;
+
 import java.math.BigDecimal;
 import java.util.Date;
-
-import norman.junk.domain.AcctType;
 
 public class AcctSummaryBean {
     private Long id;

@@ -1,11 +1,10 @@
 package norman.junk.controller;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
+import norman.junk.domain.Payee;
 import org.apache.commons.lang3.StringUtils;
 
-import norman.junk.domain.Payee;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 public class PayeeForm {
     private Long id;
@@ -31,7 +30,8 @@ public class PayeeForm {
     @Size(max = 20)
     private String phoneNumber;
 
-    public PayeeForm() {}
+    public PayeeForm() {
+    }
 
     public PayeeForm(Payee payee) {
         id = payee.getId();

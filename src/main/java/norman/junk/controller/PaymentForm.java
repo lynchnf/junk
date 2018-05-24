@@ -1,15 +1,13 @@
 package norman.junk.controller;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
-
+import norman.junk.domain.Payment;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import norman.junk.domain.Payment;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class PaymentForm {
     private Long id;
@@ -27,7 +25,8 @@ public class PaymentForm {
     @Digits(integer = 7, fraction = 2)
     private BigDecimal amountPaid;
 
-    public PaymentForm() {}
+    public PaymentForm() {
+    }
 
     public PaymentForm(Payment payment) {
         id = payment.getId();

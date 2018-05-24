@@ -1,10 +1,10 @@
 package norman.junk.service;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import norman.junk.domain.CorrectAction;
 import norman.junk.domain.TranType;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class OfxStmtTran {
     private TranType type;

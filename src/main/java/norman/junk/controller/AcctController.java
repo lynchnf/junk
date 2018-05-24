@@ -1,12 +1,18 @@
 package norman.junk.controller;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
-
-import javax.validation.Valid;
-
+import norman.junk.JunkException;
+import norman.junk.domain.Acct;
+import norman.junk.domain.AcctNbr;
+import norman.junk.domain.DataFile;
+import norman.junk.domain.DataFileStatus;
+import norman.junk.domain.DataLine;
+import norman.junk.domain.Tran;
+import norman.junk.service.AcctService;
+import norman.junk.service.AcctSummaryBean;
+import norman.junk.service.DataFileService;
+import norman.junk.service.OfxParseResponse;
+import norman.junk.service.OfxParseService;
+import norman.junk.service.OfxStmtTran;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +26,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import norman.junk.JunkException;
-import norman.junk.domain.*;
-import norman.junk.service.*;
+import javax.validation.Valid;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class AcctController {
@@ -122,12 +135,14 @@ public class AcctController {
         try {
             save = acctService.saveAcct(acct);
             String successMessage = "Account successfully added, acctId=\"" + save.getId() + "\"";
-            if (acctId != null) successMessage = "Account successfully updated, acctId=\"" + save.getId() + "\"";
+            if (acctId != null)
+                successMessage = "Account successfully updated, acctId=\"" + save.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("acctId", save.getId());
         } catch (Exception e) {
             String errorMessage = "New account could not be added";
-            if (acctId != null) errorMessage = "Account could not be updated, acctId=\"" + acctId + "\"";
+            if (acctId != null)
+                errorMessage = "Account could not be updated, acctId=\"" + acctId + "\"";
             redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
             logger.error(errorMessage, e);
             if (acctId == null) {
@@ -138,7 +153,8 @@ public class AcctController {
             }
         }
         // If no datafile id, we're done.
-        if (acctForm.getDataFileId() == null) return "redirect:/acct?acctId={acctId}";
+        if (acctForm.getDataFileId() == null)
+            return "redirect:/acct?acctId={acctId}";
         Long dataFileId = acctForm.getDataFileId();
         Optional<DataFile> optionalDataFile = dataFileService.findDataFileById(dataFileId);
         // If no data file, we gots an error.

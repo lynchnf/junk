@@ -1,7 +1,7 @@
 package norman.junk.repository;
 
+import norman.junk.domain.DataFile;
 import org.springframework.data.repository.CrudRepository;
 
-import norman.junk.domain.DataFile;
-
-public interface DataFileRepository extends CrudRepository<DataFile, Long> {}
+public interface DataFileRepository extends CrudRepository<DataFile, Long> {
+}

@@ -1,9 +1,9 @@
 package norman.junk.controller;
 
-import java.util.Optional;
-
-import javax.validation.Valid;
-
+import norman.junk.domain.Payable;
+import norman.junk.domain.Payee;
+import norman.junk.service.PayableService;
+import norman.junk.service.PayeeService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import norman.junk.domain.Payable;
-import norman.junk.domain.Payee;
-import norman.junk.service.PayableService;
-import norman.junk.service.PayeeService;
+import javax.validation.Valid;
+import java.util.Optional;
 
 @Controller
 public class PayableController {
@@ -54,8 +52,7 @@ public class PayableController {
     }
 
     @GetMapping("/payableEdit")
-    public String loadEdit(@RequestParam(value = "payableId", required = false) Long payableId, @RequestParam(value = "payeeId", required = false) Long payeeId, Model model,
-            RedirectAttributes redirectAttributes) {
+    public String loadEdit(@RequestParam(value = "payableId", required = false) Long payableId, @RequestParam(value = "payeeId", required = false) Long payeeId, Model model, RedirectAttributes redirectAttributes) {
         // If no payable id, new payable.
         if (payableId == null) {
             // If no payee id, we gots an error.
@@ -136,12 +133,14 @@ public class PayableController {
         try {
             save = payableService.savePayable(payable);
             String successMessage = "Payable successfully added, payableId=\"" + save.getId() + "\"";
-            if (payableId != null) successMessage = "Payable successfully updated, payableId=\"" + save.getId() + "\"";
+            if (payableId != null)
+                successMessage = "Payable successfully updated, payableId=\"" + save.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("payableId", save.getId());
         } catch (Exception e) {
             String errorMessage = "New payable could not be added";
-            if (payableId != null) errorMessage = "Payable could not be updated, payableId=\"" + payableId + "\"";
+            if (payableId != null)
+                errorMessage = "Payable could not be updated, payableId=\"" + payableId + "\"";
             redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
             logger.error(errorMessage, e);
             if (payableId == null) {

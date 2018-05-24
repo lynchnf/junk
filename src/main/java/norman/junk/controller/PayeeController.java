@@ -1,9 +1,7 @@
 package norman.junk.controller;
 
-import java.util.Optional;
-
-import javax.validation.Valid;
-
+import norman.junk.domain.Payee;
+import norman.junk.service.PayeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import norman.junk.domain.Payee;
-import norman.junk.service.PayeeService;
+import javax.validation.Valid;
+import java.util.Optional;
 
 @Controller
 public class PayeeController {
@@ -97,12 +95,14 @@ public class PayeeController {
         try {
             save = payeeService.savePayee(payee);
             String successMessage = "Payee successfully added, payeeId=\"" + save.getId() + "\"";
-            if (payeeId != null) successMessage = "Payee successfully updated, payeeId=\"" + save.getId() + "\"";
+            if (payeeId != null)
+                successMessage = "Payee successfully updated, payeeId=\"" + save.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("payeeId", save.getId());
         } catch (Exception e) {
             String errorMessage = "New payee could not be added";
-            if (payeeId != null) errorMessage = "Payee could not be updated, payeeId=\"" + payeeId + "\"";
+            if (payeeId != null)
+                errorMessage = "Payee could not be updated, payeeId=\"" + payeeId + "\"";
             redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
             logger.error(errorMessage, e);
             if (payeeId == null) {

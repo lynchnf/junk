@@ -1,7 +1,7 @@
 package norman.junk.repository;
 
+import norman.junk.domain.Payable;
 import org.springframework.data.repository.CrudRepository;
 
-import norman.junk.domain.Payable;
-
-public interface PayableRepository extends CrudRepository<Payable, Long> {}
+public interface PayableRepository extends CrudRepository<Payable, Long> {
+}

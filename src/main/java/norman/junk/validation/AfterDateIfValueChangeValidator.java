@@ -1,12 +1,11 @@
 package norman.junk.validation;
 
-import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanWrapperImpl;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanWrapperImpl;
+import java.util.Date;
 
 public class AfterDateIfValueChangeValidator implements ConstraintValidator<AfterDateIfValueChange, Object> {
     private String newDate;
