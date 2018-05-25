@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -24,6 +25,10 @@ public class PaymentForm {
     @NotNull
     @Digits(integer = 7, fraction = 2)
     private BigDecimal amountPaid;
+    @Size(max = 50)
+    private String confirmCode;
+    @Size(max = 50)
+    private String transNumber;
 
     public PaymentForm() {
     }
@@ -41,6 +46,19 @@ public class PaymentForm {
         payableAmountDue = payment.getPayable().getAmountDue();
         paidDate = payment.getPaidDate();
         amountPaid = payment.getAmountPaid();
+        confirmCode = payment.getConfirmCode();
+        transNumber = payment.getTransNumber();
+    }
+
+    public Payment toPayment() {
+        Payment payment = new Payment();
+        payment.setId(id);
+        payment.setVersion(version);
+        payment.setPaidDate(paidDate);
+        payment.setAmountPaid(amountPaid);
+        payment.setConfirmCode(confirmCode);
+        payment.setTransNumber(transNumber);
+        return payment;
     }
 
     public Long getId() {
@@ -107,12 +125,19 @@ public class PaymentForm {
         this.amountPaid = amountPaid;
     }
 
-    public Payment toPayment() {
-        Payment payment = new Payment();
-        payment.setId(id);
-        payment.setVersion(version);
-        payment.setPaidDate(paidDate);
-        payment.setAmountPaid(amountPaid);
-        return payment;
+    public String getConfirmCode() {
+        return confirmCode;
+    }
+
+    public void setConfirmCode(String confirmCode) {
+        this.confirmCode = confirmCode;
+    }
+
+    public String getTransNumber() {
+        return transNumber;
+    }
+
+    public void setTransNumber(String transNumber) {
+        this.transNumber = transNumber;
     }
 }

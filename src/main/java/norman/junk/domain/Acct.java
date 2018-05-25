@@ -132,9 +132,4 @@ public class Acct {
     public void setTrans(List<Tran> trans) {
         this.trans = trans;
     }
-
-    @Override
-    public String toString() {
-        return "Acct{" + "id=" + id + ", version=" + version + ", name='" + name + '\'' + '}';
-    }
 }

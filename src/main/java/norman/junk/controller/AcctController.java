@@ -14,6 +14,7 @@ import norman.junk.service.OfxParseResponse;
 import norman.junk.service.OfxParseService;
 import norman.junk.service.OfxStmtTran;
 import norman.junk.service.TranBalanceBean;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -290,7 +291,7 @@ public class AcctController {
             Acct acct = acctNbr.getAcct();
             acctMap.put(acct.getId(), acct);
         }
-        // If we found exactly one account, saveDataFile the new transactions.
+        // If we found exactly one account, save the new transactions.
         if (acctMap.size() == 1) {
             Acct acct = acctMap.values().iterator().next();
             saveTrans(acct, dataFile, response, acctService, dataFileService, redirectAttributes);
@@ -340,14 +341,15 @@ public class AcctController {
                 tran.setPostDate(ofxStmtTran.getPostDate());
                 tran.setUserDate(ofxStmtTran.getUserDate());
                 tran.setAmount(ofxStmtTran.getAmount());
-                tran.setFitId(ofxStmtTran.getFitId());
-                tran.setSic(ofxStmtTran.getSic());
-                tran.setCheckNumber(ofxStmtTran.getCheckNumber());
-                tran.setCorrectFitId(ofxStmtTran.getCorrectFitId());
+                tran.setFitId(StringUtils.trimToNull(ofxStmtTran.getFitId()));
+                tran.setSic(StringUtils.trimToNull(ofxStmtTran.getSic()));
+                tran.setCheckNumber(StringUtils.trimToNull(ofxStmtTran.getCheckNumber()));
+                tran.setCorrectFitId(StringUtils.trimToNull(ofxStmtTran.getCorrectFitId()));
                 tran.setCorrectAction(ofxStmtTran.getCorrectAction());
-                tran.setName(ofxStmtTran.getName());
-                tran.setCategory(ofxStmtTran.getCategory());
-                tran.setMemo(ofxStmtTran.getMemo());
+                tran.setName(StringUtils.trimToNull(ofxStmtTran.getName()));
+                tran.setCategory(StringUtils.trimToNull(ofxStmtTran.getCategory()));
+                tran.setMemo(StringUtils.trimToNull(ofxStmtTran.getMemo()));
+                tran.setReconciled(Boolean.FALSE);
                 tran.setAcct(acct);
                 acct.getTrans().add(tran);
                 count++;

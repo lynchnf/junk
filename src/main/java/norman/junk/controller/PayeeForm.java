@@ -47,6 +47,22 @@ public class PayeeForm {
         phoneNumber = payee.getPhoneNumber();
     }
 
+    public Payee toPayee() {
+        Payee payee = new Payee();
+        payee.setId(id);
+        payee.setVersion(version);
+        payee.setName(StringUtils.trimToNull(name));
+        payee.setNumber(StringUtils.trimToNull(number));
+        payee.setNickname(StringUtils.trimToNull(nickname));
+        payee.setAddress1(StringUtils.trimToNull(address1));
+        payee.setAddress2(StringUtils.trimToNull(address2));
+        payee.setCity(StringUtils.trimToNull(city));
+        payee.setState(StringUtils.trimToNull(state));
+        payee.setZipCode(StringUtils.trimToNull(zipCode));
+        payee.setPhoneNumber(StringUtils.trimToNull(phoneNumber));
+        return payee;
+    }
+
     public Long getId() {
         return id;
     }
@@ -133,21 +149,5 @@ public class PayeeForm {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public Payee toPayee() {
-        Payee payee = new Payee();
-        payee.setId(id);
-        payee.setVersion(version);
-        payee.setName(StringUtils.trimToNull(name));
-        payee.setNumber(StringUtils.trimToNull(number));
-        payee.setNickname(StringUtils.trimToNull(nickname));
-        payee.setAddress1(StringUtils.trimToNull(address1));
-        payee.setAddress2(StringUtils.trimToNull(address2));
-        payee.setCity(StringUtils.trimToNull(city));
-        payee.setState(StringUtils.trimToNull(state));
-        payee.setZipCode(StringUtils.trimToNull(zipCode));
-        payee.setPhoneNumber(StringUtils.trimToNull(phoneNumber));
-        return payee;
     }
 }

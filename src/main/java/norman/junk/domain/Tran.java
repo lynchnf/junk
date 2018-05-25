@@ -52,6 +52,7 @@ public class Tran {
     private String category;
     @Column(length = 255)
     private String memo;
+    private Boolean reconciled;
 
     public Long getId() {
         return id;
@@ -173,8 +174,11 @@ public class Tran {
         this.memo = memo;
     }
 
-    @Override
-    public String toString() {
-        return "Tran{" + "id=" + id + ", version=" + version + ", postDate=" + postDate + ", amount=" + amount + '}';
+    public Boolean getReconciled() {
+        return reconciled;
+    }
+
+    public void setReconciled(Boolean reconciled) {
+        this.reconciled = reconciled;
     }
 }

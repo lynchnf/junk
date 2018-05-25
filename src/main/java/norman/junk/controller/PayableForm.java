@@ -47,6 +47,18 @@ public class PayableForm {
         statementDate = payable.getStatementDate();
     }
 
+    public Payable toPayable() {
+        Payable payable = new Payable();
+        payable.setId(id);
+        payable.setVersion(version);
+        payable.setDueDate(dueDate);
+        payable.setAmountDue(amountDue);
+        payable.setPreviousBalance(previousBalance);
+        payable.setPreviousPaidAmount(previousPaidAmount);
+        payable.setStatementDate(statementDate);
+        return payable;
+    }
+
     public Long getId() {
         return id;
     }
@@ -117,17 +129,5 @@ public class PayableForm {
 
     public void setStatementDate(Date statementDate) {
         this.statementDate = statementDate;
-    }
-
-    public Payable toPayable() {
-        Payable payable = new Payable();
-        payable.setId(id);
-        payable.setVersion(version);
-        payable.setDueDate(dueDate);
-        payable.setAmountDue(amountDue);
-        payable.setPreviousBalance(previousBalance);
-        payable.setPreviousPaidAmount(previousPaidAmount);
-        payable.setStatementDate(statementDate);
-        return payable;
     }
 }

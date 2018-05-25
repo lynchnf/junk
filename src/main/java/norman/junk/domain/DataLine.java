@@ -63,9 +63,4 @@ public class DataLine {
     public void setText(String text) {
         this.text = text;
     }
-
-    @Override
-    public String toString() {
-        return "DataLine{" + "id=" + id + ", version=" + version + ", seq=" + seq + ", text='" + text + '\'' + '}';
-    }
 }

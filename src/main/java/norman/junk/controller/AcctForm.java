@@ -73,6 +73,27 @@ public class AcctForm {
         number = response.getOfxAcct().getAcctId();
     }
 
+    public Acct toAcct() {
+        Acct acct = new Acct();
+        acct.setId(id);
+        acct.setVersion(version);
+        acct.setName(StringUtils.trimToNull(name));
+        acct.setBeginDate(beginDate);
+        acct.setBeginBalance(beginBalance);
+        acct.setOrganization(StringUtils.trimToNull(organization));
+        acct.setFid(StringUtils.trimToNull(fid));
+        acct.setBankId(StringUtils.trimToNull(bankId));
+        acct.setType(type);
+        return acct;
+    }
+
+    public AcctNbr toAcctNbr() {
+        AcctNbr acctNbr = new AcctNbr();
+        acctNbr.setNumber(StringUtils.trimToNull(number));
+        acctNbr.setEffDate(effDate);
+        return acctNbr;
+    }
+
     public Long getId() {
         return id;
     }
@@ -183,26 +204,5 @@ public class AcctForm {
 
     public void setDataFileId(Long dataFileId) {
         this.dataFileId = dataFileId;
-    }
-
-    public Acct toAcct() {
-        Acct acct = new Acct();
-        acct.setId(id);
-        acct.setVersion(version);
-        acct.setName(StringUtils.trimToNull(name));
-        acct.setBeginDate(beginDate);
-        acct.setBeginBalance(beginBalance);
-        acct.setOrganization(StringUtils.trimToNull(organization));
-        acct.setFid(StringUtils.trimToNull(fid));
-        acct.setBankId(StringUtils.trimToNull(bankId));
-        acct.setType(type);
-        return acct;
-    }
-
-    public AcctNbr toAcctNbr() {
-        AcctNbr acctNbr = new AcctNbr();
-        acctNbr.setNumber(StringUtils.trimToNull(number));
-        acctNbr.setEffDate(effDate);
-        return acctNbr;
     }
 }

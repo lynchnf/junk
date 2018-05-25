@@ -28,6 +28,10 @@ public class Payment {
     private Date paidDate;
     @Column(precision = 9, scale = 2)
     private BigDecimal amountPaid;
+    @Column(length = 50)
+    private String confirmCode;
+    @Column(length = 50)
+    private String transNumber;
 
     public Long getId() {
         return id;
@@ -67,5 +71,21 @@ public class Payment {
 
     public void setAmountPaid(BigDecimal amountPaid) {
         this.amountPaid = amountPaid;
+    }
+
+    public String getConfirmCode() {
+        return confirmCode;
+    }
+
+    public void setConfirmCode(String confirmCode) {
+        this.confirmCode = confirmCode;
+    }
+
+    public String getTransNumber() {
+        return transNumber;
+    }
+
+    public void setTransNumber(String transNumber) {
+        this.transNumber = transNumber;
     }
 }
