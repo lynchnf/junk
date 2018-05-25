@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +57,24 @@ public class AcctService {
 
     public List<Tran> findTransByAcctIdAndFitId(Long acctId, String fitId) {
         return tranRepository.findByAcct_IdAndFitId(acctId, fitId);
+    }
+
+    public List<TranBalanceBean> findTranBalancesByAcctId(Long acctId) {
+        List<TranBalanceBean> tranBalances = new ArrayList<>();
+        Optional<Acct> optionalAcct = acctRepository.findById(acctId);
+        if (optionalAcct.isPresent()) {
+            Acct acct = optionalAcct.get();
+            BigDecimal balance = acct.getBeginBalance();
+            List<Tran> trans = acct.getTrans();
+            for (Tran tran : trans) {
+                BigDecimal amount = tran.getAmount();
+                balance = balance.add(amount);
+                TranBalanceBean tranBalance = new TranBalanceBean(tran.getId(), tran.getType(), tran.getPostDate(), tran.getCheckNumber(), tran.getName(), tran.getMemo(), amount, balance);
+                tranBalances.add(tranBalance);
+            }
+        }
+        Collections.reverse(tranBalances);
+        return tranBalances;
     }
 
     public List<AcctSummaryBean> findAllAcctSummaries() {

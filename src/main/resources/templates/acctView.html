@@ -81,18 +81,20 @@
         <tr>
             <th>Type</th>
             <th>Post Date</th>
-            <th>Amount</th>
             <th>Check Number</th>
             <th>Name</th>
             <th>Memo</th>
+            <th>Amount</th>
+            <th>Balance</th>
         </tr>
-        <tr th:each="tran:${acct.trans}">
-            <td><a th:href="@{/tran(tranId=${tran.id})}" th:text="${tran.type}"></a></td>
-            <td th:text="${#dates.format(tran.postDate,'M/d/yyyy')}"></td>
-            <td th:text="${#numbers.formatDecimal(tran.amount,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${tran.checkNumber}"></td>
-            <td th:text="${tran.name}"></td>
-            <td th:text="${tran.memo}"></td>
+        <tr th:each="tranBalance:${tranBalances}">
+            <td><a th:href="@{/tran(tranId=${tranBalance.id})}" th:text="${tranBalance.type}"></a></td>
+            <td th:text="${#dates.format(tranBalance.postDate,'M/d/yyyy')}"></td>
+            <td th:text="${tranBalance.checkNumber}"></td>
+            <td th:text="${tranBalance.name}"></td>
+            <td th:text="${tranBalance.memo}"></td>
+            <td th:text="${#numbers.formatDecimal(tranBalance.amount,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#numbers.formatDecimal(tranBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>
     </table>
 </main>

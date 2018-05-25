@@ -2,11 +2,10 @@
 
 ## Current
 - Add confirm code and transaction number to payment.
-- View single transaction.
-- On account view, show balance for every transaction.
 - On payee list, show balance for each payee. 
 - On payee view, show balance for each payable.
 - On payable list, show balance for each payable.
+- Make payments report.
 
 ## Backlog
 - WRITE UNIT TESTS!!!
@@ -14,7 +13,6 @@
 - Reprocess data file.
 - Match transactions and payments.
 - Paging, sorting, and filtering on ALL list pages.
-- Make payments report.
 - Import payments from html.
 
 ## Icebox
@@ -64,3 +62,5 @@
 - View single payment.
 - Edit or add payment.
 - Package to war for deployment in Tomcat.
+- View single transaction.
+- On account view, show balance for every transaction.

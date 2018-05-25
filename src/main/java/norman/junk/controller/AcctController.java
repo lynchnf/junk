@@ -13,6 +13,7 @@ import norman.junk.service.DataFileService;
 import norman.junk.service.OfxParseResponse;
 import norman.junk.service.OfxParseService;
 import norman.junk.service.OfxStmtTran;
+import norman.junk.service.TranBalanceBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,8 @@ public class AcctController {
         if (optionalAcctNbr.isPresent()) {
             model.addAttribute("currentAcctNbr", optionalAcctNbr.get());
         }
+        List<TranBalanceBean> tranBalances = acctService.findTranBalancesByAcctId(acct.getId());
+        model.addAttribute("tranBalances", tranBalances);
         return "acctView";
     }
 
