@@ -22,3 +22,5 @@ INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'ComEd',NULL,'later',NULL,NULL,0,NULL);
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Village of Lisle','Lisle utitilies','later',NULL,NULL,0,NULL);
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'DuPage County Public Works',NULL,'later',NULL,NULL,0,NULL);
+
+INSERT INTO `payable` (`fees_charged`, `interest_charged`, `minimum_payment_due`, `new_balance_total`, `payment_due_date`, `payments_and_other_credits`, `previous_balance`, `purchases_and_adjustments`, `statement_closing_date`, `version`, `payee_id`) VALUES (11.00,22.00,33.00,44.00,'2018-05-05',66.00,77.00,88.00,'2018-09-09',0,(SELECT id FROM payee WHERE nickname = 'Planetary (BoA)'));

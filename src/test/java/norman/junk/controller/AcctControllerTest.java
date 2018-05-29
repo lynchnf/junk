@@ -42,7 +42,9 @@ public class AcctControllerTest {
         Optional<Acct> optionalAcct = Optional.of(acct);
         BDDMockito.given(acctService.findAcctById(acctId)).willReturn(optionalAcct);
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/acct").param("acctId", "1"));
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.view().name("acctView")).andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acctName)));
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("acctView"));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acctName)));
     }
 
     @Test
@@ -52,7 +54,9 @@ public class AcctControllerTest {
         BDDMockito.given(acctService.findAcctById(acctId)).willReturn(optionalAcct);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acct").param("acctId", "2");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.view().name("redirect:/")).andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
+        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
+        resultActions.andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
     }
 
     @Test

@@ -14,8 +14,8 @@
     <table class="table table-sm table-striped">
         <tr>
             <th>Payee</th>
-            <th>Due Date</th>
-            <th>Amount Due</th>
+            <th>Payment Due Date</th>
+            <th>New Balance Total</th>
             <th>Paid Date</th>
             <th>Amount Paid</th>
         </tr>
@@ -23,8 +23,8 @@
             <td><a th:href="@{/payment(paymentId=${payment.id})}"
                    th:text="${(payment.payable.payee.nickname != null)?payment.payable.payee.nickname:payment.payable.payee.name}"></a>
             </td>
-            <td th:text="${#dates.format(payment.payable.dueDate,'M/d/yyyy')}"></td>
-            <td th:text="${#numbers.formatDecimal(payment.payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#dates.format(payment.payable.paymentDueDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payment.payable.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
             <td th:text="${#dates.format(payment.paidDate,'M/d/yyyy')}"></td>
             <td th:text="${#numbers.formatDecimal(payment.amountPaid,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>

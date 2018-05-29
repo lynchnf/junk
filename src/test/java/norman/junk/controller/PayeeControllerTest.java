@@ -1,7 +1,6 @@
 package norman.junk.controller;
 
 import java.util.Optional;
-import norman.junk.domain.Acct;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -37,7 +36,9 @@ public class PayeeControllerTest {
         Optional<Payee> optionalPayee = Optional.of(payee);
         BDDMockito.given(payeeService.findPayeeById(payeeId)).willReturn(optionalPayee);
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/payee").param("payeeId", "1"));
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.view().name("payeeView")).andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payeeNickname)));
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("payeeView"));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payeeNickname)));
     }
 
     @Test
@@ -47,7 +48,9 @@ public class PayeeControllerTest {
         BDDMockito.given(payeeService.findPayeeById(payeeId)).willReturn(optionalPayee);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payee").param("payeeId", "2");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.view().name("redirect:/")).andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
+        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
+        resultActions.andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
     }
 
     @Test

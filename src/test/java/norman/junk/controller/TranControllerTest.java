@@ -39,7 +39,9 @@ public class TranControllerTest {
         Optional<Tran> optionalTran = Optional.of(tran);
         BDDMockito.given(tranService.findTranById(tranId)).willReturn(optionalTran);
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/tran").param("tranId", "1"));
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.view().name("tranView")).andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acctName)));
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("tranView"));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acctName)));
     }
 
     @Test
@@ -49,6 +51,8 @@ public class TranControllerTest {
         BDDMockito.given(tranService.findTranById(tranId)).willReturn(optionalTran);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/tran").param("tranId", "2");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.view().name("redirect:/")).andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
+        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
+        resultActions.andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
     }
 }

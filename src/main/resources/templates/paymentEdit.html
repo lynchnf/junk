@@ -28,13 +28,13 @@
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Due Date</label>
+            <label class="col-sm-3 col-form-label">Payment Due Date</label>
             <div class="col-sm-9">
                 <p class="form-control-plaintext" th:text="*{#dates.format(payablePaymentDueDate,'M/d/yyyy')}"></p>
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Amount Due</label>
+            <label class="col-sm-3 col-form-label">New Balance Total</label>
             <div class="col-sm-9">
                 <p class="form-control-plaintext"
                    th:text="*{#numbers.formatDecimal(payableNewBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></p>
