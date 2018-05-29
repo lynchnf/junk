@@ -1,11 +1,10 @@
 package norman.junk.service;
 
+import java.util.Optional;
 import norman.junk.domain.Payment;
 import norman.junk.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class PaymentService {

@@ -1,13 +1,12 @@
 package norman.junk.controller;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import norman.junk.domain.Payable;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
 
 public class PayableForm {
     private Long id;
@@ -15,18 +14,24 @@ public class PayableForm {
     @NotNull
     private Long payeeId;
     private String payeeDisplayName;
-    @NotNull
-    @DateTimeFormat(pattern = "M/d/yyyy")
-    private Date dueDate;
-    @NotNull
-    @Digits(integer = 7, fraction = 2)
-    private BigDecimal amountDue;
     @Digits(integer = 7, fraction = 2)
     private BigDecimal previousBalance;
     @Digits(integer = 7, fraction = 2)
-    private BigDecimal previousPaidAmount;
+    private BigDecimal paymentsAndOtherCredits;
+    @Digits(integer = 7, fraction = 2)
+    private BigDecimal purchasesAndAdjustments;
+    @Digits(integer = 7, fraction = 2)
+    private BigDecimal feesCharged;
+    @Digits(integer = 7, fraction = 2)
+    private BigDecimal interestCharged;
+    @Digits(integer = 7, fraction = 2)
+    private BigDecimal newBalanceTotal;
     @DateTimeFormat(pattern = "M/d/yyyy")
-    private Date statementDate;
+    private Date statementClosingDate;
+    @Digits(integer = 7, fraction = 2)
+    private BigDecimal minimumPaymentDue;
+    @DateTimeFormat(pattern = "M/d/yyyy")
+    private Date paymentDueDate;
 
     public PayableForm() {
     }
@@ -40,22 +45,30 @@ public class PayableForm {
         } else {
             payeeDisplayName = payable.getPayee().getNickname();
         }
-        dueDate = payable.getDueDate();
-        amountDue = payable.getAmountDue();
         previousBalance = payable.getPreviousBalance();
-        previousPaidAmount = payable.getPreviousPaidAmount();
-        statementDate = payable.getStatementDate();
+        paymentsAndOtherCredits = payable.getPaymentsAndOtherCredits();
+        purchasesAndAdjustments = payable.getPurchasesAndAdjustments();
+        feesCharged = payable.getFeesCharged();
+        interestCharged = payable.getInterestCharged();
+        newBalanceTotal = payable.getNewBalanceTotal();
+        statementClosingDate = payable.getStatementClosingDate();
+        minimumPaymentDue = payable.getMinimumPaymentDue();
+        paymentDueDate = payable.getPaymentDueDate();
     }
 
     public Payable toPayable() {
         Payable payable = new Payable();
         payable.setId(id);
         payable.setVersion(version);
-        payable.setDueDate(dueDate);
-        payable.setAmountDue(amountDue);
         payable.setPreviousBalance(previousBalance);
-        payable.setPreviousPaidAmount(previousPaidAmount);
-        payable.setStatementDate(statementDate);
+        payable.setPaymentsAndOtherCredits(paymentsAndOtherCredits);
+        payable.setPurchasesAndAdjustments(purchasesAndAdjustments);
+        payable.setFeesCharged(feesCharged);
+        payable.setInterestCharged(interestCharged);
+        payable.setNewBalanceTotal(newBalanceTotal);
+        payable.setStatementClosingDate(statementClosingDate);
+        payable.setMinimumPaymentDue(minimumPaymentDue);
+        payable.setPaymentDueDate(paymentDueDate);
         return payable;
     }
 
@@ -91,22 +104,6 @@ public class PayableForm {
         this.payeeDisplayName = payeeDisplayName;
     }
 
-    public Date getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(Date dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public BigDecimal getAmountDue() {
-        return amountDue;
-    }
-
-    public void setAmountDue(BigDecimal amountDue) {
-        this.amountDue = amountDue;
-    }
-
     public BigDecimal getPreviousBalance() {
         return previousBalance;
     }
@@ -115,19 +112,67 @@ public class PayableForm {
         this.previousBalance = previousBalance;
     }
 
-    public BigDecimal getPreviousPaidAmount() {
-        return previousPaidAmount;
+    public BigDecimal getPaymentsAndOtherCredits() {
+        return paymentsAndOtherCredits;
     }
 
-    public void setPreviousPaidAmount(BigDecimal previousPaidAmount) {
-        this.previousPaidAmount = previousPaidAmount;
+    public void setPaymentsAndOtherCredits(BigDecimal paymentsAndOtherCredits) {
+        this.paymentsAndOtherCredits = paymentsAndOtherCredits;
     }
 
-    public Date getStatementDate() {
-        return statementDate;
+    public BigDecimal getPurchasesAndAdjustments() {
+        return purchasesAndAdjustments;
     }
 
-    public void setStatementDate(Date statementDate) {
-        this.statementDate = statementDate;
+    public void setPurchasesAndAdjustments(BigDecimal purchasesAndAdjustments) {
+        this.purchasesAndAdjustments = purchasesAndAdjustments;
+    }
+
+    public BigDecimal getFeesCharged() {
+        return feesCharged;
+    }
+
+    public void setFeesCharged(BigDecimal feesCharged) {
+        this.feesCharged = feesCharged;
+    }
+
+    public BigDecimal getInterestCharged() {
+        return interestCharged;
+    }
+
+    public void setInterestCharged(BigDecimal interestCharged) {
+        this.interestCharged = interestCharged;
+    }
+
+    public BigDecimal getNewBalanceTotal() {
+        return newBalanceTotal;
+    }
+
+    public void setNewBalanceTotal(BigDecimal newBalanceTotal) {
+        this.newBalanceTotal = newBalanceTotal;
+    }
+
+    public Date getStatementClosingDate() {
+        return statementClosingDate;
+    }
+
+    public void setStatementClosingDate(Date statementClosingDate) {
+        this.statementClosingDate = statementClosingDate;
+    }
+
+    public BigDecimal getMinimumPaymentDue() {
+        return minimumPaymentDue;
+    }
+
+    public void setMinimumPaymentDue(BigDecimal minimumPaymentDue) {
+        this.minimumPaymentDue = minimumPaymentDue;
+    }
+
+    public Date getPaymentDueDate() {
+        return paymentDueDate;
+    }
+
+    public void setPaymentDueDate(Date paymentDueDate) {
+        this.paymentDueDate = paymentDueDate;
     }
 }

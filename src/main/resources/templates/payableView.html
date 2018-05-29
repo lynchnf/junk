@@ -19,19 +19,6 @@
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label">Due Date</label>
-        <div class="col-sm-9">
-            <p class="form-control-plaintext" th:text="${#dates.format(payable.dueDate,'M/d/yyyy')}"></p>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-3 col-form-label">Amount Due</label>
-        <div class="col-sm-9">
-            <p class="form-control-plaintext"
-               th:text="${#numbers.formatDecimal(payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></p>
-        </div>
-    </div>
-    <div class="form-group row">
         <label class="col-sm-3 col-form-label">Previous Balance</label>
         <div class="col-sm-9">
             <p class="form-control-plaintext"
@@ -39,16 +26,57 @@
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label">Previously Paid Amount</label>
+        <label class="col-sm-3 col-form-label">Payments And Other Credits</label>
         <div class="col-sm-9">
             <p class="form-control-plaintext"
-               th:text="${#numbers.formatDecimal(payable.previousPaidAmount,1,'DEFAULT',2,'DEFAULT')}"></p>
+               th:text="${#numbers.formatDecimal(payable.paymentsAndOtherCredits,1,'DEFAULT',2,'DEFAULT')}"></p>
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label">Statement Date</label>
+        <label class="col-sm-3 col-form-label">Purchases And Adjustments</label>
         <div class="col-sm-9">
-            <p class="form-control-plaintext" th:text="${#dates.format(payable.statementDate,'M/d/yyyy')}"></p>
+            <p class="form-control-plaintext"
+               th:text="${#numbers.formatDecimal(payable.purchasesAndAdjustments,1,'DEFAULT',2,'DEFAULT')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Fees Charged</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext"
+               th:text="${#numbers.formatDecimal(payable.feesCharged,1,'DEFAULT',2,'DEFAULT')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Interest Charged</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext"
+               th:text="${#numbers.formatDecimal(payable.interestCharged,1,'DEFAULT',2,'DEFAULT')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">New Balance Total</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext"
+               th:text="${#numbers.formatDecimal(payable.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Statement Closing Date</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${#dates.format(payable.statementClosingDate,'M/d/yyyy')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Minimum Payment Due</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext"
+               th:text="${#numbers.formatDecimal(payable.minimumPaymentDue,1,'DEFAULT',2,'DEFAULT')}"></p>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Payment Due Date</label>
+        <div class="col-sm-9">
+            <p class="form-control-plaintext" th:text="${#dates.format(payable.paymentDueDate,'M/d/yyyy')}"></p>
         </div>
     </div>
     <a class="btn btn-primary" th:href="@{/payableEdit(payableId=${payable.id})}">Edit</a>

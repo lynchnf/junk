@@ -1,5 +1,6 @@
 package norman.junk.controller;
 
+import java.util.List;
 import norman.junk.domain.DataFile;
 import norman.junk.domain.Payee;
 import norman.junk.service.AcctService;
@@ -10,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
 
 @Controller
 public class DashboardController {

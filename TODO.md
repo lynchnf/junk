@@ -1,7 +1,6 @@
 # To Do List
 
 ## Current
-- Add confirm code and transaction number to payment.
 - On payee list, show balance for each payee. 
 - On payee view, show balance for each payable.
 - On payable list, show balance for each payable.
@@ -64,3 +63,4 @@
 - Package to war for deployment in Tomcat.
 - View single transaction.
 - On account view, show balance for every transaction.
+- Add confirm code and transaction number to payment.

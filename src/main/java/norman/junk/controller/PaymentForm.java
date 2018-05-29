@@ -1,14 +1,13 @@
 package norman.junk.controller;
 
-import norman.junk.domain.Payment;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.format.annotation.DateTimeFormat;
-
+import java.math.BigDecimal;
+import java.util.Date;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.util.Date;
+import norman.junk.domain.Payment;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
 public class PaymentForm {
     private Long id;
@@ -16,9 +15,9 @@ public class PaymentForm {
     private Long payableId;
     private String payeeDisplayName;
     @DateTimeFormat(pattern = "M/d/yyyy")
-    private Date payableDueDate;
+    private Date payablePaymentDueDate;
     @Digits(integer = 7, fraction = 2)
-    private BigDecimal payableAmountDue;
+    private BigDecimal payableNewBalanceTotal;
     @NotNull
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date paidDate;
@@ -42,8 +41,8 @@ public class PaymentForm {
         } else {
             payeeDisplayName = payment.getPayable().getPayee().getNickname();
         }
-        payableDueDate = payment.getPayable().getDueDate();
-        payableAmountDue = payment.getPayable().getAmountDue();
+        payablePaymentDueDate = payment.getPayable().getPaymentDueDate();
+        payableNewBalanceTotal = payment.getPayable().getNewBalanceTotal();
         paidDate = payment.getPaidDate();
         amountPaid = payment.getAmountPaid();
         confirmCode = payment.getConfirmCode();
@@ -93,20 +92,20 @@ public class PaymentForm {
         this.payeeDisplayName = payeeDisplayName;
     }
 
-    public Date getPayableDueDate() {
-        return payableDueDate;
+    public Date getPayablePaymentDueDate() {
+        return payablePaymentDueDate;
     }
 
-    public void setPayableDueDate(Date payableDueDate) {
-        this.payableDueDate = payableDueDate;
+    public void setPayablePaymentDueDate(Date payablePaymentDueDate) {
+        this.payablePaymentDueDate = payablePaymentDueDate;
     }
 
-    public BigDecimal getPayableAmountDue() {
-        return payableAmountDue;
+    public BigDecimal getPayableNewBalanceTotal() {
+        return payableNewBalanceTotal;
     }
 
-    public void setPayableAmountDue(BigDecimal payableAmountDue) {
-        this.payableAmountDue = payableAmountDue;
+    public void setPayableNewBalanceTotal(BigDecimal payableNewBalanceTotal) {
+        this.payableNewBalanceTotal = payableNewBalanceTotal;
     }
 
     public Date getPaidDate() {

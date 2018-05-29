@@ -12,15 +12,13 @@ INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('201
 
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES ('P.O. Box 851001',NULL,'Dallas','Bank of America','Planetary (BoA)','4400669867048688','800-421-2110','TX',0,'75285-1001');
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES ('P.O. Box 851001',NULL,'Dallas','Bank of America','Spirit (BoA)','5466331113878784','800-421-2110','TX',0,'75285-1001');
-INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Chase','United (Chase)','4388576031903035',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES ('PO Box 1423',NULL,'Charlotte','Chase Card Services','United (Chase)','4388576031903035','800-537-7783','NC',0,'28201-1423');
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES ('PO Box 4390',NULL,'Tupelo','BancorpSouth',NULL,'5491087740200722','800-844-2723','MS',0,'38803-4390');
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'State Farm','Kerry''s car','later',NULL,NULL,0,NULL);
-INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'State Farm','Norman''s car','later',NULL,NULL,0,NULL);
+INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'State Farm','Norman''s car','P13 7153-E13-13F',NULL,NULL,0,NULL);
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'ComCast',NULL,'later',NULL,NULL,0,NULL);
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Verizon',NULL,'later',NULL,NULL,0,NULL);
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Nicor',NULL,'later',NULL,NULL,0,NULL);
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'ComEd',NULL,'later',NULL,NULL,0,NULL);
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'Village of Lisle','Lisle utitilies','later',NULL,NULL,0,NULL);
 INSERT INTO `payee` (`address1`, `address2`, `city`, `name`, `nickname`, `number`, `phone_number`, `state`, `version`, `zip_code`) VALUES (NULL,NULL,NULL,'DuPage County Public Works',NULL,'later',NULL,NULL,0,NULL);
-
-INSERT INTO `payable` (`amount_due`, `due_date`, `previous_balance`, `previous_paid_amount`, `statement_date`, `version`, `payee_id`) VALUES (917.58,'2018-06-17',0.00,0.00,'2018-05-20',0,(SELECT id FROM payee WHERE nickname = 'Planetary (BoA)'));

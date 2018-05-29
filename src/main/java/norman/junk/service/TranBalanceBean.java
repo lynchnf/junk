@@ -1,9 +1,8 @@
 package norman.junk.service;
 
-import norman.junk.domain.TranType;
-
 import java.math.BigDecimal;
 import java.util.Date;
+import norman.junk.domain.TranType;
 
 public class TranBalanceBean {
     private Long id;

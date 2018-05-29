@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DashboardControllerTest {
+public class PayableControllerTest {
     @Before
     public void setUp() throws Exception {
     }
@@ -15,5 +15,17 @@ public class DashboardControllerTest {
 
     @Test
     public void loadView() {
+    }
+
+    @Test
+    public void loadList() {
+    }
+
+    @Test
+    public void loadEdit() {
+    }
+
+    @Test
+    public void processEdit() {
     }
 }

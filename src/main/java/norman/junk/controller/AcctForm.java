@@ -1,5 +1,11 @@
 package norman.junk.controller;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.AcctType;
@@ -7,13 +13,6 @@ import norman.junk.service.OfxParseResponse;
 import norman.junk.validation.AfterDateIfValueChange;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.util.Date;
 
 @AfterDateIfValueChange(newDate = "effDate", oldDate = "oldEffDate", newString = "number", oldString = "oldNumber")
 public class AcctForm {

@@ -1,5 +1,6 @@
 package norman.junk.controller;
 
+import java.util.Optional;
 import norman.junk.domain.DataFile;
 import norman.junk.service.DataFileService;
 import org.slf4j.Logger;
@@ -10,8 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.Optional;
 
 @Controller
 public class DataFileController {
