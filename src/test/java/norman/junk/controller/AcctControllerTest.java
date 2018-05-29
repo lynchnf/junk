@@ -41,7 +41,8 @@ public class AcctControllerTest {
         acct.setName(acctName);
         Optional<Acct> optionalAcct = Optional.of(acct);
         BDDMockito.given(acctService.findAcctById(acctId)).willReturn(optionalAcct);
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/acct").param("acctId", "1"));
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acct").param("acctId", "1");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("acctView"));
         resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acctName)));
@@ -61,6 +62,10 @@ public class AcctControllerTest {
 
     @Test
     public void loadList() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acctList");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("acctList"));
     }
 
     @Test

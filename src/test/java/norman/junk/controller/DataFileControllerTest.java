@@ -35,7 +35,8 @@ public class DataFileControllerTest {
         dataFile.setOriginalFilename(originalFilename);
         Optional<DataFile> optionalDataFile = Optional.of(dataFile);
         BDDMockito.given(dataFileService.findDataFileById(dataFileId)).willReturn(optionalDataFile);
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/dataFile").param("dataFileId", "1"));
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/dataFile").param("dataFileId", "1");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("dataFileView"));
         resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(originalFilename)));
@@ -54,6 +55,10 @@ public class DataFileControllerTest {
     }
 
     @Test
-    public void loadList() {
+    public void loadList() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/dataFileList");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("dataFileList"));
     }
 }

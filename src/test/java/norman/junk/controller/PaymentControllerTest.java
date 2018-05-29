@@ -44,7 +44,8 @@ public class PaymentControllerTest {
         payment.setPayable(payable);
         Optional<Payment> optionalPayment = Optional.of(payment);
         BDDMockito.given(paymentService.findPaymentById(paymentId)).willReturn(optionalPayment);
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/payment").param("paymentId", "1"));
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payment").param("paymentId", "1");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("paymentView"));
         resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payeeNickname)));
@@ -63,7 +64,11 @@ public class PaymentControllerTest {
     }
 
     @Test
-    public void loadList() {
+    public void loadList() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/paymentList");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("paymentList"));
     }
 
     @Test

@@ -38,7 +38,8 @@ public class TranControllerTest {
         tran.setAcct(acct);
         Optional<Tran> optionalTran = Optional.of(tran);
         BDDMockito.given(tranService.findTranById(tranId)).willReturn(optionalTran);
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/tran").param("tranId", "1"));
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/tran").param("tranId", "1");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("tranView"));
         resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acctName)));
