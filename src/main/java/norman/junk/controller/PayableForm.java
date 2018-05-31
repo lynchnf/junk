@@ -3,6 +3,8 @@ package norman.junk.controller;
 import java.math.BigDecimal;
 import java.util.Date;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import norman.junk.domain.Payable;
 import org.apache.commons.lang3.StringUtils;
@@ -11,25 +13,33 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class PayableForm {
     private Long id;
     private Integer version = 0;
-    @NotNull
     private Long payeeId;
     private String payeeDisplayName;
+    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal previousBalance;
+    @Max(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal paymentsAndOtherCredits;
+    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal purchasesAndAdjustments;
+    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal feesCharged;
+    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal interestCharged;
+    @NotNull
+    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal newBalanceTotal;
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date statementClosingDate;
+    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal minimumPaymentDue;
+    @NotNull
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date paymentDueDate;
 

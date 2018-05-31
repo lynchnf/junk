@@ -26,6 +26,18 @@
             </div>
         </div>
         <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Payment Due Date</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{paymentDueDate}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">New Balance Total</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{newBalanceTotal}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
             <label class="col-sm-3 col-form-label">Previous Balance</label>
             <div class="col-sm-9">
                 <input type="text" class="form-control" th:field="*{previousBalance}" th:errorclass="is-invalid"/>
@@ -58,12 +70,6 @@
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">New Balance Total</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{newBalanceTotal}" th:errorclass="is-invalid"/>
-            </div>
-        </div>
-        <div class="form-group row">
             <label class="col-sm-3 col-form-label">Statement Closing Date</label>
             <div class="col-sm-9">
                 <input type="text" class="form-control" th:field="*{statementClosingDate}" th:errorclass="is-invalid"/>
@@ -73,12 +79,6 @@
             <label class="col-sm-3 col-form-label">Minimum Payment Due</label>
             <div class="col-sm-9">
                 <input type="text" class="form-control" th:field="*{minimumPaymentDue}" th:errorclass="is-invalid"/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Payment Due Date</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{paymentDueDate}" th:errorclass="is-invalid"/>
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
