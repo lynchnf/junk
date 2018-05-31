@@ -1,9 +1,11 @@
 package norman.junk;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import norman.junk.controller.AcctController;
@@ -16,21 +18,27 @@ import org.slf4j.LoggerFactory;
 
 public class FakeData {
     private static final Logger logger = LoggerFactory.getLogger(AcctController.class);
-    private static final int NBR_OF_ACCTS = 5;
-    private static final String[] ACCT_NAME_PART_1 = {"Last National", "Celestial", "Nuclear", "Funky Town",
-            "The Sleazy"};
-    private static final String[] ACCT_NAME_PART_2 = {"Bank", "Trust", "Saving & Loan", "Finance Corp", "Credit Union"};
-    private static final String[] ACCT_NAME_PART_3 = {"of Evil", "in Neverland", "Cartel", "and Bait Shop",
-            "All Covered with Cheese"};
+    private static final int NBR_OF_ACCTS = 3;
+    private static final String[] ACCT_NAME_PART_1 = {"Abominable", "Bulimic", "Cosmic", "Desperate", "Evil", "Funky",
+            "Ginormous", "Hungry", "Interstellar", "Jurassic"};
+    private static final String[] ACCT_NAME_PART_2 = {"Bank", "Credit Union", "Countinghouse", "Finance Corp", "Fund",
+            "Investments", "Saving & Loan", "Thrift", "Treasury", "Trust"};
     private static final int BEGIN_DAYS_AGO = 20;
     private static final int MAX_DAYS_BETWEEN_TRANS = 5;
     private static final int CHECKS_ARE_ONE_IN = 3;
     private static final int NBR_OF_PAYEES = 5;
-    private static final String[] PAYEE_NAME_PART_1 = {"Ludicrous", "Hungry", "Outer Mongolia", "Sasquatch",
-            "Antimatter", "Hobo", "Creeper", "Death Star", "Undead", "Choo-choo"};
-    private static final String[] PAYEE_NAME_PART_2 = {"Power", "Gas", "Water & Sewer", "Cable TV", "Lawn Service",
-            "Mortgage", "Insurance", "Credit Card", "Gym", "Subscription Service"};
+    private static final String[] PAYEE_NAME_PART_1 = {"Kick-ass", "Ludicrous", "Malevolent", "Nuclear", "Obsequious",
+            "Pedantic", "Quiescent", "Recalcitrant", "Sleazy", "Taciturn"};
+    private static final String[] PAYEE_NAME_PART_2 = {"Cable TV", "Credit Card", "Gas", "Gym", "Insurance",
+            "Lawn Service", "Mortgage", "Power", "Subscription Service", "Water & Sewer"};
+    private static final int DAYS_BETWEEN_PAYABLES = 7;
     private static final BigDecimal MINUS_ONE = new BigDecimal(-1);
+    private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `name`, `type`, `version`) VALUES (%.2f,'%tF','%s','%s',0);%n";
+    private static final String INSERT_INTO_ACCT_NBR = "INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
+    private static final String INSERT_INTO_TRAN = "INSERT INTO `tran` (`amount`, `check_number`, `name`, `post_date`, `type`, `version`, `acct_id`) VALUES (%.2f,%s,'%s','%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
+    private static final String INSERT_INTO_PAYEE = "INSERT INTO `payee` (`name`, `number`, `version`) VALUES ('%s','%s',0);%n";
+    private static final String INSERT_INTO_PAYABLE = "INSERT INTO `payable` (`new_balance_total`, `payment_due_date`, `version`, `payee_id`) VALUES (%.2f,'%tF',0,(SELECT `id` FROM `payee` WHERE `name` = '%s'));%n";
+    private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`payment_due_date` = '%tF' AND b.`name` = '%s'));%n";
     private static Random random = new Random();
 
     public static void main(String[] args) {
@@ -46,8 +54,7 @@ public class FakeData {
         for (int i = 0; i < NBR_OF_ACCTS; i++) {
             do {
                 String acctName = ACCT_NAME_PART_1[random.nextInt(ACCT_NAME_PART_1.length)] + " " +
-                        ACCT_NAME_PART_2[random.nextInt(ACCT_NAME_PART_2.length)] + " " +
-                        ACCT_NAME_PART_3[random.nextInt(ACCT_NAME_PART_3.length)];
+                        ACCT_NAME_PART_2[random.nextInt(ACCT_NAME_PART_2.length)];
                 if (!acctNames.contains(acctName)) {
                     acctNames.add(acctName);
                 }
@@ -62,45 +69,44 @@ public class FakeData {
         cal.add(Calendar.DATE, BEGIN_DAYS_AGO * -1);
         Date beginDate = cal.getTime();
         for (String acctName : acctNames) {
-            //logger.debug("name=\"" + name + "\"");
             BigDecimal beginBalance = BigDecimal.valueOf(random.nextInt(100000), 2);
             AcctType acctType = AcctType.values()[random.nextInt(AcctType.values().length)];
             if (acctType == AcctType.CC)
                 beginBalance = beginBalance.multiply(MINUS_ONE);
             String number = RandomStringUtils.randomNumeric(12);
-            System.out.printf("INSERT INTO `acct` (`begin_balance`, `begin_date`, `name`, `type`, `version`)" +
-                    " VALUES (%.2f,'%tF','%s','%s',0);%n", beginBalance, beginDate, acctName, acctType);
-            System.out.printf("INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`)" +
-                    " VALUES ('%tF','%s',0,(SELECT id FROM acct WHERE name = '%s'));%n", beginDate, number, acctName);
-            cal.setTime(beginDate);
-            cal.add(Calendar.DATE, random.nextInt(MAX_DAYS_BETWEEN_TRANS));
-            Date postDate = cal.getTime();
-            while (postDate.before(today)) {
-                BigDecimal amount = BigDecimal.valueOf(random.nextInt(20000) - 10000, 2);
-                String checkNumber = "NULL";
-                TranType tranType = TranType.DEBIT;
-                if (amount.compareTo(BigDecimal.ZERO) > 0) {
-                    tranType = TranType.CREDIT;
-                    if (acctType == AcctType.CHECKING && random.nextInt(CHECKS_ARE_ONE_IN) == 0) {
-                        checkNumber = "'" + RandomStringUtils.randomNumeric(4) + "'";
-                        tranType = TranType.CHECK;
-                    }
+            System.out.printf(INSERT_INTO_ACCT, beginBalance, beginDate, acctName, acctType);
+            System.out.printf(INSERT_INTO_ACCT_NBR, beginDate, number, acctName);
+            tran(today, beginDate, acctName, acctType);
+        }
+    }
+
+    private void tran(Date today, Date beginDate, String acctName, AcctType acctType) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(beginDate);
+        cal.add(Calendar.DATE, random.nextInt(MAX_DAYS_BETWEEN_TRANS));
+        Date postDate = cal.getTime();
+        while (postDate.before(today)) {
+            BigDecimal amount = BigDecimal.valueOf(random.nextInt(20000) - 10000, 2);
+            String checkNumber = "NULL";
+            TranType tranType = TranType.CREDIT;
+            if (amount.compareTo(BigDecimal.ZERO) < 0) {
+                tranType = TranType.DEBIT;
+                if (acctType == AcctType.CHECKING && random.nextInt(CHECKS_ARE_ONE_IN) == 0) {
+                    checkNumber = "'" + RandomStringUtils.randomNumeric(4) + "'";
+                    tranType = TranType.CHECK;
                 }
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < 10; i++) {
-                    sb.append(StringUtils.capitalize(RandomStringUtils.randomAlphabetic(1, 10).toLowerCase()));
-                    sb.append(" ");
-                }
-                String tranName = sb.toString();
-                if (tranName.length() > 50)
-                    tranName = tranName.substring(0, 50);
-                System.out
-                        .printf("INSERT INTO `tran` (`amount`, `check_number`, `name`, `post_date`, `type`, `version`, `acct_id`)" +
-                                        " VALUES (%.2f,%s,'%s','%tF','%s',0,(SELECT id FROM acct WHERE name = '%s'));%n",
-                                amount, checkNumber, tranName, postDate, tranType, acctName);
-                cal.add(Calendar.DATE, random.nextInt(MAX_DAYS_BETWEEN_TRANS));
-                postDate = cal.getTime();
             }
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 10; i++) {
+                sb.append(StringUtils.capitalize(RandomStringUtils.randomAlphabetic(1, 10).toLowerCase()));
+                sb.append(" ");
+            }
+            String tranName = sb.toString();
+            if (tranName.length() > 50)
+                tranName = tranName.substring(0, 50);
+            System.out.printf(INSERT_INTO_TRAN, amount, checkNumber, tranName, postDate, tranType, acctName);
+            cal.add(Calendar.DATE, random.nextInt(MAX_DAYS_BETWEEN_TRANS));
+            postDate = cal.getTime();
         }
     }
 
@@ -115,10 +121,62 @@ public class FakeData {
                 }
             } while (payeeNames.size() <= i);
         }
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        Date today = cal.getTime();
+        cal.add(Calendar.DATE, BEGIN_DAYS_AGO * -1);
+        Date beginDate = cal.getTime();
         for (String payeeName : payeeNames) {
             String number = RandomStringUtils.randomNumeric(12);
-            System.out.printf("INSERT INTO `payee` (`name`, `number`, `version`)" + " VALUES ('%s','%s',0);%n",
-                    payeeName, number);
+            System.out.printf(INSERT_INTO_PAYEE, payeeName, number);
+            payables(today, beginDate, payeeName);
+        }
+    }
+
+    private void payables(Date today, Date beginDate, String payeeName) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(beginDate);
+        cal.add(Calendar.DATE, random.nextInt(DAYS_BETWEEN_PAYABLES));
+        Date payDueDt = cal.getTime();
+        while (payDueDt.before(today)) {
+            int newBalInt = random.nextInt(9000) + 1000;
+            BigDecimal newBalTot = BigDecimal.valueOf(newBalInt, 2);
+            System.out.printf(INSERT_INTO_PAYABLE, newBalTot, payDueDt, payeeName);
+            payments(payeeName, payDueDt, newBalInt);
+            cal.add(Calendar.DATE, DAYS_BETWEEN_PAYABLES);
+            payDueDt = cal.getTime();
+        }
+    }
+
+    private void payments(String payeeName, Date payDueDt, int newBalInt) {
+        List<BigDecimal> paidAmts = new ArrayList<>();
+        // 0 = No payment.
+        // 1 = One payment, paid in full.
+        // 2 = Two payments, paid in full.
+        // 3 = One payment, partial payment.
+        // 4 = Two payments, partial payment.
+        int paymentCase = random.nextInt(5);
+        if (paymentCase == 1) {
+            paidAmts.add(BigDecimal.valueOf(newBalInt, 2));
+        } else if (paymentCase == 2) {
+            int paidInt1 = newBalInt / 2 + random.nextInt(2000) - 1000;
+            int paidInt2 = newBalInt - paidInt1;
+            paidAmts.add(BigDecimal.valueOf(paidInt1, 2));
+            paidAmts.add(BigDecimal.valueOf(paidInt2, 2));
+        } else if (paymentCase == 3) {
+            int paidInt = newBalInt - random.nextInt(1000);
+            paidAmts.add(BigDecimal.valueOf(paidInt, 2));
+        } else if (paymentCase == 4) {
+            int paidInt1 = newBalInt / 2 - random.nextInt(500);
+            int paidInt2 = newBalInt / 2 - random.nextInt(500);
+            paidAmts.add(BigDecimal.valueOf(paidInt1, 2));
+            paidAmts.add(BigDecimal.valueOf(paidInt2, 2));
+        }
+        for (BigDecimal paidAmt : paidAmts) {
+            System.out.printf(INSERT_INTO_PAYMENT, paidAmt, payDueDt, payDueDt, payeeName);
         }
     }
 }
