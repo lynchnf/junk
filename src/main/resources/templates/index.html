@@ -18,7 +18,7 @@
                     <th>Name</th>
                     <th>Type</th>
                     <th>Balance</th>
-                    <th>Last Tran Date</th>
+                    <th>Last Tran</th>
                 </tr>
                 <tr th:each="acctSummary:${acctSummaries}">
                     <td><a th:href="@{/acct(acctId=${acctSummary.id})}" th:text="${acctSummary.name}"></a></td>
@@ -27,8 +27,6 @@
                     <td th:text="${#dates.format(acctSummary.lastTranDate,'M/d/yyyy')}"></td>
                 </tr>
             </table>
-        </div>
-        <div class="col-md-4">
             <form class="form-inline" th:action="@{/dataFileUpload}" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="multipartFile">File to upload</label>
@@ -36,30 +34,25 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Upload</button>
             </form>
-            <table class="table table-sm table-striped">
-                <tr>
-                    <th>Original Filename</th>
-                    <th>Upload Timestamp</th>
-                    <th>Status</th>
-                </tr>
-                <tr th:each="dataFile:${dataFiles}">
-                    <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.originalFilename}"></a>
-                    </td>
-                    <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
-                    <td th:text="${dataFile.status}"></td>
-            </table>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-8">
             <table class="table table-sm table-striped">
                 <tr>
-                    <th>Name</th>
-                    <th>Number</th>
-                    <th>Nickname</th>
+                    <th>Payee</th>
+                    <th>Due Date</th>
+                    <th>Amount Due</th>
+                    <th>Minimum Due</th>
+                    <th>Last Payment</th>
+                    <th>Balance Due</th>
                 </tr>
-                <tr th:each="payee:${payees}">
-                    <td><a th:href="@{/payee(payeeId=${payee.id})}" th:text="${payee.name}"></a></td>
-                    <td th:text="${payee.number}"></td>
-                    <td th:text="${payee.nickname}"></td>
+                <tr th:each="payableBalance:${payableBalances}" th:class="${payableBalance.styleClass}">
+                    <td><a th:href="@{/payable(payableId=${payableBalance.id})}"
+                           th:text="${payableBalance.payeeDisplayName}"></a></td>
+                    <td th:text="${#dates.format(payableBalance.paymentDueDate,'M/d/yyyy')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableBalance.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableBalance.minimumPaymentDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+                    <td th:text="${#dates.format(payableBalance.lastPaymentDate,'M/d/yyyy')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
                 </tr>
             </table>
         </div>

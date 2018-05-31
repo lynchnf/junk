@@ -19,7 +19,8 @@ public class DataFileController {
     private DataFileService dataFileService;
 
     @RequestMapping("/dataFile")
-    public String loadView(@RequestParam("dataFileId") Long dataFileId, Model model, RedirectAttributes redirectAttributes) {
+    public String loadView(@RequestParam("dataFileId") Long dataFileId, Model model,
+            RedirectAttributes redirectAttributes) {
         Optional<DataFile> optional = dataFileService.findDataFileById(dataFileId);
         if (optional.isPresent()) {
             model.addAttribute("dataFile", optional.get());

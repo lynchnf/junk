@@ -10,17 +10,16 @@ public class TranBalanceBean {
     private Date postDate;
     private String checkNumber;
     private String name;
-    private String memo;
     private BigDecimal amount;
     private BigDecimal balance;
 
-    public TranBalanceBean(Long id, TranType type, Date postDate, String checkNumber, String name, String memo, BigDecimal amount, BigDecimal balance) {
+    public TranBalanceBean(Long id, TranType type, Date postDate, String checkNumber, String name, BigDecimal amount,
+            BigDecimal balance) {
         this.id = id;
         this.type = type;
         this.postDate = postDate;
         this.checkNumber = checkNumber;
         this.name = name;
-        this.memo = memo;
         this.amount = amount;
         this.balance = balance;
     }
@@ -43,10 +42,6 @@ public class TranBalanceBean {
 
     public String getName() {
         return name;
-    }
-
-    public String getMemo() {
-        return memo;
     }
 
     public BigDecimal getAmount() {

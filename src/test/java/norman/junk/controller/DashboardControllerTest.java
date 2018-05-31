@@ -1,8 +1,7 @@
 package norman.junk.controller;
 
 import norman.junk.service.AcctService;
-import norman.junk.service.DataFileService;
-import norman.junk.service.PayeeService;
+import norman.junk.service.PayableService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,7 @@ public class DashboardControllerTest {
     @MockBean
     private AcctService acctService;
     @MockBean
-    private DataFileService dataFileService;
-    @MockBean
-    private PayeeService payeeService;
+    private PayableService payableService;
 
     @Test
     public void loadView() throws Exception {

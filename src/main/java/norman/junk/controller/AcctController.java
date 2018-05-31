@@ -78,7 +78,8 @@ public class AcctController {
     }
 
     @GetMapping("/acctEdit")
-    public String loadEdit(@RequestParam(value = "acctId", required = false) Long acctId, Model model, RedirectAttributes redirectAttributes) {
+    public String loadEdit(@RequestParam(value = "acctId", required = false) Long acctId, Model model,
+            RedirectAttributes redirectAttributes) {
         // If no acct id, new account.
         if (acctId == null) {
             model.addAttribute("acctForm", new AcctForm());
@@ -101,7 +102,8 @@ public class AcctController {
     }
 
     @PostMapping("/acctEdit")
-    public String processEdit(@Valid AcctForm acctForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String processEdit(@Valid AcctForm acctForm, BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "acctEdit";
         }
@@ -119,7 +121,8 @@ public class AcctController {
             // Prepare to saveDataFile existing account.
             acct = acctForm.toAcct();
             // If either the acctNumber or effective date changed, prepare to saveDataFile current account number.
-            if (!acctForm.getNumber().equals(acctForm.getOldNumber()) || !acctForm.getEffDate().equals(acctForm.getOldEffDate())) {
+            if (!acctForm.getNumber().equals(acctForm.getOldNumber()) ||
+                    !acctForm.getEffDate().equals(acctForm.getOldEffDate())) {
                 AcctNbr acctNbr = acctForm.toAcctNbr();
                 acctNbr.setAcct(acct);
                 acct.getAcctNbrs().add(acctNbr);
@@ -192,7 +195,9 @@ public class AcctController {
     }
 
     @GetMapping("/acctUpload")
-    public String loadUpload(@RequestParam(value = "dataFileId") Long dataFileId, @RequestParam(value = "acctId", required = false) Long acctId, Model model, RedirectAttributes redirectAttributes) {
+    public String loadUpload(@RequestParam(value = "dataFileId") Long dataFileId,
+            @RequestParam(value = "acctId", required = false) Long acctId, Model model,
+            RedirectAttributes redirectAttributes) {
         Optional<DataFile> optionalDataFile = dataFileService.findDataFileById(dataFileId);
         // If no data file, we gots an error.
         if (!optionalDataFile.isPresent()) {
@@ -236,7 +241,8 @@ public class AcctController {
     }
 
     @PostMapping("/dataFileUpload")
-    public String processUpload(@RequestParam(value = "multipartFile") MultipartFile multipartFile, Model model, RedirectAttributes redirectAttributes) {
+    public String processUpload(@RequestParam(value = "multipartFile") MultipartFile multipartFile, Model model,
+            RedirectAttributes redirectAttributes) {
         if (multipartFile.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Upload file is empty or missing.");
             return "redirect:/";
@@ -298,7 +304,9 @@ public class AcctController {
         }
         if (acctMap.size() > 1) {
             // If we found multiple accounts, things are really fucked up.
-            redirectAttributes.addFlashAttribute("errorMessage", "UNEXPECTED ERROR: Multiple Account Records found for fid=\"" + ofxFid + "\", number=\"" + ofxAcctId + "\"");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "UNEXPECTED ERROR: Multiple Account Records found for fid=\"" + ofxFid + "\", number=\"" +
+                            ofxAcctId + "\"");
             return "redirect:/";
         }
         // Otherwise, we found no account number records. Try again using just the financial institution id.
@@ -324,17 +332,21 @@ public class AcctController {
         }
     }
 
-    private void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService, DataFileService dataFileService, RedirectAttributes redirectAttributes) {
+    private void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService,
+            DataFileService dataFileService, RedirectAttributes redirectAttributes) {
         int count = 0;
         for (OfxStmtTran ofxStmtTran : response.getOfxStmtTrans()) {
             List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
             if (trans.size() > 1) {
-                String errorMessage = "UNEXPECTED ERROR: Multiple transactions found for acctId=\"" + acct.getId() + ", fitId=\"" + ofxStmtTran.getFitId() + "\"";
+                String errorMessage =
+                        "UNEXPECTED ERROR: Multiple transactions found for acctId=\"" + acct.getId() + ", fitId=\"" +
+                                ofxStmtTran.getFitId() + "\"";
                 logger.error(errorMessage);
                 redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
                 return;
             }
-            if (ofxStmtTran.getPostDate().equals(acct.getBeginDate()) || ofxStmtTran.getPostDate().after(acct.getBeginDate())) {
+            if (ofxStmtTran.getPostDate().equals(acct.getBeginDate()) ||
+                    ofxStmtTran.getPostDate().after(acct.getBeginDate())) {
                 Tran tran = new Tran();
                 tran.setType(ofxStmtTran.getType());
                 tran.setPostDate(ofxStmtTran.getPostDate());
@@ -358,7 +370,8 @@ public class AcctController {
             acctService.saveAcct(acct);
             dataFile.setStatus(DataFileStatus.TRAN_SAVED);
             dataFileService.saveDataFile(dataFile);
-            String successMessage = "Account successfully updated with " + count + " transactions, acctId=\"" + acct.getId() + "\"";
+            String successMessage =
+                    "Account successfully updated with " + count + " transactions, acctId=\"" + acct.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
         } catch (Exception e) {
             String errorMessage = "New transactions could not be added to account, acctId=\"" + acct.getId() + "\"";

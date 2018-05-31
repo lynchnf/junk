@@ -28,7 +28,8 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @RequestMapping("/payment")
-    public String loadView(@RequestParam("paymentId") Long paymentId, Model model, RedirectAttributes redirectAttributes) {
+    public String loadView(@RequestParam("paymentId") Long paymentId, Model model,
+            RedirectAttributes redirectAttributes) {
         Optional<Payment> optionalPayment = paymentService.findPaymentById(paymentId);
         // If no payment, we gots an error.
         if (!optionalPayment.isPresent()) {
@@ -51,7 +52,9 @@ public class PaymentController {
     }
 
     @GetMapping("/paymentEdit")
-    public String loadEdit(@RequestParam(value = "paymentId", required = false) Long paymentId, @RequestParam(value = "payableId", required = false) Long payableId, Model model, RedirectAttributes redirectAttributes) {
+    public String loadEdit(@RequestParam(value = "paymentId", required = false) Long paymentId,
+            @RequestParam(value = "payableId", required = false) Long payableId, Model model,
+            RedirectAttributes redirectAttributes) {
         // If no payment id, new payment.
         if (paymentId == null) {
             // If no payable id, we gots an error.
@@ -98,7 +101,8 @@ public class PaymentController {
     }
 
     @PostMapping("/paymentEdit")
-    public String processEdit(@Valid PaymentForm paymentForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String processEdit(@Valid PaymentForm paymentForm, BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "paymentEdit";
         }

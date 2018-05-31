@@ -31,6 +31,7 @@ public class FakeData {
             "Pedantic", "Quiescent", "Recalcitrant", "Sleazy", "Taciturn"};
     private static final String[] PAYEE_NAME_PART_2 = {"Cable TV", "Credit Card", "Gas", "Gym", "Insurance",
             "Lawn Service", "Mortgage", "Power", "Subscription Service", "Water & Sewer"};
+    public static final int FUTURE_DAYS_AHEAD = 40;
     private static final int DAYS_BETWEEN_PAYABLES = 7;
     private static final BigDecimal MINUS_ONE = new BigDecimal(-1);
     private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `name`, `type`, `version`) VALUES (%.2f,'%tF','%s','%s',0);%n";
@@ -127,21 +128,24 @@ public class FakeData {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         Date today = cal.getTime();
+        cal.add(Calendar.DATE, FUTURE_DAYS_AHEAD);
+        Date future = cal.getTime();
+        cal.setTime(today);
         cal.add(Calendar.DATE, BEGIN_DAYS_AGO * -1);
         Date beginDate = cal.getTime();
         for (String payeeName : payeeNames) {
             String number = RandomStringUtils.randomNumeric(12);
             System.out.printf(INSERT_INTO_PAYEE, payeeName, number);
-            payables(today, beginDate, payeeName);
+            payables(future, beginDate, payeeName);
         }
     }
 
-    private void payables(Date today, Date beginDate, String payeeName) {
+    private void payables(Date future, Date beginDate, String payeeName) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(beginDate);
         cal.add(Calendar.DATE, random.nextInt(DAYS_BETWEEN_PAYABLES));
         Date payDueDt = cal.getTime();
-        while (payDueDt.before(today)) {
+        while (payDueDt.before(future)) {
             int newBalInt = random.nextInt(9000) + 1000;
             BigDecimal newBalTot = BigDecimal.valueOf(newBalInt, 2);
             System.out.printf(INSERT_INTO_PAYABLE, newBalTot, payDueDt, payeeName);

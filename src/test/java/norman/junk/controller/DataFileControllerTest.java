@@ -39,7 +39,8 @@ public class DataFileControllerTest {
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("dataFileView"));
-        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(originalFilename)));
+        resultActions
+                .andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(originalFilename)));
     }
 
     @Test

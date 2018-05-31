@@ -1,9 +1,11 @@
 package norman.junk.controller;
 
+import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
+import norman.junk.service.PayableBalanceBean;
 import norman.junk.service.PayableService;
 import norman.junk.service.PayeeService;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +30,8 @@ public class PayableController {
     private PayableService payableService;
 
     @RequestMapping("/payable")
-    public String loadView(@RequestParam("payableId") Long payableId, Model model, RedirectAttributes redirectAttributes) {
+    public String loadView(@RequestParam("payableId") Long payableId, Model model,
+            RedirectAttributes redirectAttributes) {
         Optional<Payable> optionalPayable = payableService.findPayableById(payableId);
         // If no payable, we gots an error.
         if (!optionalPayable.isPresent()) {
@@ -45,13 +48,15 @@ public class PayableController {
 
     @RequestMapping("/payableList")
     public String loadList(Model model) {
-        Iterable<Payable> payables = payableService.findAllPayables();
-        model.addAttribute("payables", payables);
+        List<PayableBalanceBean> payableBalances = payableService.findAllPayableBalances();
+        model.addAttribute("payableBalances", payableBalances);
         return "payableList";
     }
 
     @GetMapping("/payableEdit")
-    public String loadEdit(@RequestParam(value = "payableId", required = false) Long payableId, @RequestParam(value = "payeeId", required = false) Long payeeId, Model model, RedirectAttributes redirectAttributes) {
+    public String loadEdit(@RequestParam(value = "payableId", required = false) Long payableId,
+            @RequestParam(value = "payeeId", required = false) Long payeeId, Model model,
+            RedirectAttributes redirectAttributes) {
         // If no payable id, new payable.
         if (payableId == null) {
             // If no payee id, we gots an error.
@@ -96,7 +101,8 @@ public class PayableController {
     }
 
     @PostMapping("/payableEdit")
-    public String processEdit(@Valid PayableForm payableForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String processEdit(@Valid PayableForm payableForm, BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "payableEdit";
         }

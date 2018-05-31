@@ -68,7 +68,8 @@ public class AcctService {
             for (Tran tran : trans) {
                 BigDecimal amount = tran.getAmount();
                 balance = balance.add(amount);
-                TranBalanceBean tranBalance = new TranBalanceBean(tran.getId(), tran.getType(), tran.getPostDate(), tran.getCheckNumber(), tran.getName(), tran.getMemo(), amount, balance);
+                TranBalanceBean tranBalance = new TranBalanceBean(tran.getId(), tran.getType(), tran.getPostDate(),
+                        tran.getCheckNumber(), tran.getName(), amount, balance);
                 tranBalances.add(tranBalance);
             }
         }
@@ -89,7 +90,8 @@ public class AcctService {
                     lastTranDate = tran.getPostDate();
                 }
             }
-            AcctSummaryBean acctSummary = new AcctSummaryBean(acct.getId(), acct.getName(), acct.getType(), balance, lastTranDate);
+            AcctSummaryBean acctSummary = new AcctSummaryBean(acct.getId(), acct.getName(), acct.getType(), balance,
+                    lastTranDate);
             acctSummaries.add(acctSummary);
         }
         return acctSummaries;

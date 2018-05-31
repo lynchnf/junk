@@ -3,6 +3,7 @@ package norman.junk.controller;
 import java.math.BigDecimal;
 import java.util.Date;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import norman.junk.domain.Payment;
@@ -22,6 +23,7 @@ public class PaymentForm {
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date paidDate;
     @NotNull
+    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal amountPaid;
     @Size(max = 50)
@@ -55,8 +57,8 @@ public class PaymentForm {
         payment.setVersion(version);
         payment.setPaidDate(paidDate);
         payment.setAmountPaid(amountPaid);
-        payment.setConfirmCode(confirmCode);
-        payment.setTransNumber(transNumber);
+        payment.setConfirmCode(StringUtils.trimToNull(confirmCode));
+        payment.setTransNumber(StringUtils.trimToNull(transNumber));
         return payment;
     }
 

@@ -46,7 +46,8 @@ public class PayeeController {
     }
 
     @GetMapping("/payeeEdit")
-    public String loadEdit(@RequestParam(value = "payeeId", required = false) Long payeeId, Model model, RedirectAttributes redirectAttributes) {
+    public String loadEdit(@RequestParam(value = "payeeId", required = false) Long payeeId, Model model,
+            RedirectAttributes redirectAttributes) {
         // If no payee id, new payee.
         if (payeeId == null) {
             model.addAttribute("payeeForm", new PayeeForm());
@@ -68,7 +69,8 @@ public class PayeeController {
     }
 
     @PostMapping("/payeeEdit")
-    public String processEdit(@Valid PayeeForm payeeForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String processEdit(@Valid PayeeForm payeeForm, BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "payeeEdit";
         }

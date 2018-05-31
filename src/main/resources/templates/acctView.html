@@ -83,7 +83,6 @@
             <th>Post Date</th>
             <th>Check Number</th>
             <th>Name</th>
-            <th>Memo</th>
             <th>Amount</th>
             <th>Balance</th>
         </tr>
@@ -92,7 +91,6 @@
             <td th:text="${#dates.format(tranBalance.postDate,'M/d/yyyy')}"></td>
             <td th:text="${tranBalance.checkNumber}"></td>
             <td th:text="${tranBalance.name}"></td>
-            <td th:text="${tranBalance.memo}"></td>
             <td th:text="${#numbers.formatDecimal(tranBalance.amount,1,'DEFAULT',2,'DEFAULT')}"></td>
             <td th:text="${#numbers.formatDecimal(tranBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>

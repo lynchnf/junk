@@ -137,7 +137,8 @@ public class AcctServiceTest {
         List<AcctNbr> acctnbrsCurrent = Arrays.asList(acctNbr22, acctNbr21);
         Mockito.when(acctNbrRepository.findTopByAcct_IdOrderByEffDateDesc(acct2.getId())).thenReturn(acctnbrsCurrent);
         List<AcctNbr> acctnbrsByFid = Arrays.asList(acctNbr31);
-        Mockito.when(acctNbrRepository.findByAcct_FidAndNumber(acct3.getFid(), acctNbr31.getNumber())).thenReturn(acctnbrsByFid);
+        Mockito.when(acctNbrRepository.findByAcct_FidAndNumber(acct3.getFid(), acctNbr31.getNumber()))
+                .thenReturn(acctnbrsByFid);
         List<Tran> transByFitId = Arrays.asList(tran202);
         Mockito.when(tranRepository.findByAcct_IdAndFitId(acct2.getId(), tran202.getFitId())).thenReturn(transByFitId);
     }

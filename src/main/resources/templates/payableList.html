@@ -16,26 +16,16 @@
             <th>Payee</th>
             <th>Payment Due Date</th>
             <th>New Balance Total</th>
-            <th>Previous Balance</th>
-            <th>Payments And Other Credits</th>
-            <th>Purchases And Adjustments</th>
-            <th>Fees Charged</th>
-            <th>Interest Charged</th>
-            <th>Statement Closing Date</th>
             <th>Minimum Payment Due</th>
+            <th>Balance</th>
         </tr>
-        <tr th:each="payable:${payables}">
-            <td><a th:href="@{/payable(payableId=${payable.id})}"
-                   th:text="${(payable.payee.nickname != null)?payable.payee.nickname:payable.payee.name}"></a></td>
-            <td th:text="${#dates.format(payable.paymentDueDate,'M/d/yyyy')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.previousBalance,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.paymentsAndOtherCredits,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.purchasesAndAdjustments,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.feesCharged,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.interestCharged,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#dates.format(payable.statementClosingDate,'M/d/yyyy')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.minimumPaymentDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+        <tr th:each="payableBalance:${payableBalances}">
+            <td><a th:href="@{/payable(payableId=${payableBalance.id})}"
+                   th:text="${payableBalance.payeeDisplayName}"></a></td>
+            <td th:text="${#dates.format(payableBalance.paymentDueDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payableBalance.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#numbers.formatDecimal(payableBalance.minimumPaymentDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#numbers.formatDecimal(payableBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>
     </table>
 </main>

@@ -1,12 +1,10 @@
 package norman.junk.controller;
 
 import java.util.List;
-import norman.junk.domain.DataFile;
-import norman.junk.domain.Payee;
 import norman.junk.service.AcctService;
 import norman.junk.service.AcctSummaryBean;
-import norman.junk.service.DataFileService;
-import norman.junk.service.PayeeService;
+import norman.junk.service.PayableBalanceBean;
+import norman.junk.service.PayableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,18 +15,14 @@ public class DashboardController {
     @Autowired
     private AcctService acctService;
     @Autowired
-    private DataFileService dataFileService;
-    @Autowired
-    private PayeeService payeeService;
+    private PayableService payableService;
 
     @RequestMapping("/")
     public String loadView(Model model) {
         List<AcctSummaryBean> acctSummaries = acctService.findAllAcctSummaries();
         model.addAttribute("acctSummaries", acctSummaries);
-        Iterable<DataFile> dataFiles = dataFileService.findAllDataFiles();
-        model.addAttribute("dataFiles", dataFiles);
-        Iterable<Payee> payees = payeeService.findAllPayees();
-        model.addAttribute("payees", payees);
+        List<PayableBalanceBean> payableBalances = payableService.findPayableBalancesDue();
+        model.addAttribute("payableBalances", payableBalances);
         return "index";
     }
 }
