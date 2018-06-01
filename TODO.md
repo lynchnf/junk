@@ -1,9 +1,6 @@
 # To Do List
 
 ## Current
-- On payee list, show balance for each payee. 
-- On payee view, show balance for each payable.
-- On payable list, show balance for each payable.
 - Make payments report.
 
 ## Backlog
@@ -15,6 +12,8 @@
 - Import payments from html.
 
 ## Icebox
+- On payee list, show balance for each payee. 
+- On payee view, show balance for each payable.
 - Show version on navigation bar.
 - Add in security.
 - Many-to-many relationship betweens payables and payments.
@@ -64,3 +63,5 @@
 - View single transaction.
 - On account view, show balance for every transaction.
 - Add confirm code and transaction number to payment.
+- On payable list, show balance for each payable.
+- On dashboard, show balance for each payable.

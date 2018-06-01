@@ -1,6 +1,10 @@
 package norman.junk.controller;
 
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
+import java.util.Random;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayableService;
@@ -23,6 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @RunWith(SpringRunner.class)
 @WebMvcTest(PayableController.class)
 public class PayableControllerTest {
+    private final Random random = new Random();
     @Autowired
     private MockMvc mockMvc;
     @MockBean
@@ -32,27 +37,19 @@ public class PayableControllerTest {
 
     @Test
     public void loadView() throws Exception {
-        Long payableId = Long.valueOf(1);
-        Payable payable = new Payable();
-        payable.setId(payableId);
-        Payee payee = new Payee();
-        String payeeNickname = RandomStringUtils.randomAlphabetic(50);
-        payee.setNickname(payeeNickname);
-        payable.setPayee(payee);
-        Optional<Payable> optionalPayable = Optional.of(payable);
-        BDDMockito.given(payableService.findPayableById(payableId)).willReturn(optionalPayable);
+        Payable payable = buildExistingPayable();
+        BDDMockito.given(payableService.findPayableById(payable.getId())).willReturn(Optional.of(payable));
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payable").param("payableId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("payableView"));
-        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payeeNickname)));
+        resultActions.andExpect(
+                MockMvcResultMatchers.content().string(StringContains.containsString(payable.getPayee().getName())));
     }
 
     @Test
     public void loadViewPayableNotExist() throws Exception {
-        Long payableId = Long.valueOf(2);
-        Optional<Payable> optionalPayable = Optional.empty();
-        BDDMockito.given(payableService.findPayableById(payableId)).willReturn(optionalPayable);
+        BDDMockito.given(payableService.findPayableById(Long.valueOf(2))).willReturn(Optional.empty());
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payable").param("payableId", "2");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isFound());
@@ -69,10 +66,46 @@ public class PayableControllerTest {
     }
 
     @Test
-    public void loadEdit() {
+    public void loadEdit() throws Exception {
+        Payable payable = buildExistingPayable();
+        BDDMockito.given(payableService.findPayableById(payable.getId())).willReturn(Optional.of(payable));
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payableEdit")
+                .param("payableId", "1");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("payableEdit"));
+        resultActions.andExpect(
+                MockMvcResultMatchers.content().string(StringContains.containsString(payable.getPayee().getName())));
     }
 
     @Test
-    public void processEdit() {
+    public void processEdit() throws Exception {
+        // TODO Write processEdit test.
+    }
+
+    private Payable buildExistingPayable() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        Long payeeId = Long.valueOf(1);
+        String payeeName = RandomStringUtils.randomAlphabetic(50);
+        String number = RandomStringUtils.randomNumeric(50);
+        Payee payee = new Payee();
+        payee.setId(payeeId);
+        payee.setName(payeeName);
+        payee.setNumber(number);
+        Long payableId = Long.valueOf(1);
+        cal.add(Calendar.DATE, random.nextInt(60) - 30);
+        Date payDueDt = cal.getTime();
+        BigDecimal newBalTot = BigDecimal.valueOf(random.nextInt(10000), 2);
+        Payable payable = new Payable();
+        payable.setId(payableId);
+        payable.setPaymentDueDate(payDueDt);
+        payable.setNewBalanceTotal(newBalTot);
+        payable.setPayee(payee);
+        payee.getPayables().add(payable);
+        return payable;
     }
 }

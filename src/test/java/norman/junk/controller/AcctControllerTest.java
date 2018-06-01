@@ -1,7 +1,13 @@
 package norman.junk.controller;
 
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
+import java.util.Random;
 import norman.junk.domain.Acct;
+import norman.junk.domain.AcctNbr;
+import norman.junk.domain.AcctType;
 import norman.junk.service.AcctService;
 import norman.junk.service.DataFileService;
 import norman.junk.service.OfxParseService;
@@ -23,6 +29,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @RunWith(SpringRunner.class)
 @WebMvcTest(AcctController.class)
 public class AcctControllerTest {
+    private final Random random = new Random();
     @Autowired
     private MockMvc mockMvc;
     @MockBean
@@ -34,25 +41,18 @@ public class AcctControllerTest {
 
     @Test
     public void loadView() throws Exception {
-        Long acctId = Long.valueOf(1);
-        Acct acct = new Acct();
-        acct.setId(acctId);
-        String acctName = RandomStringUtils.randomAlphabetic(50);
-        acct.setName(acctName);
-        Optional<Acct> optionalAcct = Optional.of(acct);
-        BDDMockito.given(acctService.findAcctById(acctId)).willReturn(optionalAcct);
+        Acct acct = buildExistingAcct();
+        BDDMockito.given(acctService.findAcctById(acct.getId())).willReturn(Optional.of(acct));
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acct").param("acctId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("acctView"));
-        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acctName)));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acct.getName())));
     }
 
     @Test
     public void loadViewAcctNotExist() throws Exception {
-        Long acctId = Long.valueOf(2);
-        Optional<Acct> optionalAcct = Optional.empty();
-        BDDMockito.given(acctService.findAcctById(acctId)).willReturn(optionalAcct);
+        BDDMockito.given(acctService.findAcctById(Long.valueOf(2))).willReturn(Optional.empty());
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acct").param("acctId", "2");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isFound());
@@ -70,17 +70,57 @@ public class AcctControllerTest {
 
     @Test
     public void loadEdit() throws Exception {
+        Acct acct = buildExistingAcct();
+        BDDMockito.given(acctService.findAcctById(acct.getId())).willReturn(Optional.of(acct));
+        AcctNbr acctNbr = acct.getAcctNbrs().iterator().next();
+        BDDMockito.given(acctService.findCurrentAcctNbrByAcctId(acct.getId())).willReturn(Optional.of(acctNbr));
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acctEdit").param("acctId", "1");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("acctEdit"));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acct.getName())));
     }
 
     @Test
     public void processEdit() throws Exception {
+        // TODO Write processEdit test.
     }
 
     @Test
     public void loadUpload() throws Exception {
+        // TODO Write loadUpload test.
     }
 
     @Test
     public void processUpload() throws Exception {
+        // TODO Write processUpload test.
+    }
+
+    private Acct buildExistingAcct() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        Long acctId = Long.valueOf(1);
+        String acctName = RandomStringUtils.randomAlphabetic(50);
+        cal.add(Calendar.DATE, random.nextInt(100) * -1);
+        Date beginDate = cal.getTime();
+        BigDecimal beginBalance = BigDecimal.valueOf(random.nextInt(100000), 2);
+        AcctType acctType = AcctType.values()[random.nextInt(AcctType.values().length)];
+        Acct acct = new Acct();
+        acct.setId(acctId);
+        acct.setName(acctName);
+        acct.setBeginDate(beginDate);
+        acct.setBeginBalance(beginBalance);
+        acct.setType(acctType);
+        Long acctNbrId = Long.valueOf(1);
+        String number = RandomStringUtils.randomNumeric(50);
+        AcctNbr acctNbr = new AcctNbr();
+        acctNbr.setId(acctNbrId);
+        acctNbr.setNumber(number);
+        acctNbr.setAcct(acct);
+        acct.getAcctNbrs().add(acctNbr);
+        return acct;
     }
 }
