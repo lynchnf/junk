@@ -14,14 +14,19 @@
     <div class="form-group row">
         <label class="col-sm-3 col-form-label">Payee</label>
         <div class="col-sm-9">
-            <p class="form-control-plaintext"
-               th:text="${(payment.payable.payee.nickname != null)?payment.payable.payee.nickname:payment.payable.payee.name}"></p>
+            <p class="form-control-plaintext">
+                <a th:href="@{/payee(payeeId=${payment.payable.payee.id})}"
+                   th:text="${(payment.payable.payee.nickname != null)?payment.payable.payee.nickname:payment.payable.payee.name}"></a>
+            </p>
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-3 col-form-label">Payment Due Date</label>
         <div class="col-sm-9">
-            <p class="form-control-plaintext" th:text="${#dates.format(payment.payable.paymentDueDate,'M/d/yyyy')}"></p>
+            <p class="form-control-plaintext">
+                <a th:href="@{/payable(payableId=${payment.payable.id})}"
+                   th:text="${#dates.format(payment.payable.paymentDueDate,'M/d/yyyy')}"></a>
+            </p>
         </div>
     </div>
     <div class="form-group row">

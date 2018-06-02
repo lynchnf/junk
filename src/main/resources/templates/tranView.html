@@ -14,7 +14,9 @@
     <div class="form-group row">
         <label class="col-sm-3 col-form-label">Acct</label>
         <div class="col-sm-9">
-            <p class="form-control-plaintext" th:text="${tran.acct.name}"></p>
+            <p class="form-control-plaintext">
+                <a th:href="@{/acct(acctId=${tran.acct.id})}" th:text="${tran.acct.name}"></a>
+            </p>
         </div>
     </div>
     <div class="form-group row">

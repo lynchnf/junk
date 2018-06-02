@@ -14,8 +14,10 @@
     <div class="form-group row">
         <label class="col-sm-3 col-form-label">Payee</label>
         <div class="col-sm-9">
-            <p class="form-control-plaintext"
-               th:text="${(payable.payee.nickname != null)?payable.payee.nickname:payable.payee.name}"></p>
+            <p class="form-control-plaintext">
+                <a th:href="@{/payee(payeeId=${payable.payee.id})}"
+                   th:text="${(payable.payee.nickname != null)?payable.payee.nickname:payable.payee.name}"></a>
+            </p>
         </div>
     </div>
     <div class="form-group row">
