@@ -23,7 +23,7 @@ public class FakeData {
             "Ginormous", "Hungry", "Interstellar", "Jurassic"};
     private static final String[] ACCT_NAME_PART_2 = {"Bank", "Credit Union", "Countinghouse", "Finance Corp", "Fund",
             "Investments", "Saving & Loan", "Thrift", "Treasury", "Trust"};
-    private static final int BEGIN_DAYS_AGO = 20;
+    private static final int BEGIN_DAYS_AGO = 30;
     private static final int MAX_DAYS_BETWEEN_TRANS = 5;
     private static final int CHECKS_ARE_ONE_IN = 3;
     private static final int NBR_OF_PAYEES = 5;
@@ -31,7 +31,7 @@ public class FakeData {
             "Pedantic", "Quiescent", "Recalcitrant", "Sleazy", "Taciturn"};
     private static final String[] PAYEE_NAME_PART_2 = {"Cable TV", "Credit Card", "Gas", "Gym", "Insurance",
             "Lawn Service", "Mortgage", "Power", "Subscription Service", "Water & Sewer"};
-    public static final int FUTURE_DAYS_AHEAD = 40;
+    public static final int FUTURE_DAYS_AHEAD = 30;
     private static final int DAYS_BETWEEN_PAYABLES = 7;
     private static final BigDecimal MINUS_ONE = new BigDecimal(-1);
     private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `name`, `type`, `version`) VALUES (%.2f,'%tF','%s','%s',0);%n";

@@ -15,7 +15,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PayableService {
-    private static final int WARNING_DAYS_AGO = 14;
+    private static final int ALMOST_DUE_DAYS = 14;
+    private static final String OVERDUE_CLASS = "text-danger";
+    private static final String ALMOST_DUE_CLASS = "text-warning";
+    private static final String NOT_DUE_FOR_AWHILE_YET_CLASS = "text-body";
+    private static final String ALREADY_PAID_CLASS = "text-success";
     private Date today;
     private Date warning;
     @Autowired
@@ -28,7 +32,7 @@ public class PayableService {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         today = cal.getTime();
-        cal.add(Calendar.DATE, WARNING_DAYS_AGO);
+        cal.add(Calendar.DATE, ALMOST_DUE_DAYS);
         warning = cal.getTime();
     }
 
@@ -71,16 +75,16 @@ public class PayableService {
         String styleClass = null;
         if (balance.compareTo(BigDecimal.ZERO) > 0) {
             if (paymentDueDate.before(today)) {
-                styleClass = "bg-danger text-white";
+                styleClass = OVERDUE_CLASS;
             } else if (paymentDueDate.before(warning)) {
-                styleClass = "bg-warning text-dark";
+                styleClass = ALMOST_DUE_CLASS;
             } else {
-                styleClass = "bg-info text-white";
+                styleClass = NOT_DUE_FOR_AWHILE_YET_CLASS;
             }
         } else {
             if (paymentDueDate.equals(today) || paymentDueDate.after(today) || lastPaymentDate.equals(today) ||
                     lastPaymentDate.after(today)) {
-                styleClass = "bg-success text-white";
+                styleClass = ALREADY_PAID_CLASS;
             }
         }
         return new PayableBalanceBean(payable.getId(), payeeDisplayName, paymentDueDate, newBalanceTotal,
