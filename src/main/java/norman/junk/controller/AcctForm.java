@@ -35,6 +35,8 @@ public class AcctForm {
     private String bankId;
     @NotNull
     private AcctType type;
+    @Digits(integer = 7, fraction = 2)
+    private BigDecimal creditLimit;
     @NotBlank
     @Size(max = 50)
     private String number;
@@ -58,6 +60,7 @@ public class AcctForm {
         fid = acct.getFid();
         bankId = acct.getBankId();
         type = acct.getType();
+        creditLimit = acct.getCreditLimit();
         number = acctNbr.getNumber();
         oldNumber = acctNbr.getNumber();
         effDate = acctNbr.getEffDate();
@@ -83,6 +86,7 @@ public class AcctForm {
         acct.setFid(StringUtils.trimToNull(fid));
         acct.setBankId(StringUtils.trimToNull(bankId));
         acct.setType(type);
+        acct.setCreditLimit(creditLimit);
         return acct;
     }
 
@@ -163,6 +167,14 @@ public class AcctForm {
 
     public void setType(AcctType type) {
         this.type = type;
+    }
+
+    public BigDecimal getCreditLimit() {
+        return creditLimit;
+    }
+
+    public void setCreditLimit(BigDecimal creditLimit) {
+        this.creditLimit = creditLimit;
     }
 
     public String getNumber() {
