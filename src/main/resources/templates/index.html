@@ -12,17 +12,19 @@
     <h1>Dashboard</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-5">
             <table class="table table-sm table-striped">
                 <tr>
                     <th>Name</th>
                     <th>Type</th>
+                    <th>Credit Limit</th>
                     <th>Balance</th>
                     <th>Last Tran</th>
                 </tr>
                 <tr th:each="acctSummary:${acctSummaries}">
                     <td><a th:href="@{/acct(acctId=${acctSummary.id})}" th:text="${acctSummary.name}"></a></td>
                     <td th:text="${acctSummary.type}"></td>
+                    <td th:text="${#numbers.formatDecimal(acctSummary.creditLimit,1,'DEFAULT',2,'DEFAULT')}"></td>
                     <td th:text="${#numbers.formatDecimal(acctSummary.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
                     <td th:text="${#dates.format(acctSummary.lastTranDate,'M/d/yyyy')}"></td>
                 </tr>
@@ -35,7 +37,7 @@
                 <button type="submit" class="btn btn-primary">Upload</button>
             </form>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-7">
             <table class="table table-sm table-striped">
                 <tr>
                     <th>Payee</th>

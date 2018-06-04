@@ -15,12 +15,14 @@
         <tr>
             <th>Name</th>
             <th>Type</th>
+            <th>Credit Limit</th>
             <th>Balance</th>
             <th>Last Tran Date</th>
         </tr>
         <tr th:each="acctSummary:${acctSummaries}">
             <td><a th:href="@{/acct(acctId=${acctSummary.id})}" th:text="${acctSummary.name}"></a></td>
             <td th:text="${acctSummary.type}"></td>
+            <td th:text="${#numbers.formatDecimal(acctSummary.creditLimit,1,'DEFAULT',2,'DEFAULT')}"></td>
             <td th:text="${#numbers.formatDecimal(acctSummary.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
             <td th:text="${#dates.format(acctSummary.lastTranDate,'M/d/yyyy')}"></td>
         </tr>
