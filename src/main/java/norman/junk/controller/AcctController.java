@@ -345,8 +345,8 @@ public class AcctController {
                 redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
                 return;
             }
-            if (ofxStmtTran.getPostDate().equals(acct.getBeginDate()) ||
-                    ofxStmtTran.getPostDate().after(acct.getBeginDate())) {
+            if (trans.size() == 0 && (ofxStmtTran.getPostDate().equals(acct.getBeginDate()) ||
+                    ofxStmtTran.getPostDate().after(acct.getBeginDate()))) {
                 Tran tran = new Tran();
                 tran.setType(ofxStmtTran.getType());
                 tran.setPostDate(ofxStmtTran.getPostDate());
