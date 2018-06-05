@@ -31,8 +31,9 @@ public class FakeData {
             "Pedantic", "Quiescent", "Recalcitrant", "Sleazy", "Taciturn"};
     private static final String[] PAYEE_NAME_PART_2 = {"Cable TV", "Credit Card", "Gas", "Gym", "Insurance",
             "Lawn Service", "Mortgage", "Power", "Subscription Service", "Water & Sewer"};
-    public static final int FUTURE_DAYS_AHEAD = 30;
+    private static final int FUTURE_DAYS_AHEAD = 30;
     private static final int DAYS_BETWEEN_PAYABLES = 7;
+    private static final int NBR_OF_CATEGORIES = 10;
     private static final BigDecimal MINUS_ONE = new BigDecimal(-1);
     private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `name`, `type`, `version`) VALUES (%.2f,'%tF','%s','%s',0);%n";
     private static final String INSERT_INTO_ACCT_NBR = "INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
@@ -40,6 +41,7 @@ public class FakeData {
     private static final String INSERT_INTO_PAYEE = "INSERT INTO `payee` (`name`, `number`, `version`) VALUES ('%s','%s',0);%n";
     private static final String INSERT_INTO_PAYABLE = "INSERT INTO `payable` (`new_balance_total`, `payment_due_date`, `version`, `payee_id`) VALUES (%.2f,'%tF',0,(SELECT `id` FROM `payee` WHERE `name` = '%s'));%n";
     private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`payment_due_date` = '%tF' AND b.`name` = '%s'));%n";
+    private static final String INSERT_INTO_CATEGORY = "INSERT INTO `category` (`name`, `version`) VALUES ('%s',0);%n";
     private static Random random = new Random();
 
     public static void main(String[] args) {
@@ -47,6 +49,7 @@ public class FakeData {
         FakeData me = new FakeData();
         me.accts();
         me.payees();
+        me.categories();
         logger.debug("Finished FakeData");
     }
 
@@ -181,6 +184,13 @@ public class FakeData {
         }
         for (BigDecimal paidAmt : paidAmts) {
             System.out.printf(INSERT_INTO_PAYMENT, paidAmt, payDueDt, payDueDt, payeeName);
+        }
+    }
+
+    private void categories() {
+        for (int i = 0; i < NBR_OF_CATEGORIES; i++) {
+            String categoryName = StringUtils.capitalize(RandomStringUtils.randomAlphabetic(1, 10).toLowerCase());
+            System.out.printf(INSERT_INTO_CATEGORY, categoryName);
         }
     }
 }
