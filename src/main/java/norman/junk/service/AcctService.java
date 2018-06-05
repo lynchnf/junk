@@ -90,7 +90,8 @@ public class AcctService {
                     lastTranDate = tran.getPostDate();
                 }
             }
-            AcctSummaryBean acctSummary = new AcctSummaryBean(acct.getId(), acct.getName(), acct.getType(), acct.getCreditLimit(), balance, lastTranDate);
+            AcctSummaryBean acctSummary = new AcctSummaryBean(acct.getId(), acct.getName(), acct.getType(),
+                    acct.getCreditLimit(), balance, lastTranDate);
             acctSummaries.add(acctSummary);
         }
         return acctSummaries;

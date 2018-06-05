@@ -49,7 +49,9 @@
         </tr>
         <tr th:each="dataLine:${dataFile.dataLines}">
             <td th:text="${#numbers.formatInteger(dataLine.seq,1,'DEFAULT')}"></td>
-            <td><pre th:text="${dataLine.text}"></pre></td>
+            <td>
+                <pre th:text="${dataLine.text}"></pre>
+            </td>
         </tr>
     </table>
 </main>
