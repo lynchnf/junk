@@ -8,7 +8,7 @@
 </head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Payment List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <table class="table table-sm table-striped">
@@ -18,6 +18,8 @@
             <th>New Balance Total</th>
             <th>Paid Date</th>
             <th>Amount Paid</th>
+            <th>Confirm Code</th>
+            <th>Trans Number</th>
         </tr>
         <tr th:each="payment:${payments}">
             <td><a th:href="@{/payment(paymentId=${payment.id})}"
@@ -27,6 +29,8 @@
             <td th:text="${#numbers.formatDecimal(payment.payable.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
             <td th:text="${#dates.format(payment.paidDate,'M/d/yyyy')}"></td>
             <td th:text="${#numbers.formatDecimal(payment.amountPaid,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${payment.confirmCode}"></td>
+            <td th:text="${payment.transNumber}"></td>
         </tr>
     </table>
 </main>

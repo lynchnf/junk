@@ -18,7 +18,6 @@ import norman.junk.domain.DataFileStatus;
 import norman.junk.domain.DataLine;
 import norman.junk.domain.Tran;
 import norman.junk.service.AcctService;
-import norman.junk.service.AcctSummaryBean;
 import norman.junk.service.DataFileService;
 import norman.junk.service.OfxParseResponse;
 import norman.junk.service.OfxParseService;
@@ -72,8 +71,8 @@ public class AcctController {
 
     @RequestMapping("/acctList")
     public String loadList(Model model) {
-        List<AcctSummaryBean> acctSummaries = acctService.findAllAcctSummaries();
-        model.addAttribute("acctSummaries", acctSummaries);
+        Iterable<Acct> accts = acctService.findAllAccts();
+        model.addAttribute("accts", accts);
         return "acctList";
     }
 

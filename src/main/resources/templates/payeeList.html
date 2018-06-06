@@ -8,7 +8,7 @@
 </head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Payee List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <table class="table table-sm table-striped">
@@ -16,11 +16,23 @@
             <th>Name</th>
             <th>Number</th>
             <th>Nickname</th>
+            <th>Address 1</th>
+            <th>Address 2</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Zip Code</th>
+            <th>Phone Number</th>
         </tr>
         <tr th:each="payee:${payees}">
             <td><a th:href="@{/payee(payeeId=${payee.id})}" th:text="${payee.name}"></a></td>
             <td th:text="${payee.number}"></td>
             <td th:text="${payee.nickname}"></td>
+            <td th:text="${payee.address1}"></td>
+            <td th:text="${payee.address2}"></td>
+            <td th:text="${payee.city}"></td>
+            <td th:text="${payee.state}"></td>
+            <td th:text="${payee.zipCode}"></td>
+            <td th:text="${payee.phoneNumber}"></td>
         </tr>
     </table>
 </main>

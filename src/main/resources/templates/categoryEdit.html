@@ -8,7 +8,7 @@
 </head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Category Edit</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <form th:action="@{/categoryEdit}" th:object="${categoryForm}" method="post">

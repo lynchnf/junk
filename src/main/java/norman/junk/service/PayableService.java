@@ -95,6 +95,10 @@ public class PayableService {
         return payableRepository.findById(payableId);
     }
 
+    public Iterable<Payable> findAllPayables() {
+        return payableRepository.findAll();
+    }
+
     public Payable savePayable(Payable payable) {
         return payableRepository.save(payable);
     }

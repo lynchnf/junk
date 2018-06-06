@@ -8,7 +8,7 @@
 </head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1 th:text="${(acctForm.dataFileId != null)?'Account Edit from Upload':'Account Edit'}"></h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <form th:action="@{/acctEdit}" th:object="${acctForm}" method="post">

@@ -1,11 +1,9 @@
 package norman.junk.controller;
 
-import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
-import norman.junk.service.PayableBalanceBean;
 import norman.junk.service.PayableService;
 import norman.junk.service.PayeeService;
 import org.apache.commons.lang3.StringUtils;
@@ -48,8 +46,8 @@ public class PayableController {
 
     @RequestMapping("/payableList")
     public String loadList(Model model) {
-        List<PayableBalanceBean> payableBalances = payableService.findAllPayableBalances();
-        model.addAttribute("payableBalances", payableBalances);
+        Iterable<Payable> payables = payableService.findAllPayables();
+        model.addAttribute("payables", payables);
         return "payableList";
     }
 

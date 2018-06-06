@@ -8,23 +8,29 @@
 </head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Account List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <table class="table table-sm table-striped">
         <tr>
             <th>Name</th>
+            <th>Begin Date</th>
+            <th>Begin Balance</th>
+            <th>Organization</th>
+            <th>FID</th>
+            <th>Bank Id</th>
             <th>Type</th>
             <th>Credit Limit</th>
-            <th>Balance</th>
-            <th>Last Tran Date</th>
         </tr>
-        <tr th:each="acctSummary:${acctSummaries}">
-            <td><a th:href="@{/acct(acctId=${acctSummary.id})}" th:text="${acctSummary.name}"></a></td>
-            <td th:text="${acctSummary.type}"></td>
-            <td th:text="${#numbers.formatDecimal(acctSummary.creditLimit,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(acctSummary.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#dates.format(acctSummary.lastTranDate,'M/d/yyyy')}"></td>
+        <tr th:each="acct:${accts}">
+            <td><a th:href="@{/acct(acctId=${acct.id})}" th:text="${acct.name}"></a></td>
+            <td th:text="${#dates.format(acct.beginDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(acct.beginBalance,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${acct.organization}"></td>
+            <td th:text="${acct.fid}"></td>
+            <td th:text="${acct.bankId}"></td>
+            <td th:text="${acct.type}"></td>
+            <td th:text="${#numbers.formatDecimal(acct.creditLimit,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>
     </table>
 </main>
