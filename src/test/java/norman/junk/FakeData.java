@@ -42,6 +42,7 @@ public class FakeData {
     private static final String INSERT_INTO_PAYABLE = "INSERT INTO `payable` (`new_balance_total`, `payment_due_date`, `version`, `payee_id`) VALUES (%.2f,'%tF',0,(SELECT `id` FROM `payee` WHERE `name` = '%s'));%n";
     private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`payment_due_date` = '%tF' AND b.`name` = '%s'));%n";
     private static final String INSERT_INTO_CATEGORY = "INSERT INTO `category` (`name`, `version`) VALUES ('%s',0);%n";
+    private static final String INSERT_INTO_PATTERN = "INSERT INTO `pattern` (`seq`, `tran_name`, `version`, `category_id`) VALUES (%d,'%s',0,(SELECT `id` FROM `category` WHERE `name` = '%s'));%n";
     private static Random random = new Random();
 
     public static void main(String[] args) {
@@ -191,6 +192,16 @@ public class FakeData {
         for (int i = 0; i < NBR_OF_CATEGORIES; i++) {
             String categoryName = StringUtils.capitalize(RandomStringUtils.randomAlphabetic(1, 10).toLowerCase());
             System.out.printf(INSERT_INTO_CATEGORY, categoryName);
+            patterns(i, categoryName);
         }
+    }
+
+    private void patterns(int i, String categoryName) {
+        int seq = i + 1;
+        String pattern = categoryName;
+        if (categoryName.length() > 2)
+            pattern = categoryName.substring(0, 2);
+        pattern += ".*";
+        System.out.printf(INSERT_INTO_PATTERN, seq, pattern, categoryName);
     }
 }
