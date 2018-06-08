@@ -1,11 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:replace="fragments/header::header"></header>
 <main class="container">
@@ -26,7 +21,8 @@
                 <td>
                     <input type="hidden" th:field="*{patternRows[__${iterStat.index}__].id}"/>
                     <input type="hidden" th:field="*{patternRows[__${iterStat.index}__].version}"/>
-                    <a href="#" title="Move to top" th:if="${not iterStat.first}">T</a>
+                    <a href="#" title="Move to top" th:if="${not iterStat.first}"><span
+                            class="oi oi-data-transfer-upload"></span></a>
                     <a href="#" title="Move up" th:if="${not iterStat.first}">U</a>
                     <a href="#" title="Move down" th:if="${not iterStat.last}">D</a>
                     <a href="#" title="Move to bottom" th:if="${not iterStat.last}">B</a>
