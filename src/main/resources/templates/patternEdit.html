@@ -12,6 +12,9 @@
     <h1>Category Pattern List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <form th:action="@{/patternEdit}" th:object="${patternForm}" method="post">
+        <ul class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+            <li th:each="err:${#fields.allErrors()}" th:text="${err}"></li>
+        </ul>
         <table class="table table-sm table-striped">
             <tr>
                 <th>Actions</th>
@@ -23,10 +26,10 @@
                 <td>
                     <input type="hidden" th:field="*{patternRows[__${iterStat.index}__].id}"/>
                     <input type="hidden" th:field="*{patternRows[__${iterStat.index}__].version}"/>
-                    <a href="#" title="Move to top">T</a>
-                    <a href="#" title="Move up">U</a>
-                    <a href="#" title="Move down">D</a>
-                    <a href="#" title="Move to bottom">B</a>
+                    <a href="#" title="Move to top" th:if="${not iterStat.first}">T</a>
+                    <a href="#" title="Move up" th:if="${not iterStat.first}">U</a>
+                    <a href="#" title="Move down" th:if="${not iterStat.last}">D</a>
+                    <a href="#" title="Move to bottom" th:if="${not iterStat.last}">B</a>
                     <a href="#" title="Remove">R</a>
                 </td>
                 <td th:text="${iterStat.count}"></td>
@@ -39,6 +42,8 @@
                             th:text="${category.name}"></option>
                 </select></td>
             </tr>
+        </table>
+        <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </main>
 <script src="js/jquery-3.3.1.min.js"></script>

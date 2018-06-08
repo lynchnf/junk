@@ -1,5 +1,6 @@
 package norman.junk.controller;
 
+import java.util.List;
 import javax.validation.Valid;
 import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
@@ -45,6 +46,16 @@ public class PatternController {
             RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "patternEdit";
+        }
+        List<Pattern> patterns = patternForm.toPatterns(categoryService);
+        try {
+            Iterable<Pattern> saveAll = patternService.saveAll(patterns);
+            String successMessage = "Category Patterns successfully saved";
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+        } catch (Exception e) {
+            String errorMessage = "Category Patterns could not be saved";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
+            logger.error(errorMessage, e);
         }
         return "redirect:/patternList";
     }

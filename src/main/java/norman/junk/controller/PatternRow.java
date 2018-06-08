@@ -1,6 +1,12 @@
 package norman.junk.controller;
 
+import java.util.Optional;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
+import norman.junk.service.CategoryService;
 
 public class PatternRow {
     private Long id;
@@ -16,6 +22,19 @@ public class PatternRow {
         version = pattern.getVersion();
         categoryId = pattern.getCategory().getId();
         tranName = pattern.getTranName();
+    }
+
+    public Pattern toPattern(CategoryService categoryService) {
+        Pattern pattern = new Pattern();
+        pattern.setId(id);
+        pattern.setVersion(version);
+        if (categoryId != null) {
+            Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
+            if (optionalCategory.isPresent())
+                pattern.setCategory(optionalCategory.get());
+        }
+        pattern.setTranName(tranName);
+        return pattern;
     }
 
     public Long getId() {

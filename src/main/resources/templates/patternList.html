@@ -11,7 +11,6 @@
 <main class="container">
     <h1>Category Pattern List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
-    <a class="btn btn-primary" th:href="@{/patternEdit}">Edit</a>
     <table class="table table-sm table-striped">
         <tr>
             <th>Seq</th>
@@ -24,6 +23,7 @@
             <td th:text="${pattern.category.name}"></td>
         </tr>
     </table>
+    <a class="btn btn-primary" th:href="@{/patternEdit}">Edit</a>
 </main>
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/popper-1.14.3.min.js"></script>
