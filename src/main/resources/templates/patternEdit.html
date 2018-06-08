@@ -21,12 +21,19 @@
                 <td>
                     <input type="hidden" th:field="*{patternRows[__${iterStat.index}__].id}"/>
                     <input type="hidden" th:field="*{patternRows[__${iterStat.index}__].version}"/>
-                    <a href="#" title="Move to top" th:if="${not iterStat.first}"><span
-                            class="oi oi-data-transfer-upload"></span></a>
-                    <a href="#" title="Move up" th:if="${not iterStat.first}">U</a>
-                    <a href="#" title="Move down" th:if="${not iterStat.last}">D</a>
-                    <a href="#" title="Move to bottom" th:if="${not iterStat.last}">B</a>
-                    <a href="#" title="Remove">R</a>
+                    <span class="oi oi-data-transfer-upload text-secondary" title="Move to top"
+                          th:if="${iterStat.first}"></span>
+                    <a href="#" th:unless="${iterStat.first}"><span class="oi oi-data-transfer-upload"
+                                                                    title="Move to top"></span></a>
+                    <span class="oi oi-arrow-top text-secondary" title="Move up" th:if="${iterStat.first}"></span>
+                    <a href="#" th:unless="${iterStat.first}"><span class="oi oi-arrow-top" title="Move up"></span></a>
+                    <span class="oi oi-arrow-bottom text-secondary" title="Move down" th:if="${iterStat.last}"></span>
+                    <a href="#" th:unless="${iterStat.last}"><span class="oi oi-arrow-bottom" title="Move down"></span></a>
+                    <span class="oi oi-data-transfer-download text-secondary" title="Move to bottom"
+                          th:if="${iterStat.last}"></span>
+                    <a href="#" th:unless="${iterStat.last}"><span class="oi oi-data-transfer-download"
+                                                                   title="Move to bottom"></span></a>
+                    <a href="#"><span class="oi oi-trash" title="Remove"></span></a>
                 </td>
                 <td th:text="${iterStat.count}"></td>
                 <td><input type="text" class="form-control" th:field="*{patternRows[__${iterStat.index}__].tranName}"
@@ -42,8 +49,6 @@
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </main>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/popper-1.14.3.min.js"></script>
-<script src="js/bootstrap-4.1.1.min.js"></script>
+<footer th:replace="fragments/footer::footer"></footer>
 </body>
 </html>
