@@ -20,7 +20,7 @@
         <div class="col-sm-9">
             <p class="form-control-plaintext">
                 <a th:href="@{/payable(payableId=${payment.payable.id})}"
-                   th:text="${#dates.format(payment.payable.paymentDueDate,'M/d/yyyy')}"></a>
+                   th:text="${#dates.format(payment.payable.dueDate,'M/d/yyyy')}"></a>
             </p>
         </div>
     </div>
@@ -28,7 +28,7 @@
         <label class="col-sm-3 col-form-label">New Balance Total</label>
         <div class="col-sm-9">
             <p class="form-control-plaintext"
-               th:text="${#numbers.formatDecimal(payment.payable.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></p>
+               th:text="${#numbers.formatDecimal(payment.payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></p>
         </div>
     </div>
     <div class="form-group row">

@@ -21,7 +21,7 @@ public class AcctNbr {
     @Version
     private Integer version = 0;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ACCT_ID", nullable = false)
+    @JoinColumn(name = "acct_id", nullable = false)
     private Acct acct;
     @Column(length = 50)
     private String number;

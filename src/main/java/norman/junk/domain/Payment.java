@@ -22,7 +22,7 @@ public class Payment {
     @Version
     private Integer version = 0;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PAYABLE_ID", nullable = false)
+    @JoinColumn(name = "payable_id", nullable = false)
     private Payable payable;
     @Temporal(TemporalType.DATE)
     private Date paidDate;

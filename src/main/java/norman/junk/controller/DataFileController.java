@@ -18,6 +18,13 @@ public class DataFileController {
     @Autowired
     private DataFileService dataFileService;
 
+    @RequestMapping("/dataFileList")
+    public String loadList(Model model) {
+        Iterable<DataFile> dataFiles = dataFileService.findAllDataFiles();
+        model.addAttribute("dataFiles", dataFiles);
+        return "dataFileList";
+    }
+
     @RequestMapping("/dataFile")
     public String loadView(@RequestParam("dataFileId") Long dataFileId, Model model,
             RedirectAttributes redirectAttributes) {
@@ -31,12 +38,5 @@ public class DataFileController {
             logger.warn(errorMessage);
             return "redirect:/";
         }
-    }
-
-    @RequestMapping("/dataFileList")
-    public String loadList(Model model) {
-        Iterable<DataFile> dataFiles = dataFileService.findAllDataFiles();
-        model.addAttribute("dataFiles", dataFiles);
-        return "dataFileList";
     }
 }

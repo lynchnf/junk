@@ -18,7 +18,7 @@ public class Pattern {
     @Version
     private Integer version = 0;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CATEGORY_ID", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
     private Integer seq;
     @Column(length = 255)

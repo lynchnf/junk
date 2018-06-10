@@ -16,9 +16,9 @@ public class PaymentForm {
     private Long payableId;
     private String payeeDisplayName;
     @DateTimeFormat(pattern = "M/d/yyyy")
-    private Date payablePaymentDueDate;
+    private Date payableDueDate;
     @Digits(integer = 7, fraction = 2)
-    private BigDecimal payableNewBalanceTotal;
+    private BigDecimal payableAmountDue;
     @NotNull
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date paidDate;
@@ -43,8 +43,8 @@ public class PaymentForm {
         } else {
             payeeDisplayName = payment.getPayable().getPayee().getNickname();
         }
-        payablePaymentDueDate = payment.getPayable().getPaymentDueDate();
-        payableNewBalanceTotal = payment.getPayable().getNewBalanceTotal();
+        payableDueDate = payment.getPayable().getDueDate();
+        payableAmountDue = payment.getPayable().getAmountDue();
         paidDate = payment.getPaidDate();
         amountPaid = payment.getAmountPaid();
         confirmCode = payment.getConfirmCode();
@@ -94,20 +94,20 @@ public class PaymentForm {
         this.payeeDisplayName = payeeDisplayName;
     }
 
-    public Date getPayablePaymentDueDate() {
-        return payablePaymentDueDate;
+    public Date getPayableDueDate() {
+        return payableDueDate;
     }
 
-    public void setPayablePaymentDueDate(Date payablePaymentDueDate) {
-        this.payablePaymentDueDate = payablePaymentDueDate;
+    public void setPayableDueDate(Date payableDueDate) {
+        this.payableDueDate = payableDueDate;
     }
 
-    public BigDecimal getPayableNewBalanceTotal() {
-        return payableNewBalanceTotal;
+    public BigDecimal getPayableAmountDue() {
+        return payableAmountDue;
     }
 
-    public void setPayableNewBalanceTotal(BigDecimal payableNewBalanceTotal) {
-        this.payableNewBalanceTotal = payableNewBalanceTotal;
+    public void setPayableAmountDue(BigDecimal payableAmountDue) {
+        this.payableAmountDue = payableAmountDue;
     }
 
     public Date getPaidDate() {

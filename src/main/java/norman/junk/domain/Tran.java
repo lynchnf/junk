@@ -24,7 +24,7 @@ public class Tran {
     @Version
     private Integer version = 0;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ACCT_ID", nullable = false)
+    @JoinColumn(name = "acct_id", nullable = false)
     private Acct acct;
     @Enumerated(EnumType.STRING)
     @Column(length = 10)

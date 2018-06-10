@@ -22,6 +22,13 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @RequestMapping("/categoryList")
+    public String loadList(Model model) {
+        Iterable<Category> categories = categoryService.findAllCategories();
+        model.addAttribute("categories", categories);
+        return "categoryList";
+    }
+
     @RequestMapping("/category")
     public String loadView(@RequestParam("categoryId") Long categoryId, Model model,
             RedirectAttributes redirectAttributes) {
@@ -37,13 +44,6 @@ public class CategoryController {
         Category category = optionalCategory.get();
         model.addAttribute("category", category);
         return "categoryView";
-    }
-
-    @RequestMapping("/categoryList")
-    public String loadList(Model model) {
-        Iterable<Category> categories = categoryService.findAllCategories();
-        model.addAttribute("categories", categories);
-        return "categoryList";
     }
 
     @GetMapping("/categoryEdit")

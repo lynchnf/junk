@@ -103,8 +103,8 @@ public class PaymentControllerTest {
         BigDecimal newBalTot = BigDecimal.valueOf(random.nextInt(10000), 2);
         Payable payable = new Payable();
         payable.setId(payableId);
-        payable.setPaymentDueDate(payDueDt);
-        payable.setNewBalanceTotal(newBalTot);
+        payable.setDueDate(payDueDt);
+        payable.setAmountDue(newBalTot);
         payable.setPayee(payee);
         payee.getPayables().add(payable);
         Long paymentId = Long.valueOf(1);

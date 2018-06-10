@@ -35,12 +35,12 @@ public class FakeData {
     private static final int DAYS_BETWEEN_PAYABLES = 7;
     private static final int NBR_OF_CATEGORIES = 10;
     private static final BigDecimal MINUS_ONE = new BigDecimal(-1);
-    private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `name`, `type`, `version`) VALUES (%.2f,'%tF','%s','%s',0);%n";
+    private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `credit_limit`, `name`, `type`, `version`) VALUES (%.2f,'%tF',%.2f,'%s','%s',0);%n";
     private static final String INSERT_INTO_ACCT_NBR = "INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
     private static final String INSERT_INTO_TRAN = "INSERT INTO `tran` (`amount`, `check_number`, `name`, `post_date`, `type`, `version`, `acct_id`) VALUES (%.2f,%s,'%s','%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
     private static final String INSERT_INTO_PAYEE = "INSERT INTO `payee` (`name`, `number`, `version`) VALUES ('%s','%s',0);%n";
-    private static final String INSERT_INTO_PAYABLE = "INSERT INTO `payable` (`new_balance_total`, `payment_due_date`, `version`, `payee_id`) VALUES (%.2f,'%tF',0,(SELECT `id` FROM `payee` WHERE `name` = '%s'));%n";
-    private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`payment_due_date` = '%tF' AND b.`name` = '%s'));%n";
+    private static final String INSERT_INTO_PAYABLE = "INSERT INTO `payable` (`amount_due`, `due_date`, `version`, `payee_id`) VALUES (%.2f,'%tF',0,(SELECT `id` FROM `payee` WHERE `name` = '%s'));%n";
+    private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`due_date` = '%tF' AND b.`name` = '%s'));%n";
     private static final String INSERT_INTO_CATEGORY = "INSERT INTO `category` (`name`, `version`) VALUES ('%s',0);%n";
     private static final String INSERT_INTO_PATTERN = "INSERT INTO `pattern` (`seq`, `tran_name`, `version`, `category_id`) VALUES (%d,'%s',0,(SELECT `id` FROM `category` WHERE `name` = '%s'));%n";
     private static Random random = new Random();
@@ -75,11 +75,14 @@ public class FakeData {
         Date beginDate = cal.getTime();
         for (String acctName : acctNames) {
             BigDecimal beginBalance = BigDecimal.valueOf(random.nextInt(100000), 2);
+            BigDecimal creditLimit = BigDecimal.valueOf(100000, 2);
             AcctType acctType = AcctType.values()[random.nextInt(AcctType.values().length)];
-            if (acctType == AcctType.CC)
+            if (acctType == AcctType.CC) {
                 beginBalance = beginBalance.multiply(MINUS_ONE);
+                creditLimit = creditLimit.multiply(MINUS_ONE);
+            }
             String number = RandomStringUtils.randomNumeric(12);
-            System.out.printf(INSERT_INTO_ACCT, beginBalance, beginDate, acctName, acctType);
+            System.out.printf(INSERT_INTO_ACCT, beginBalance, beginDate, creditLimit, acctName, acctType);
             System.out.printf(INSERT_INTO_ACCT_NBR, beginDate, number, acctName);
             tran(today, beginDate, acctName, acctType);
         }

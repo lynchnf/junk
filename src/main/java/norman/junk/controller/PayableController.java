@@ -27,6 +27,13 @@ public class PayableController {
     @Autowired
     private PayableService payableService;
 
+    @RequestMapping("/payableList")
+    public String loadList(Model model) {
+        Iterable<Payable> payables = payableService.findAllPayables();
+        model.addAttribute("payables", payables);
+        return "payableList";
+    }
+
     @RequestMapping("/payable")
     public String loadView(@RequestParam("payableId") Long payableId, Model model,
             RedirectAttributes redirectAttributes) {
@@ -42,13 +49,6 @@ public class PayableController {
         Payable payable = optionalPayable.get();
         model.addAttribute("payable", payable);
         return "payableView";
-    }
-
-    @RequestMapping("/payableList")
-    public String loadList(Model model) {
-        Iterable<Payable> payables = payableService.findAllPayables();
-        model.addAttribute("payables", payables);
-        return "payableList";
     }
 
     @GetMapping("/payableEdit")

@@ -41,15 +41,6 @@
                     <th>Last Payment</th>
                     <th>Balance Due</th>
                 </tr>
-                <tr th:each="payableBalance:${payableBalances}" th:class="${payableBalance.styleClass}">
-                    <td><a th:href="@{/payable(payableId=${payableBalance.id})}"
-                           th:text="${payableBalance.payeeDisplayName}"></a></td>
-                    <td th:text="${#dates.format(payableBalance.paymentDueDate,'M/d/yyyy')}"></td>
-                    <td th:text="${#numbers.formatDecimal(payableBalance.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
-                    <td th:text="${#numbers.formatDecimal(payableBalance.minimumPaymentDue,1,'DEFAULT',2,'DEFAULT')}"></td>
-                    <td th:text="${#dates.format(payableBalance.lastPaymentDate,'M/d/yyyy')}"></td>
-                    <td th:text="${#numbers.formatDecimal(payableBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
-                </tr>
             </table>
         </div>
     </div>

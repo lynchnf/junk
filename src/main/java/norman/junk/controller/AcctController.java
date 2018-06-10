@@ -47,6 +47,13 @@ public class AcctController {
     @Autowired
     private OfxParseService ofxParseService;
 
+    @RequestMapping("/acctList")
+    public String loadList(Model model) {
+        Iterable<Acct> accts = acctService.findAllAccts();
+        model.addAttribute("accts", accts);
+        return "acctList";
+    }
+
     @RequestMapping("/acct")
     public String loadView(@RequestParam("acctId") Long acctId, Model model, RedirectAttributes redirectAttributes) {
         Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
@@ -67,13 +74,6 @@ public class AcctController {
         List<TranBalanceBean> tranBalances = acctService.findTranBalancesByAcctId(acct.getId());
         model.addAttribute("tranBalances", tranBalances);
         return "acctView";
-    }
-
-    @RequestMapping("/acctList")
-    public String loadList(Model model) {
-        Iterable<Acct> accts = acctService.findAllAccts();
-        model.addAttribute("accts", accts);
-        return "acctList";
     }
 
     @GetMapping("/acctEdit")
