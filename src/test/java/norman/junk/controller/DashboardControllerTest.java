@@ -1,6 +1,7 @@
 package norman.junk.controller;
 
 import norman.junk.service.AcctService;
+import norman.junk.service.PayableService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ public class DashboardControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private AcctService acctService;
+    @MockBean
+    private PayableService payableService;
 
     @Test
     public void loadView() throws Exception {

@@ -37,9 +37,18 @@
                     <th>Payee</th>
                     <th>Due Date</th>
                     <th>Amount Due</th>
-                    <th>Minimum Due</th>
-                    <th>Last Payment</th>
+                    <th>Minimum Payment</th>
+                    <th>Last Paid Date</th>
                     <th>Balance Due</th>
+                </tr>
+                <tr th:each="payableDue:${payableDues}" th:class="${payableDue.styleClass}">
+                    <td><a th:href="@{/payable(payableId=${payableDue.id})}"
+                           th:text="${payableDue.payeeDisplayName}"></a></td>
+                    <td th:text="${#dates.format(payableDue.dueDate,'M/d/yyyy')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableDue.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableDue.minimumPayment,1,'DEFAULT',2,'DEFAULT')}"></td>
+                    <td th:text="${#dates.format(payableDue.lastPaidDate,'M/d/yyyy')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableDue.balanceDue,1,'DEFAULT',2,'DEFAULT')}"></td>
                 </tr>
             </table>
         </div>
