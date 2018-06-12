@@ -21,6 +21,7 @@ import norman.junk.service.OfxInst;
 import norman.junk.service.OfxParseResponse;
 import norman.junk.service.OfxParseService;
 import norman.junk.service.OfxStmtTran;
+import norman.junk.service.TranService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.core.StringContains;
 import org.junit.Test;
@@ -51,6 +52,8 @@ public class AcctControllerTest {
     private DataFileService dataFileService;
     @MockBean
     private OfxParseService ofxParseService;
+    @MockBean
+    private TranService tranService;
 
     @Test
     public void loadView() throws Exception {

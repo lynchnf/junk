@@ -3,6 +3,7 @@ package norman.junk.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import norman.junk.service.OfxParseResponse;
 import norman.junk.service.OfxParseService;
 import norman.junk.service.OfxStmtTran;
 import norman.junk.service.TranBalanceBean;
+import norman.junk.service.TranService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,8 @@ public class AcctController {
     private DataFileService dataFileService;
     @Autowired
     private OfxParseService ofxParseService;
+    @Autowired
+    private TranService tranService;
 
     @RequestMapping("/acctList")
     public String loadList(Model model) {
@@ -329,6 +333,81 @@ public class AcctController {
             model.addAttribute("acctForm", acctForm);
             return "acctEdit";
         }
+    }
+
+    @GetMapping("/acctReconcile")
+    public String loadReconcile(@RequestParam(value = "acctId") Long acctId, Model model,
+            RedirectAttributes redirectAttributes) {
+        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
+        // If no account, we gots an error.
+        if (!optionalAcct.isPresent()) {
+            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.error(errorMessage);
+            return "redirect:/";
+        }
+        AcctReconcileForm acctReconcileForm = new AcctReconcileForm();
+        acctReconcileForm.setAcctId(acctId);
+        acctReconcileForm.setAcctName(optionalAcct.get().getName());
+        model.addAttribute("acctReconcileForm", acctReconcileForm);
+        return "acctReconcile";
+    }
+
+    @PostMapping("/acctReconcile")
+    public String processReconcile(@Valid AcctReconcileForm acctReconcileForm, BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "acctReconcile";
+        }
+        Long acctId = acctReconcileForm.getAcctId();
+        if (acctId == null) {
+            String msg = "Account Id is null when reconciling an Account";
+            redirectAttributes.addFlashAttribute("errorMessage", "UNEXPECTED ERROR: " + msg);
+            logger.error(msg);
+            return "redirect:/";
+        }
+        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
+        // If no account, we gots an error.
+        if (!optionalAcct.isPresent()) {
+            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            logger.error(errorMessage);
+            return "redirect:/";
+        }
+        Acct acct = optionalAcct.get();
+        BigDecimal balance = acct.getBeginBalance();
+        List<Tran> trans = acct.getTrans();
+        List<Tran> reconcileUs = new ArrayList<>();
+        for (Tran tran : trans) {
+            Date postDate = tran.getPostDate();
+            Date reconcileDate = acctReconcileForm.getReconcileDate();
+            if (postDate.equals(reconcileDate) || postDate.before(reconcileDate)) {
+                balance = balance.add(tran.getAmount());
+                reconcileUs.add(tran);
+            }
+        }
+        BigDecimal reconcileAmount = acctReconcileForm.getReconcileAmount();
+        if (balance.compareTo(reconcileAmount) != 0) {
+            String errorMessage = String
+                    .format("Account not able to reconciled, difference=%.2f", balance.subtract(reconcileAmount));
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            redirectAttributes.addAttribute("acctId", acctId);
+            return "redirect:/acct?acctId={acctId}";
+        }
+        for (Tran reconcileMe : reconcileUs) {
+            reconcileMe.setReconciled(Boolean.TRUE);
+        }
+        try {
+            Iterable<Tran> saveAll = tranService.saveAllTrans(reconcileUs);
+            String successMessage = "Account successfully reconciled, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+        } catch (Exception e) {
+            String errorMessage = "Account could not be reconciled, acctId=\"" + acctId + "\"";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
+            logger.error(errorMessage, e);
+        }
+        redirectAttributes.addAttribute("acctId", acctId);
+        return "redirect:/acct?acctId={acctId}";
     }
 
     private void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService,

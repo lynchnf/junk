@@ -69,7 +69,7 @@ public class AcctService {
                 BigDecimal amount = tran.getAmount();
                 balance = balance.add(amount);
                 TranBalanceBean tranBalance = new TranBalanceBean(tran.getId(), tran.getType(), tran.getPostDate(),
-                        tran.getCheckNumber(), tran.getName(), amount, balance);
+                        tran.getCheckNumber(), tran.getName(), tran.getReconciled(), amount, balance);
                 tranBalances.add(tranBalance);
             }
         }

@@ -68,6 +68,7 @@
         </div>
     </div>
     <a class="btn btn-primary" th:href="@{/acctEdit(acctId=${acct.id})}">Edit</a>
+    <a class="btn btn-secondary" th:href="@{/acctReconcile(acctId=${acct.id})}">Reconcile</a>
     <table class="table table-sm table-striped">
         <tr>
             <th>Number</th>
@@ -84,6 +85,7 @@
             <th>Post Date</th>
             <th>Check Number</th>
             <th>Name</th>
+            <th>Reconciled</th>
             <th>Amount</th>
             <th>Balance</th>
         </tr>
@@ -92,6 +94,7 @@
             <td th:text="${#dates.format(tranBalance.postDate,'M/d/yyyy')}"></td>
             <td th:text="${tranBalance.checkNumber}"></td>
             <td th:text="${tranBalance.name}"></td>
+            <td><span th:if="${tranBalance.reconciled}" class="oi oi-task"></span></td>
             <td th:text="${#numbers.formatDecimal(tranBalance.amount,1,'DEFAULT',2,'DEFAULT')}"></td>
             <td th:text="${#numbers.formatDecimal(tranBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>

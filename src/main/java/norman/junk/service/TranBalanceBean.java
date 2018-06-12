@@ -10,17 +10,19 @@ public class TranBalanceBean {
     private Date postDate;
     private String checkNumber;
     private String name;
+    private Boolean reconciled;
     private BigDecimal amount;
     private BigDecimal balance;
 
-    public TranBalanceBean(Long id, TranType type, Date postDate, String checkNumber, String name, BigDecimal amount,
-            BigDecimal balance) {
+    public TranBalanceBean(Long id, TranType type, Date postDate, String checkNumber, String name, Boolean reconciled,
+            BigDecimal amount, BigDecimal balance) {
         this.id = id;
         this.type = type;
         this.postDate = postDate;
         this.checkNumber = checkNumber;
         this.name = name;
         this.amount = amount;
+        this.reconciled = reconciled;
         this.balance = balance;
     }
 
@@ -42,6 +44,12 @@ public class TranBalanceBean {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isReconciled() {
+        if (reconciled != null)
+            return reconciled.booleanValue();
+        return false;
     }
 
     public BigDecimal getAmount() {

@@ -14,4 +14,8 @@ public class TranService {
     public Optional<Tran> findTranById(Long tranId) {
         return tranRepository.findById(tranId);
     }
+
+    public Iterable<Tran> saveAllTrans(Iterable<Tran> trans) {
+        return tranRepository.saveAll(trans);
+    }
 }

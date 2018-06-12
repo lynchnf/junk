@@ -21,7 +21,7 @@ public class DashboardController {
     public String loadView(Model model) {
         List<AcctSummaryBean> acctSummaries = acctService.findAllAcctSummaries();
         model.addAttribute("acctSummaries", acctSummaries);
-        List<PayableDueBean> payableDues = payableService.foo();
+        List<PayableDueBean> payableDues = payableService.findAllPayableDues();
         model.addAttribute("payableDues", payableDues);
         return "index";
     }

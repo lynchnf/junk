@@ -48,7 +48,7 @@ public class PayableService {
         return payableRepository.save(payable);
     }
 
-    public List<PayableDueBean> foo() {
+    public List<PayableDueBean> findAllPayableDues() {
         List<PayableDueBean> payableDues = new ArrayList<>();
         Iterable<Payable> payables = payableRepository.findAllByOrderByDueDate();
         for (Payable payable : payables) {

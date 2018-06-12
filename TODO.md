@@ -1,35 +1,32 @@
 # To Do List
 
 ## Current
-- Make payments report.
+- Allow selection of payee when adding payable.
+- Validation for pattern edit.
+- Simple reconcile of account.
+- Match categories to transactions.
 
 ## Backlog
-- WRITE UNIT TESTS!!!
-- Simple reconcile of account.
+- WRITE MORE UNIT TESTS!!!
 - Reprocess data file.
-- Match transactions and payments.
 - Paging, sorting, and filtering on ALL list pages.
-- Import payments from html.
-
-## Icebox
-- On payee list, show balance for each payee. 
-- On payee view, show balance for each payable.
-- Show version on navigation bar.
 - Add in security.
-- Many-to-many relationship betweens payables and payments.
-- Pay accounts between payees and payables.
 - Auto create payables based on cron string.
 - Suggest estimated payable amount and schedule.
+
+## Icebox
+- Match transactions and payments.
+- Import payments from html.
+- On payee list, show balance for each payee. 
+- On payee view, show balance for each payable.
+- Many-to-many relationship betweens payables and payments.
+- Pay accounts between payees and payables.
 - Edit or add transaction.
 - Match manually entered and generated transactions.
 - Fix non-reconciling account.
 - List statements.
 - View single statement.
 - Edit or add statement.
-- List categories.
-- View single category.
-- Edit or add category.
-- Match categories to transactions.
 - List budget years.
 - View single budget year.
 - Edit or add budget year.
@@ -65,3 +62,7 @@
 - Add confirm code and transaction number to payment.
 - On payable list, show balance for each payable.
 - On dashboard, show balance for each payable.
+- Show version on navigation bar.
+- List categories.
+- View single category.
+- Edit or add category.
