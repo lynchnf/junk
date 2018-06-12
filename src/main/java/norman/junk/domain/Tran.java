@@ -26,6 +26,9 @@ public class Tran {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "acct_id", nullable = false)
     private Acct acct;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
     private TranType type;
@@ -49,7 +52,7 @@ public class Tran {
     @Column(length = 255)
     private String name;
     @Column(length = 10)
-    private String category;
+    private String ofxCategory;
     @Column(length = 255)
     private String memo;
     private Boolean reconciled;
@@ -76,6 +79,14 @@ public class Tran {
 
     public void setAcct(Acct acct) {
         this.acct = acct;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public TranType getType() {
@@ -158,12 +169,12 @@ public class Tran {
         this.name = name;
     }
 
-    public String getCategory() {
-        return category;
+    public String getOfxCategory() {
+        return ofxCategory;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setOfxCategory(String ofxCategory) {
+        this.ofxCategory = ofxCategory;
     }
 
     public String getMemo() {

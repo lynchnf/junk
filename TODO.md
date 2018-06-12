@@ -2,7 +2,6 @@
 
 ## Current
 - Validation for pattern edit.
-- Match categories to transactions.
 
 ## Backlog
 - WRITE MORE UNIT TESTS!!!
@@ -66,3 +65,4 @@
 - Edit or add category.
 - Simple reconcile of account.
 - Allow selection of payee when adding payable.
+- Match categories to transactions.

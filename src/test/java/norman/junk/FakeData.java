@@ -202,8 +202,8 @@ public class FakeData {
     private void patterns(int i, String categoryName) {
         int seq = i + 1;
         String pattern = categoryName;
-        if (categoryName.length() > 2)
-            pattern = categoryName.substring(0, 2);
+        if (categoryName.length() > 1)
+            pattern = categoryName.substring(0, 1);
         pattern += ".*";
         System.out.printf(INSERT_INTO_PATTERN, seq, pattern, categoryName);
     }

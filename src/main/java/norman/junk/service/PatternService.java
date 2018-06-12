@@ -11,8 +11,8 @@ public class PatternService {
     @Autowired
     private PatternRepository patternRepository;
 
-    public Iterable<Pattern> findAllPatterns() {
-        return patternRepository.findAll();
+    public List<Pattern> findAllPatterns() {
+        return patternRepository.findAllByOrderBySeq();
     }
 
     public Iterable<Pattern> saveAllPatterns(List<Pattern> patterns) {

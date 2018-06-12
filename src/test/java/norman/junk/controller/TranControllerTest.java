@@ -3,6 +3,7 @@ package norman.junk.controller;
 import java.util.Optional;
 import norman.junk.domain.Acct;
 import norman.junk.domain.Tran;
+import norman.junk.service.PatternService;
 import norman.junk.service.TranService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.core.StringContains;
@@ -26,6 +27,8 @@ public class TranControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private TranService tranService;
+    @MockBean
+    private PatternService patternService;
 
     @Test
     public void loadView() throws Exception {

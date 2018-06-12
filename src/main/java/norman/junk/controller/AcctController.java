@@ -436,7 +436,7 @@ public class AcctController {
                 tran.setCorrectFitId(StringUtils.trimToNull(ofxStmtTran.getCorrectFitId()));
                 tran.setCorrectAction(ofxStmtTran.getCorrectAction());
                 tran.setName(StringUtils.trimToNull(ofxStmtTran.getName()));
-                tran.setCategory(StringUtils.trimToNull(ofxStmtTran.getCategory()));
+                tran.setOfxCategory(StringUtils.trimToNull(ofxStmtTran.getCategory()));
                 tran.setMemo(StringUtils.trimToNull(ofxStmtTran.getMemo()));
                 tran.setReconciled(Boolean.FALSE);
                 tran.setAcct(acct);

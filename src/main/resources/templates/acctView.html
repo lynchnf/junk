@@ -88,6 +88,7 @@
             <th>Reconciled</th>
             <th>Amount</th>
             <th>Balance</th>
+            <th>Category</th>
         </tr>
         <tr th:each="tranBalance:${tranBalances}">
             <td><a th:href="@{/tran(tranId=${tranBalance.id})}" th:text="${tranBalance.type}"></a></td>
@@ -97,6 +98,7 @@
             <td><span th:if="${tranBalance.reconciled}" class="oi oi-task"></span></td>
             <td th:text="${#numbers.formatDecimal(tranBalance.amount,1,'DEFAULT',2,'DEFAULT')}"></td>
             <td th:text="${#numbers.formatDecimal(tranBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${tranBalance.categoryName}"></td>
         </tr>
     </table>
 </main>

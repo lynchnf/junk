@@ -74,8 +74,6 @@ public class PayableControllerTest {
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("payableEdit"));
-        resultActions.andExpect(
-                MockMvcResultMatchers.content().string(StringContains.containsString(payable.getPayee().getName())));
     }
 
     @Test
