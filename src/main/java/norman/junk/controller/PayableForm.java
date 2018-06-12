@@ -2,19 +2,21 @@ package norman.junk.controller;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Optional;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import norman.junk.domain.Payable;
-import org.apache.commons.lang3.StringUtils;
+import norman.junk.domain.Payee;
+import norman.junk.service.PayeeService;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class PayableForm {
     private Long id;
     private Integer version = 0;
+    @NotNull
     private Long payeeId;
-    private String payeeDisplayName;
     @NotNull
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date dueDate;
@@ -41,11 +43,6 @@ public class PayableForm {
         id = payable.getId();
         version = payable.getVersion();
         payeeId = payable.getPayee().getId();
-        if (StringUtils.isBlank(payable.getPayee().getNickname())) {
-            payeeDisplayName = payable.getPayee().getName();
-        } else {
-            payeeDisplayName = payable.getPayee().getNickname();
-        }
         dueDate = payable.getDueDate();
         amountDue = payable.getAmountDue();
         previousBalance = payable.getPreviousBalance();
@@ -54,10 +51,15 @@ public class PayableForm {
         minimumPayment = payable.getMinimumPayment();
     }
 
-    public Payable toPayable() {
+    public Payable toPayable(PayeeService payeeService) {
         Payable payable = new Payable();
         payable.setId(id);
         payable.setVersion(version);
+        if (payeeId != null) {
+            Optional<Payee> optionalPayee = payeeService.findPayeeById(payeeId);
+            if (optionalPayee.isPresent())
+                payable.setPayee(optionalPayee.get());
+        }
         payable.setDueDate(dueDate);
         payable.setAmountDue(amountDue);
         payable.setPreviousBalance(previousBalance);
@@ -89,14 +91,6 @@ public class PayableForm {
 
     public void setPayeeId(Long payeeId) {
         this.payeeId = payeeId;
-    }
-
-    public String getPayeeDisplayName() {
-        return payeeDisplayName;
-    }
-
-    public void setPayeeDisplayName(String payeeDisplayName) {
-        this.payeeDisplayName = payeeDisplayName;
     }
 
     public Date getDueDate() {

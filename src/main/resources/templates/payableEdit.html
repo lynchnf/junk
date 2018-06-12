@@ -12,12 +12,14 @@
         </ul>
         <input type="hidden" th:field="*{id}"/>
         <input type="hidden" th:field="*{version}"/>
-        <input type="hidden" th:field="*{payeeId}"/>
-        <input type="hidden" th:field="*{payeeDisplayName}"/>
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">Payee</label>
             <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="*{payeeDisplayName}"></p>
+                <select class="form-control" th:field="*{payeeId}" th:errorclass="is-invalid">
+                    <option value="">Please select ...</option>
+                    <option th:each="payee:${allPayees}" th:value="${payee.id}"
+                            th:text="${(payee.nickname != null)?payee.nickname:payee.name}"></option>
+                </select>
             </div>
         </div>
         <div class="form-group row">

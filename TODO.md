@@ -1,9 +1,7 @@
 # To Do List
 
 ## Current
-- Allow selection of payee when adding payable.
 - Validation for pattern edit.
-- Simple reconcile of account.
 - Match categories to transactions.
 
 ## Backlog
@@ -66,3 +64,5 @@
 - List categories.
 - View single category.
 - Edit or add category.
+- Simple reconcile of account.
+- Allow selection of payee when adding payable.
