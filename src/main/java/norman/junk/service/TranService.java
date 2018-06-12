@@ -21,6 +21,6 @@ public class TranService {
     }
 
     public List<Tran> findAllNonAssigned() {
-        return tranRepository.findByCategory(null);
+        return tranRepository.findByCategoryIsNull();
     }
 }
