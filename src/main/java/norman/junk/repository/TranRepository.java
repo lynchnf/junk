@@ -1,7 +1,6 @@
 package norman.junk.repository;
 
 import java.util.List;
-import norman.junk.domain.Category;
 import norman.junk.domain.Tran;
 import org.springframework.data.repository.CrudRepository;
 

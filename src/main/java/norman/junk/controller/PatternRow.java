@@ -1,14 +1,22 @@
 package norman.junk.controller;
 
 import java.util.Optional;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
+import norman.junk.validation.RegexPattern;
 
 public class PatternRow {
     private Long id;
     private Integer version = 0;
+    @NotNull
     private Long categoryId;
+    @NotBlank
+    @Size(max = 255)
+    @RegexPattern
     private String tranName;
 
     public PatternRow() {

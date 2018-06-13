@@ -2,10 +2,12 @@ package norman.junk.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.Valid;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
 
 public class PatternForm {
+    @Valid
     private List<PatternRow> patternRows = new ArrayList<>();
 
     public PatternForm() {
