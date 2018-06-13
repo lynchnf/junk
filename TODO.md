@@ -1,13 +1,14 @@
 # To Do List
 
 ## Current
-- Validation for pattern edit.
+- Add in security.
+- Get constants from application.properties.
+- Use profiles to adjust for dev vs. prod.
 
 ## Backlog
 - WRITE MORE UNIT TESTS!!!
 - Reprocess data file.
 - Paging, sorting, and filtering on ALL list pages.
-- Add in security.
 - Auto create payables based on cron string.
 - Suggest estimated payable amount and schedule.
 
@@ -66,3 +67,5 @@
 - Simple reconcile of account.
 - Allow selection of payee when adding payable.
 - Match categories to transactions.
+- Validation for pattern edit.
+- Date picker.
