@@ -53,6 +53,13 @@
                         <a class="dropdown-item" th:href="@{/dataFileList}">Data File List</a>
                     </div>
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown">Security</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" th:href="@{/userList}">User List</a>
+                        <a class="dropdown-item" th:href="@{/securityQuestionList}">Question List</a>
+                    </div>
+                </li>
             </ul>
         </div>
         <div th:replace="fragments/version::version"></div>

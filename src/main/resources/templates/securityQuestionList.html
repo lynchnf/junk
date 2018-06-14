@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head::head"></head>
+<body>
+<header th:replace="fragments/header::header"></header>
+<main class="container">
+    <h1>SecurityQuestion List</h1>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Question Text</th>
+        </tr>
+        <tr th:each="securityQuestion:${securityQuestions}">
+            <td><a th:href="@{/securityQuestion(securityQuestionId=${securityQuestion.id})}"
+                   th:text="${securityQuestion.questionText}"></a></td>
+        </tr>
+    </table>
+</main>
+<footer th:replace="fragments/footer::footer"></footer>
+</body>
+</html>

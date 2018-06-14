@@ -11,6 +11,7 @@ import java.util.Set;
 import norman.junk.controller.AcctController;
 import norman.junk.domain.AcctType;
 import norman.junk.domain.TranType;
+import norman.junk.domain.UserRole;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class FakeData {
     private static final Logger logger = LoggerFactory.getLogger(AcctController.class);
+    private static Random random = new Random();
     private static final int NBR_OF_ACCTS = 3;
     private static final String[] ACCT_NAME_PART_1 = {"Abominable", "Bulimic", "Cosmic", "Desperate", "Evil", "Funky",
             "Ginormous", "Hungry", "Interstellar", "Jurassic"};
@@ -35,6 +37,16 @@ public class FakeData {
     private static final int DAYS_BETWEEN_PAYABLES = 7;
     private static final int NBR_OF_CATEGORIES = 10;
     private static final BigDecimal MINUS_ONE = new BigDecimal(-1);
+    private static final int NBR_OF_USERS = 5;
+    private static final String[] USER_FIRST_NAMES = {"Aedan", "Bilbo", "Cidi", "Drogo", "Elmer", "Fafner", "Gilmi",
+            "Harrold", "Isden", "Jack"};
+    private static final String[] USER_LAST_NAMES = {"Killdeer", "Longbottom", "Merrifello", "Nearmiss", "Overbarrel",
+            "Pewter", "Queasitummi", "Rainbow", "Stinkbeard", "Talltopp"};
+    private static final String[] QUESTIONS = {"Can God create a rock so heavy that he cannot lift it?",
+            "Is the answer to this question \"no\"?",
+            "If the barber shaves those and only those who do not shave themselves, then does the barber shave himself?",
+            "Can a man drown in the fountain of eternal life?",
+            "If everything is possible, is it possible for anything to be impossible?"};
     private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `credit_limit`, `name`, `type`, `version`) VALUES (%.2f,'%tF',%.2f,'%s','%s',0);%n";
     private static final String INSERT_INTO_ACCT_NBR = "INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
     private static final String INSERT_INTO_TRAN = "INSERT INTO `tran` (`amount`, `check_number`, `name`, `post_date`, `type`, `version`, `acct_id`) VALUES (%.2f,%s,'%s','%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
@@ -43,7 +55,8 @@ public class FakeData {
     private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`due_date` = '%tF' AND b.`name` = '%s'));%n";
     private static final String INSERT_INTO_CATEGORY = "INSERT INTO `category` (`name`, `version`) VALUES ('%s',0);%n";
     private static final String INSERT_INTO_PATTERN = "INSERT INTO `pattern` (`seq`, `tran_name`, `version`, `category_id`) VALUES (%d,'%s',0,(SELECT `id` FROM `category` WHERE `name` = '%s'));%n";
-    private static Random random = new Random();
+    private static final String INSERT_INTO_USER = "INSERT INTO `user` (`first_name`, `last_name`, `password`, `role`, `username`, `version`) VALUES ('%s','%s','%s','%s','%s',0);%n";
+    private static final String INSERT_INTO_QUESTION = "INSERT INTO `security_question` (`question_text`, `version`) VALUES ('%s',0);%n";
 
     public static void main(String[] args) {
         logger.debug("Starting FakeData");
@@ -51,11 +64,13 @@ public class FakeData {
         me.accts();
         me.payees();
         me.categories();
+        me.users();
+        me.questions();
         logger.debug("Finished FakeData");
     }
 
     private void accts() {
-        Set<String> acctNames = new LinkedHashSet();
+        Set<String> acctNames = new LinkedHashSet<>();
         for (int i = 0; i < NBR_OF_ACCTS; i++) {
             do {
                 String acctName = ACCT_NAME_PART_1[random.nextInt(ACCT_NAME_PART_1.length)] + " " +
@@ -119,7 +134,7 @@ public class FakeData {
     }
 
     private void payees() {
-        Set<String> payeeNames = new LinkedHashSet();
+        Set<String> payeeNames = new LinkedHashSet<>();
         for (int i = 0; i < NBR_OF_PAYEES; i++) {
             do {
                 String payeeName = PAYEE_NAME_PART_1[random.nextInt(PAYEE_NAME_PART_1.length)] + " " +
@@ -206,5 +221,31 @@ public class FakeData {
             pattern = categoryName.substring(0, 1);
         pattern += ".*";
         System.out.printf(INSERT_INTO_PATTERN, seq, pattern, categoryName);
+    }
+
+    private void users() {
+        System.out.printf(INSERT_INTO_USER, "Admin", "Admin", "admin", UserRole.ADMIN, "admin");
+        Set<String> usernames = new LinkedHashSet<>();
+        for (int i = 0; i < NBR_OF_USERS; i++) {
+            do {
+                String username = RandomStringUtils.randomAlphabetic(3).toLowerCase() + "@example.com";
+                if (!usernames.contains(username)) {
+                    usernames.add(username);
+                }
+            } while (usernames.size() <= i);
+        }
+        for (String username : usernames) {
+            String firstName = USER_FIRST_NAMES[random.nextInt(USER_FIRST_NAMES.length)];
+            String lastName = USER_LAST_NAMES[random.nextInt(USER_LAST_NAMES.length)];
+            UserRole role = UserRole.values()[random.nextInt(UserRole.values().length - 1) + 1];
+            String password = "password";
+            System.out.printf(INSERT_INTO_USER, firstName, lastName, password, role, username);
+        }
+    }
+
+    private void questions() {
+        for (String question : QUESTIONS) {
+            System.out.printf(INSERT_INTO_QUESTION, question);
+        }
     }
 }
