@@ -18,4 +18,8 @@ public class SecurityQuestionService {
     public Optional<SecurityQuestion> findSecurityQuestionById(Long securityQuestionId) {
         return securityQuestionRepository.findById(securityQuestionId);
     }
+
+    public SecurityQuestion saveSecurityQuestion(SecurityQuestion securityQuestion) {
+        return securityQuestionRepository.save(securityQuestion);
+    }
 }
