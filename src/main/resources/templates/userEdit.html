@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head::head"></head>
+<body>
+<header th:replace="fragments/header::header"></header>
+<main class="container">
+    <h1>User Edit</h1>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <form th:action="@{/userEdit}" th:object="${userForm}" method="post">
+        <ul class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+            <li th:each="err:${#fields.allErrors()}" th:text="${err}"></li>
+        </ul>
+        <input type="hidden" th:field="*{id}"/>
+        <input type="hidden" th:field="*{version}"/>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Username (Email)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{username}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Password</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{password}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Role</label>
+            <div class="col-sm-9">
+                <select class="form-control" th:field="*{role}" th:errorclass="is-invalid">
+                    <option value="">Please select ...</option>
+                    <option th:each="userRole:${T(norman.junk.domain.UserRole).values()}" th:value="${userRole}"
+                            th:text="${userRole}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">First Name</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{firstName}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Last Name</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" th:field="*{lastName}" th:errorclass="is-invalid"/>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</main>
+<footer th:replace="fragments/footer::footer"></footer>
+</body>
+</html>
