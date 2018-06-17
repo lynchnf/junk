@@ -211,6 +211,41 @@ public class AcctControllerTest {
                 .attribute("successMessage", StringContains.containsString("0 transactions")));
     }
 
+    @Test
+    public void processUploadTransTwice() throws Exception {
+        String name = "multipartFile";
+        String originalFilename = "activity.ofx";
+        String contentType = "application/octet-stream";
+        Acct acct = buildExistingAcct();
+        AcctNbr acctNbr = acct.getAcctNbrs().iterator().next();
+        Tran debit = buildDebitTran();
+        Tran credit = buildCreditTran();
+        List<String> ofxFile = buildOfxFile(acct, debit, debit, credit, credit);
+        StringBuilder sb = new StringBuilder();
+        for (String ofxLine : ofxFile) {
+            sb.append(String.format("%s%n", ofxLine));
+        }
+        byte[] content = sb.toString().getBytes();
+        MockMultipartFile multipartFile = new MockMultipartFile(name, originalFilename, contentType, content);
+        DataFile dataFile = buildDataFile(ofxFile);
+        BDDMockito.given(dataFileService.saveDataFile(ArgumentMatchers.isA(DataFile.class))).willReturn(dataFile);
+        OfxParseResponse ofxParseResponse = buildOfxParseResponse(acct, debit, debit, credit, credit);
+        BDDMockito.given(ofxParseService.parseUploadedFile(ArgumentMatchers.isA(DataFile.class)))
+                .willReturn(ofxParseResponse);
+        String ofxFid = acct.getFid();
+        String ofxAcctId = acctNbr.getNumber();
+        List<AcctNbr> acctNbrsByFidAndNumber = new ArrayList<>();
+        acctNbrsByFidAndNumber.add(acctNbr);
+        BDDMockito.given(acctService.findAcctNbrsByFidAndNumber(ofxFid, ofxAcctId)).willReturn(acctNbrsByFidAndNumber);
+        MockMultipartHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.fileUpload("/dataFileUpload")
+                .file(multipartFile);
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
+        resultActions.andExpect(MockMvcResultMatchers.flash()
+                .attribute("successMessage", StringContains.containsString("2 transactions")));
+    }
+
     private Acct buildExistingAcct() {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MILLISECOND, 0);
@@ -275,7 +310,7 @@ public class AcctControllerTest {
         return tran;
     }
 
-    private List<String> buildOfxFile(Acct acct, Tran debit, Tran credit) {
+    private List<String> buildOfxFile(Acct acct, Tran... trans) {
         List<String> ofxFile = new ArrayList<>();
         ofxFile.add(String.format("<OFX>"));
         ofxFile.add(String.format("    <FI>"));
@@ -287,20 +322,15 @@ public class AcctControllerTest {
         ofxFile.add(String.format("        <ACCTTYPE>%s", acct.getType()));
         ofxFile.add(String.format("    </BANKACCTFROM>"));
         ofxFile.add(String.format("    <BANKTRANLIST>"));
-        ofxFile.add(String.format("        <STMTTRN>"));
-        ofxFile.add(String.format("            <TRNTYPE>%s", debit.getType()));
-        ofxFile.add(String.format("            <DTPOSTED>%1$tY%1$tm%1$td120000.000", debit.getPostDate()));
-        ofxFile.add(String.format("            <TRNAMT>%.2f", debit.getAmount()));
-        ofxFile.add(String.format("            <FITID>%s", debit.getFitId()));
-        ofxFile.add(String.format("            <NAME>%s", debit.getName()));
-        ofxFile.add(String.format("        </STMTTRN>"));
-        ofxFile.add(String.format("        <STMTTRN>"));
-        ofxFile.add(String.format("            <TRNTYPE>%s", credit.getType()));
-        ofxFile.add(String.format("            <DTPOSTED>%1$tY%1$tm%1$td120000.000", credit.getPostDate()));
-        ofxFile.add(String.format("            <TRNAMT>%.2f", credit.getAmount()));
-        ofxFile.add(String.format("            <FITID>%s", credit.getFitId()));
-        ofxFile.add(String.format("            <NAME>%s", credit.getName()));
-        ofxFile.add(String.format("        </STMTTRN>"));
+        for (Tran tran : trans) {
+            ofxFile.add(String.format("        <STMTTRN>"));
+            ofxFile.add(String.format("            <TRNTYPE>%s", tran.getType()));
+            ofxFile.add(String.format("            <DTPOSTED>%1$tY%1$tm%1$td120000.000", tran.getPostDate()));
+            ofxFile.add(String.format("            <TRNAMT>%.2f", tran.getAmount()));
+            ofxFile.add(String.format("            <FITID>%s", tran.getFitId()));
+            ofxFile.add(String.format("            <NAME>%s", tran.getName()));
+            ofxFile.add(String.format("        </STMTTRN>"));
+        }
         ofxFile.add(String.format("    </BANKTRANLIST>"));
         ofxFile.add(String.format("</OFX>"));
         return ofxFile;
@@ -325,6 +355,28 @@ public class AcctControllerTest {
         return dataFile;
     }
 
+    private OfxParseResponse buildOfxParseResponse(Acct acct, Tran... trans) {
+        OfxParseResponse ofxParseResponse = new OfxParseResponse();
+        OfxInst ofxInst = new OfxInst();
+        ofxInst.setOrganization(acct.getOrganization());
+        ofxInst.setFid(acct.getFid());
+        ofxParseResponse.setOfxInst(ofxInst);
+        OfxAcct ofxAcct = new OfxAcct();
+        ofxAcct.setAcctId(acct.getAcctNbrs().iterator().next().getNumber());
+        ofxAcct.setType(acct.getType());
+        ofxParseResponse.setOfxAcct(ofxAcct);
+        for (Tran tran : trans) {
+            OfxStmtTran ofxStmtTran = new OfxStmtTran();
+            ofxStmtTran.setType(tran.getType());
+            ofxStmtTran.setPostDate(tran.getPostDate());
+            ofxStmtTran.setAmount(tran.getAmount());
+            ofxStmtTran.setFitId(tran.getFitId());
+            ofxStmtTran.setName(tran.getName());
+            ofxParseResponse.getOfxStmtTrans().add(ofxStmtTran);
+        }
+        return ofxParseResponse;
+    }
+/*
     private OfxParseResponse buildOfxParseResponse(Acct acct, Tran debit, Tran credit) {
         OfxParseResponse ofxParseResponse = new OfxParseResponse();
         OfxInst ofxInst = new OfxInst();
@@ -351,4 +403,5 @@ public class AcctControllerTest {
         ofxParseResponse.getOfxStmtTrans().add(ofxStmtTranCredit);
         return ofxParseResponse;
     }
+*/
 }

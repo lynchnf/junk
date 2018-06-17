@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -412,8 +413,16 @@ public class AcctController {
 
     private void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService,
             DataFileService dataFileService, RedirectAttributes redirectAttributes) {
-        int count = 0;
+        // The OFX file downloaded from the bank should never, ever have duplicate entries, but guess what!
+        // Sometime it does! Now we have to guard against that.
+        Map<String, OfxStmtTran> ofxStmtTranMap = new LinkedHashMap<>();
         for (OfxStmtTran ofxStmtTran : response.getOfxStmtTrans()) {
+            String fitId = StringUtils.trimToNull(ofxStmtTran.getFitId());
+            if (fitId != null)
+                ofxStmtTranMap.put(fitId, ofxStmtTran);
+        }
+        int count = 0;
+        for (OfxStmtTran ofxStmtTran : ofxStmtTranMap.values()) {
             List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
             if (trans.size() > 1) {
                 String errorMessage =
