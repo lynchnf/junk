@@ -2,11 +2,12 @@ package norman.junk.controller;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Optional;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import norman.junk.DatabaseException;
+import norman.junk.NotFoundException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
@@ -51,15 +52,12 @@ public class PayableForm {
         minimumPayment = payable.getMinimumPayment();
     }
 
-    public Payable toPayable(PayeeService payeeService) {
+    public Payable toPayable(PayeeService payeeService) throws DatabaseException, NotFoundException {
         Payable payable = new Payable();
         payable.setId(id);
         payable.setVersion(version);
-        if (payeeId != null) {
-            Optional<Payee> optionalPayee = payeeService.findPayeeById(payeeId);
-            if (optionalPayee.isPresent())
-                payable.setPayee(optionalPayee.get());
-        }
+        Payee payee = payeeService.findPayeeById(payeeId);
+        payable.setPayee(payee);
         payable.setDueDate(dueDate);
         payable.setAmountDue(amountDue);
         payable.setPreviousBalance(previousBalance);

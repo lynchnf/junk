@@ -10,9 +10,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.validation.Valid;
+import norman.junk.DatabaseException;
 import norman.junk.JunkException;
+import norman.junk.NotFoundException;
 import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.DataFile;
@@ -43,6 +44,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class AcctController {
     private static final Logger logger = LoggerFactory.getLogger(AcctController.class);
+    private static final String DATABASE_ERROR = "Unexpected Database Error.";
+    private static final String DATA_FILE_NOT_FOUND = "DataFile not found.";
+    private static final String ACCT_NOT_FOUND = "Acct not found.";
+    private static final String ACCT_NBR_NOT_FOUND = "AcctNbr not found.";
+    private static final String OFX_PARSE_ERROR = "OFX parse error.";
     @Autowired
     private AcctService acctService;
     @Autowired
@@ -53,30 +59,52 @@ public class AcctController {
     private TranService tranService;
 
     @RequestMapping("/acctList")
-    public String loadList(Model model) {
-        Iterable<Acct> accts = acctService.findAllAccts();
+    public String loadList(Model model, RedirectAttributes redirectAttributes) {
+        Iterable<Acct> accts;
+        try {
+            accts = acctService.findAllAccts();
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        }
         model.addAttribute("accts", accts);
         return "acctList";
     }
 
     @RequestMapping("/acct")
     public String loadView(@RequestParam("acctId") Long acctId, Model model, RedirectAttributes redirectAttributes) {
-        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-        // If no account, we gots an error.
-        if (!optionalAcct.isPresent()) {
-            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        Acct acct;
+        try {
+            acct = acctService.findAcctById(acctId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
             return "redirect:/";
         }
-        // Prepare to view account and current account number.
-        Acct acct = optionalAcct.get();
         model.addAttribute("acct", acct);
-        Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-        if (optionalAcctNbr.isPresent()) {
-            model.addAttribute("currentAcctNbr", optionalAcctNbr.get());
+        AcctNbr currentAcctNbr;
+        try {
+            currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NBR_NOT_FOUND);
+            return "redirect:/";
         }
-        List<TranBalanceBean> tranBalances = acctService.findTranBalancesByAcctId(acct.getId());
+        model.addAttribute("currentAcctNbr", currentAcctNbr);
+        List<TranBalanceBean> tranBalances = null;
+        try {
+            tranBalances = acctService.findTranBalancesByAcctId(acct.getId());
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
+            return "redirect:/";
+        }
         model.addAttribute("tranBalances", tranBalances);
         return "acctView";
     }
@@ -89,18 +117,28 @@ public class AcctController {
             model.addAttribute("acctForm", new AcctForm());
             return "acctEdit";
         }
-        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-        // If no account, we gots an error.
-        if (!optionalAcct.isPresent()) {
-            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        // Otherwise, edit existing account.
+        Acct acct;
+        try {
+            acct = acctService.findAcctById(acctId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
             return "redirect:/";
         }
-        // Prepare to edit account and current account number.
-        Acct acct = optionalAcct.get();
-        Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-        AcctForm acctForm = new AcctForm(acct, optionalAcctNbr.get());
+        AcctNbr currentAcctNbr;
+        try {
+            currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NBR_NOT_FOUND);
+            return "redirect:/";
+        }
+        AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
         model.addAttribute("acctForm", acctForm);
         return "acctEdit";
     }
@@ -113,76 +151,70 @@ public class AcctController {
         }
         Long acctId = acctForm.getId();
         Acct acct;
+        // Verify existing account still exists.
         if (acctId != null) {
-            Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-            // If no account, we gots an error.
-            if (!optionalAcct.isPresent()) {
-                String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
-                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-                logger.error(errorMessage);
+            try {
+                acct = acctService.findAcctById(acctId);
+            } catch (DatabaseException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+                return "redirect:/";
+            } catch (NotFoundException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
                 return "redirect:/";
             }
-            // Prepare to saveDataFile existing account.
-            acct = acctForm.toAcct();
-            // If either the acctNumber or effective date changed, prepare to saveDataFile current account number.
-            if (!acctForm.getNumber().equals(acctForm.getOldNumber()) ||
-                    !acctForm.getEffDate().equals(acctForm.getOldEffDate())) {
-                AcctNbr acctNbr = acctForm.toAcctNbr();
-                acctNbr.setAcct(acct);
-                acct.getAcctNbrs().add(acctNbr);
-            }
-        } else {
-            // If no acct id, prepare to saveDataFile new account.
-            acct = acctForm.toAcct();
+        }
+        // Convert form to entity ...
+        acct = acctForm.toAcct();
+        // If this is an existing account and either the acctNumber or effective date changed, we need to save the account number with the account.
+        if (acctId != null && (!acctForm.getNumber().equals(acctForm.getOldNumber()) ||
+                !acctForm.getEffDate().equals(acctForm.getOldEffDate()))) {
             AcctNbr acctNbr = acctForm.toAcctNbr();
+            acctNbr.setAcct(acct);
+            acct.getAcctNbrs().add(acctNbr);
+        } else if (acctId == null) {
             // For new accounts, effective date of account number is beginning date of account.
+            AcctNbr acctNbr = acctForm.toAcctNbr();
             acctNbr.setEffDate(acct.getBeginDate());
             acctNbr.setAcct(acct);
             acct.getAcctNbrs().add(acctNbr);
         }
-        // Try to saveDataFile account.
+        // .. and save account.
         Acct save;
         try {
             save = acctService.saveAcct(acct);
-            String successMessage = "Account successfully added, acctId=\"" + save.getId() + "\"";
-            if (acctId != null)
-                successMessage = "Account successfully updated, acctId=\"" + save.getId() + "\"";
-            redirectAttributes.addFlashAttribute("successMessage", successMessage);
-            redirectAttributes.addAttribute("acctId", save.getId());
-        } catch (Exception e) {
-            String errorMessage = "New account could not be added";
-            if (acctId != null)
-                errorMessage = "Account could not be updated, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
-            logger.error(errorMessage, e);
-            if (acctId == null) {
-                return "redirect:/";
-            } else {
-                redirectAttributes.addAttribute("acctId", acctId);
-                return "redirect:/acct?acctId={acctId}";
-            }
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
         }
-        // If no datafile id, we're done.
+        String successMessage = "Account successfully added, acctId=\"" + save.getId() + "\"";
+        if (acctId != null)
+            successMessage = "Account successfully updated, acctId=\"" + save.getId() + "\"";
+        redirectAttributes.addFlashAttribute("successMessage", successMessage);
+        redirectAttributes.addAttribute("acctId", save.getId());
+        // If no data file id, we're done.
         if (acctForm.getDataFileId() == null)
             return "redirect:/acct?acctId={acctId}";
+        //
+        // If we have a data file id, then we're trying to parse a data file and save it into a new or existing account and into new transactions.
+        //
+        // Verify existing data file still exists.
         Long dataFileId = acctForm.getDataFileId();
-        Optional<DataFile> optionalDataFile = dataFileService.findDataFileById(dataFileId);
-        // If no data file, we gots an error.
-        if (!optionalDataFile.isPresent()) {
-            String errorMessage = "Data File not found, dataFileId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        DataFile dataFile;
+        try {
+            dataFile = dataFileService.findDataFileById(dataFileId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATA_FILE_NOT_FOUND);
             return "redirect:/";
         }
         // Update the status of the data file to say we saved the account.
-        DataFile dataFile = optionalDataFile.get();
         dataFile.setStatus(DataFileStatus.ACCT_SAVED);
         try {
             dataFile = dataFileService.saveDataFile(dataFile);
         } catch (Exception e) {
-            String errorMessage = "Data file could not be updated, dataFileId=\"" + dataFileId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
-            logger.error(errorMessage, e);
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
             return "redirect:/";
         }
         // If data file will not parse, we gots an error.
@@ -190,7 +222,7 @@ public class AcctController {
         try {
             response = ofxParseService.parseUploadedFile(dataFile);
         } catch (JunkException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", OFX_PARSE_ERROR);
             return "redirect:/";
         }
         // Save the new transactions.
@@ -202,42 +234,56 @@ public class AcctController {
     public String loadUpload(@RequestParam(value = "dataFileId") Long dataFileId,
             @RequestParam(value = "acctId", required = false) Long acctId, Model model,
             RedirectAttributes redirectAttributes) {
-        Optional<DataFile> optionalDataFile = dataFileService.findDataFileById(dataFileId);
-        // If no data file, we gots an error.
-        if (!optionalDataFile.isPresent()) {
-            String errorMessage = "Data File not found, dataFileId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        // A data file has been uploaded and the application could not determine which account it belongs to, so we
+        // showed the user a page where he made that decision. Now we need to load the account edit page so the user can
+        // save the account and continue to parse the data file.
+        DataFile dataFile;
+        try {
+            dataFile = dataFileService.findDataFileById(dataFileId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATA_FILE_NOT_FOUND);
             return "redirect:/";
         }
         // If data file will not parse, we gots an error.
-        DataFile dataFile = optionalDataFile.get();
         OfxParseResponse response;
         try {
             response = ofxParseService.parseUploadedFile(dataFile);
         } catch (JunkException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", OFX_PARSE_ERROR);
             return "redirect:/";
         }
-        // If no acct id, new account.
+        // If no account id, new account.
         if (acctId == null) {
             AcctForm acctForm = new AcctForm(response);
             acctForm.setDataFileId(dataFile.getId());
             model.addAttribute("acctForm", acctForm);
             return "acctEdit";
         }
-        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-        // If no account, we gots an error.
-        if (!optionalAcct.isPresent()) {
-            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        // Otherwise, edit existing acount.
+        Acct acct;
+        try {
+            acct = acctService.findAcctById(acctId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
             return "redirect:/";
         }
-        // Prepare to edit account and current account number.
-        Acct acct = optionalAcct.get();
-        Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-        AcctForm acctForm = new AcctForm(acct, optionalAcctNbr.get());
+        AcctNbr currentAcctNbr;
+        try {
+            currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NBR_NOT_FOUND);
+            return "redirect:/";
+        }
+        AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
         acctForm.setNumber(response.getOfxAcct().getAcctId());
         acctForm.setDataFileId(dataFile.getId());
         model.addAttribute("acctForm", acctForm);
@@ -247,6 +293,7 @@ public class AcctController {
     @PostMapping("/dataFileUpload")
     public String processUpload(@RequestParam(value = "multipartFile") MultipartFile multipartFile, Model model,
             RedirectAttributes redirectAttributes) {
+        // Part 1: Upload a file, read it, and save it in a data file database entity.
         if (multipartFile.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Upload file is empty or missing.");
             return "redirect:/";
@@ -275,17 +322,26 @@ public class AcctController {
             logger.error(errorMessage, e);
             return "redirect:/";
         }
-        dataFile = dataFileService.saveDataFile(dataFile);
-        // Try to parse the uploaded database.
+        try {
+            dataFile = dataFileService.saveDataFile(dataFile);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        }
+        //
+        // Part 2: Parse the data file.
         OfxParseResponse response;
         try {
             response = ofxParseService.parseUploadedFile(dataFile);
             dataFile.setStatus(DataFileStatus.PARSED);
             dataFile = dataFileService.saveDataFile(dataFile);
         } catch (JunkException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", OFX_PARSE_ERROR);
             return "redirect:/";
         }
+        //
+        // Part 3: Save the parsed data.
+        //
         // Does this account already exist? Do multiple accounts exist? Try to find out using financial institution id
         // (which identifies the bank) and the account id (which is the account number).
         //
@@ -294,7 +350,13 @@ public class AcctController {
         // scenario.
         String ofxFid = response.getOfxInst().getFid();
         String ofxAcctId = response.getOfxAcct().getAcctId();
-        List<AcctNbr> acctNbrsByFidAndNumber = acctService.findAcctNbrsByFidAndNumber(ofxFid, ofxAcctId);
+        List<AcctNbr> acctNbrsByFidAndNumber = null;
+        try {
+            acctNbrsByFidAndNumber = acctService.findAcctNbrsByFidAndNumber(ofxFid, ofxAcctId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        }
         Map<Long, Acct> acctMap = new HashMap<>();
         for (AcctNbr acctNbr : acctNbrsByFidAndNumber) {
             Acct acct = acctNbr.getAcct();
@@ -314,7 +376,13 @@ public class AcctController {
             return "redirect:/";
         }
         // Otherwise, we found no account number records. Try again using just the financial institution id.
-        List<Acct> acctsByFid = acctService.findAcctsByFid(ofxFid);
+        List<Acct> acctsByFid = null;
+        try {
+            acctsByFid = acctService.findAcctsByFid(ofxFid);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        }
         // If we found one or more accounts, we will need to go to an account disambiguation page to get input from the user.
         if (acctsByFid.size() > 0) {
             model.addAttribute("dataFileId", dataFile.getId());
@@ -322,8 +390,17 @@ public class AcctController {
             model.addAttribute("ofxAcct", response.getOfxAcct());
             List<AcctNbr> acctNbrs = new ArrayList<>();
             for (Acct acct : acctsByFid) {
-                Optional<AcctNbr> optionalAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-                acctNbrs.add(optionalAcctNbr.get());
+                AcctNbr currentAcctNbr;
+                try {
+                    currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+                } catch (DatabaseException e) {
+                    redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+                    return "redirect:/";
+                } catch (NotFoundException e) {
+                    redirectAttributes.addFlashAttribute("errorMessage", ACCT_NBR_NOT_FOUND);
+                    return "redirect:/";
+                }
+                acctNbrs.add(currentAcctNbr);
             }
             model.addAttribute("acctNbrs", acctNbrs);
             return "dataFileAcct";
@@ -339,17 +416,19 @@ public class AcctController {
     @GetMapping("/acctReconcile")
     public String loadReconcile(@RequestParam(value = "acctId") Long acctId, Model model,
             RedirectAttributes redirectAttributes) {
-        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-        // If no account, we gots an error.
-        if (!optionalAcct.isPresent()) {
-            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        Acct acct;
+        try {
+            acct = acctService.findAcctById(acctId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
             return "redirect:/";
         }
         AcctReconcileForm acctReconcileForm = new AcctReconcileForm();
         acctReconcileForm.setAcctId(acctId);
-        acctReconcileForm.setAcctName(optionalAcct.get().getName());
+        acctReconcileForm.setAcctName(acct.getName());
         model.addAttribute("acctReconcileForm", acctReconcileForm);
         return "acctReconcile";
     }
@@ -367,15 +446,16 @@ public class AcctController {
             logger.error(msg);
             return "redirect:/";
         }
-        Optional<Acct> optionalAcct = acctService.findAcctById(acctId);
-        // If no account, we gots an error.
-        if (!optionalAcct.isPresent()) {
-            String errorMessage = "Account not found, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        Acct acct;
+        try {
+            acct = acctService.findAcctById(acctId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
             return "redirect:/";
         }
-        Acct acct = optionalAcct.get();
         BigDecimal balance = acct.getBeginBalance();
         List<Tran> trans = acct.getTrans();
         List<Tran> reconcileUs = new ArrayList<>();
@@ -423,7 +503,12 @@ public class AcctController {
         }
         int count = 0;
         for (OfxStmtTran ofxStmtTran : ofxStmtTranMap.values()) {
-            List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
+            List<Tran> trans = null;
+            try {
+                trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
+            } catch (DatabaseException e) {
+                e.printStackTrace();
+            }
             if (trans.size() > 1) {
                 String errorMessage =
                         "UNEXPECTED ERROR: Multiple transactions found for acctId=\"" + acct.getId() + ", fitId=\"" +

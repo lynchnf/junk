@@ -2,7 +2,8 @@ package norman.junk.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import norman.junk.DatabaseException;
+import norman.junk.NotFoundException;
 import norman.junk.domain.Pattern;
 import norman.junk.domain.Tran;
 import norman.junk.service.PatternService;
@@ -19,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class TranController {
     private static final Logger logger = LoggerFactory.getLogger(TranController.class);
+    private static final String DATABASE_ERROR = "Unexpected Database Error.";
+    private static final String TRAN_NOT_FOUND = "Tran not found.";
     @Autowired
     private TranService tranService;
     @Autowired
@@ -26,24 +29,36 @@ public class TranController {
 
     @RequestMapping("/tran")
     public String loadView(@RequestParam("tranId") Long tranId, Model model, RedirectAttributes redirectAttributes) {
-        Optional<Tran> optionalTran = tranService.findTranById(tranId);
-        // If no tran, we gots an error.
-        if (!optionalTran.isPresent()) {
-            String errorMessage = "Tran not found, tranId=\"" + tranId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        Tran tran;
+        try {
+            tran = tranService.findTranById(tranId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", TRAN_NOT_FOUND);
             return "redirect:/";
         }
-        // Prepare to view tran.
-        Tran tran = optionalTran.get();
         model.addAttribute("tran", tran);
         return "tranView";
     }
 
     @RequestMapping("/tranAssign")
     public String assignCategories(RedirectAttributes redirectAttributes) {
-        List<Pattern> patterns = patternService.findAllPatterns();
-        List<Tran> trans = tranService.findAllNonAssigned();
+        List<Pattern> patterns = null;
+        try {
+            patterns = patternService.findAllPatterns();
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        }
+        List<Tran> trans = null;
+        try {
+            trans = tranService.findAllNonAssigned();
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        }
         List<Tran> assignUs = new ArrayList<>();
         for (Tran tran : trans) {
             boolean found = false;
@@ -58,13 +73,12 @@ public class TranController {
         }
         try {
             Iterable<Tran> saveAll = tranService.saveAllTrans(assignUs);
-            String successMessage = "Categories successfully assigned to " + assignUs.size() + " transactions";
-            redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        } catch (Exception e) {
-            String errorMessage = "Categories could not be assigned to transactions";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
-            logger.error(errorMessage, e);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
         }
+        String successMessage = "Categories successfully assigned to " + assignUs.size() + " transactions";
+        redirectAttributes.addFlashAttribute("successMessage", successMessage);
         return "redirect:/";
     }
 }

@@ -3,7 +3,6 @@ package norman.junk.controller;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Random;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
@@ -36,28 +35,6 @@ public class PayableControllerTest {
     private PayableService payableService;
 
     @Test
-    public void loadView() throws Exception {
-        Payable payable = buildExistingPayable();
-        BDDMockito.given(payableService.findPayableById(payable.getId())).willReturn(Optional.of(payable));
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payable").param("payableId", "1");
-        ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("payableView"));
-        resultActions.andExpect(
-                MockMvcResultMatchers.content().string(StringContains.containsString(payable.getPayee().getName())));
-    }
-
-    @Test
-    public void loadViewPayableNotExist() throws Exception {
-        BDDMockito.given(payableService.findPayableById(Long.valueOf(2))).willReturn(Optional.empty());
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payable").param("payableId", "2");
-        ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
-        resultActions.andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
-    }
-
-    @Test
     public void loadList() throws Exception {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payableList");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
@@ -66,19 +43,38 @@ public class PayableControllerTest {
     }
 
     @Test
+    public void loadView() throws Exception {
+        Payable payable = buildExistingPayable();
+        BDDMockito.given(payableService.findPayableById(payable.getId())).willReturn(payable);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payable").param("payableId", "1");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("payableView"));
+        String expected = String.format("%.2f", payable.getAmountDue());
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(expected)));
+    }
+
+    @Test
     public void loadEdit() throws Exception {
         Payable payable = buildExistingPayable();
-        BDDMockito.given(payableService.findPayableById(payable.getId())).willReturn(Optional.of(payable));
+        BDDMockito.given(payableService.findPayableById(payable.getId())).willReturn(payable);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payableEdit")
                 .param("payableId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("payableEdit"));
+        String expected = String.format("%.2f", payable.getAmountDue());
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(expected)));
     }
 
     @Test
-    public void processEdit() throws Exception {
-        // TODO Write processEdit test.
+    public void processEdit() {
+        // TODO Write test.
+    }
+
+    @Test
+    public void loadPayeeDropDown() {
+        // TODO Write test.
     }
 
     private Payable buildExistingPayable() {

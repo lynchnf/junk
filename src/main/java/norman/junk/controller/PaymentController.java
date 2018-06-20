@@ -1,7 +1,8 @@
 package norman.junk.controller;
 
-import java.util.Optional;
 import javax.validation.Valid;
+import norman.junk.DatabaseException;
+import norman.junk.NotFoundException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
 import norman.junk.service.PayableService;
@@ -22,14 +23,23 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class PaymentController {
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
-    @Autowired
-    private PayableService payableService;
+    private static final String DATABASE_ERROR = "Unexpected Database Error.";
+    private static final String PAYMENT_NOT_FOUND = "Payment not found.";
+    private static final String PAYABLE_NOT_FOUND = "Payable not found.";
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private PayableService payableService;
 
     @RequestMapping("/paymentList")
-    public String loadList(Model model) {
-        Iterable<Payment> payments = paymentService.findAllPayments();
+    public String loadList(Model model, RedirectAttributes redirectAttributes) {
+        Iterable<Payment> payments;
+        try {
+            payments = paymentService.findAllPayments();
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        }
         model.addAttribute("payments", payments);
         return "paymentList";
     }
@@ -37,16 +47,16 @@ public class PaymentController {
     @RequestMapping("/payment")
     public String loadView(@RequestParam("paymentId") Long paymentId, Model model,
             RedirectAttributes redirectAttributes) {
-        Optional<Payment> optionalPayment = paymentService.findPaymentById(paymentId);
-        // If no payment, we gots an error.
-        if (!optionalPayment.isPresent()) {
-            String errorMessage = "Payment not found, paymentId=\"" + paymentId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        Payment payment;
+        try {
+            payment = paymentService.findPaymentById(paymentId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", PAYMENT_NOT_FOUND);
             return "redirect:/";
         }
-        // Prepare to view payment.
-        Payment payment = optionalPayment.get();
         model.addAttribute("payment", payment);
         return "paymentView";
     }
@@ -57,24 +67,25 @@ public class PaymentController {
             RedirectAttributes redirectAttributes) {
         // If no payment id, new payment.
         if (paymentId == null) {
-            // If no payable id, we gots an error.
+            // Must have a payable.
             if (payableId == null) {
                 String errorMessage = "No payable id.";
                 redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
                 logger.error(errorMessage);
                 return "redirect:/";
             }
-            Optional<Payable> optionalPayable = payableService.findPayableById(payableId);
-            // If no payable, we gots an error.
-            if (!optionalPayable.isPresent()) {
-                String errorMessage = "Payable not found, payableId=\"" + payableId + "\"";
-                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-                logger.error(errorMessage);
+            Payable payable;
+            try {
+                payable = payableService.findPayableById(payableId);
+            } catch (DatabaseException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+                return "redirect:/";
+            } catch (NotFoundException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", PAYABLE_NOT_FOUND);
                 return "redirect:/";
             }
             PaymentForm paymentForm = new PaymentForm();
             paymentForm.setPayableId(payableId);
-            Payable payable = optionalPayable.get();
             if (StringUtils.isBlank(payable.getPayee().getNickname())) {
                 paymentForm.setPayeeDisplayName(payable.getPayee().getName());
             } else {
@@ -85,16 +96,17 @@ public class PaymentController {
             model.addAttribute("paymentForm", paymentForm);
             return "paymentEdit";
         }
-        Optional<Payment> optionalPayment = paymentService.findPaymentById(paymentId);
-        // If no payment, we gots an error.
-        if (!optionalPayment.isPresent()) {
-            String errorMessage = "Payment not found, paymentId=\"" + paymentId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        // Otherwise, edit existing payment.
+        Payment payment;
+        try {
+            payment = paymentService.findPaymentById(paymentId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", PAYMENT_NOT_FOUND);
             return "redirect:/";
         }
-        // Prepare to edit payment.
-        Payment payment = optionalPayment.get();
         PaymentForm paymentForm = new PaymentForm(payment);
         model.addAttribute("paymentForm", paymentForm);
         return "paymentEdit";
@@ -108,53 +120,45 @@ public class PaymentController {
         }
         Long paymentId = paymentForm.getId();
         Payment payment;
+        // Verify existing payment still exists.
         if (paymentId != null) {
-            Optional<Payment> optionalPayment = paymentService.findPaymentById(paymentId);
-            // If no payment, we gots an error.
-            if (!optionalPayment.isPresent()) {
-                String errorMessage = "Payment not found, paymentId=\"" + paymentId + "\"";
-                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-                logger.error(errorMessage);
+            try {
+                paymentService.findPaymentById(paymentId);
+            } catch (DatabaseException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+                return "redirect:/";
+            } catch (NotFoundException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", PAYMENT_NOT_FOUND);
                 return "redirect:/";
             }
-            // Prepare to savePayment existing payment.
-            payment = paymentForm.toPayment();
-        } else {
-            // If no payment id, prepare to savePayment new payment.
-            payment = paymentForm.toPayment();
         }
+        // Convert form to entity ...
+        payment = paymentForm.toPayment();
+        // ... attach parent entity ...
         Long payableId = paymentForm.getPayableId();
-        Optional<Payable> optionalPayable = payableService.findPayableById(payableId);
-        // If no payable, we gots an error.
-        if (!optionalPayable.isPresent()) {
-            String errorMessage = "Payable not found, payableId=\"" + payableId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
+        Payable payable;
+        try {
+            payable = payableService.findPayableById(payableId);
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
+        } catch (NotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", PAYABLE_NOT_FOUND);
             return "redirect:/";
         }
-        payment.setPayable(optionalPayable.get());
-        // Try to savePayment payment.
+        // .. and save.
         Payment save;
         try {
             save = paymentService.savePayment(payment);
-            String successMessage = "Payment successfully added, paymentId=\"" + save.getId() + "\"";
-            if (paymentId != null)
-                successMessage = "Payment successfully updated, paymentId=\"" + save.getId() + "\"";
-            redirectAttributes.addFlashAttribute("successMessage", successMessage);
-            redirectAttributes.addAttribute("paymentId", save.getId());
-        } catch (Exception e) {
-            String errorMessage = "New payment could not be added";
-            if (paymentId != null)
-                errorMessage = "Payment could not be updated, paymentId=\"" + paymentId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
-            logger.error(errorMessage, e);
-            if (paymentId == null) {
-                return "redirect:/";
-            } else {
-                redirectAttributes.addAttribute("paymentId", paymentId);
-                return "redirect:/payment?paymentId={paymentId}";
-            }
+        } catch (DatabaseException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            return "redirect:/";
         }
+        String successMessage = "Payment successfully added, paymentId=\"" + save.getId() + "\"";
+        if (paymentId != null)
+            successMessage = "Payment successfully updated, paymentId=\"" + save.getId() + "\"";
+        redirectAttributes.addFlashAttribute("successMessage", successMessage);
+        redirectAttributes.addAttribute("paymentId", save.getId());
         return "redirect:/payment?paymentId={paymentId}";
     }
 }

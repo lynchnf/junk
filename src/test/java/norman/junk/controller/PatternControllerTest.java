@@ -33,17 +33,17 @@ public class PatternControllerTest {
     }
 
     @Test
-    public void loadEdit() throws Exception {
-        // TODO Write loadEdit test.
+    public void loadEdit() {
+        // TODO Write test.
     }
 
     @Test
-    public void processEdit() throws Exception {
-        // TODO Write processEdit test.
+    public void processEdit() {
+        // TODO Write test.
     }
 
     @Test
-    public void loadCategoryDropDown() throws Exception {
-        // TODO Write loadCategoryDropDown test.
+    public void loadCategoryDropDown() {
+        // TODO Write test.
     }
 }

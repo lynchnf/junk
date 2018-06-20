@@ -1,47 +1,9 @@
 package norman.junk.controller;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import norman.junk.domain.Acct;
-import norman.junk.domain.AcctNbr;
-import norman.junk.domain.AcctType;
-import norman.junk.domain.DataFile;
-import norman.junk.domain.DataLine;
-import norman.junk.domain.Tran;
-import norman.junk.domain.TranType;
-import norman.junk.service.AcctService;
-import norman.junk.service.DataFileService;
-import norman.junk.service.OfxAcct;
-import norman.junk.service.OfxInst;
-import norman.junk.service.OfxParseResponse;
-import norman.junk.service.OfxParseService;
-import norman.junk.service.OfxStmtTran;
-import norman.junk.service.TranService;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.hamcrest.core.StringContains;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-@RunWith(SpringRunner.class)
-@WebMvcTest(AcctController.class)
-public class AcctControllerTest {
+//@RunWith(SpringRunner.class)
+//@WebMvcTest(AcctController.class)
+public class OldAcctControllerTest {
+/*
     private final Random random = new Random();
     @Autowired
     private MockMvc mockMvc;
@@ -55,17 +17,9 @@ public class AcctControllerTest {
     private TranService tranService;
 
     @Test
-    public void loadList() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acctList");
-        ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("acctList"));
-    }
-
-    @Test
     public void loadView() throws Exception {
         Acct acct = buildExistingAcct();
-        BDDMockito.given(acctService.findAcctById(acct.getId())).willReturn(acct);
+        BDDMockito.given(acctService.findAcctById(acct.getId())).willReturn(Optional.of(acct));
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acct").param("acctId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
@@ -74,11 +28,29 @@ public class AcctControllerTest {
     }
 
     @Test
+    public void loadViewAcctNotExist() throws Exception {
+        BDDMockito.given(acctService.findAcctById(Long.valueOf(2))).willReturn(Optional.empty());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acct").param("acctId", "2");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
+        resultActions.andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
+    }
+
+    @Test
+    public void loadList() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acctList");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("acctList"));
+    }
+
+    @Test
     public void loadEdit() throws Exception {
         Acct acct = buildExistingAcct();
-        BDDMockito.given(acctService.findAcctById(acct.getId())).willReturn(acct);
+        BDDMockito.given(acctService.findAcctById(acct.getId())).willReturn(Optional.of(acct));
         AcctNbr acctNbr = acct.getAcctNbrs().iterator().next();
-        BDDMockito.given(acctService.findCurrentAcctNbrByAcctId(acct.getId())).willReturn(acctNbr);
+        BDDMockito.given(acctService.findCurrentAcctNbrByAcctId(acct.getId())).willReturn(Optional.of(acctNbr));
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/acctEdit").param("acctId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
@@ -87,13 +59,13 @@ public class AcctControllerTest {
     }
 
     @Test
-    public void processEdit() {
-        // TODO Write test.
+    public void processEdit() throws Exception {
+        // TODO Write processEdit test.
     }
 
     @Test
-    public void loadUpload() {
-        // TODO Write test.
+    public void loadUpload() throws Exception {
+        // TODO Write loadUpload test.
     }
 
     @Test
@@ -235,16 +207,6 @@ public class AcctControllerTest {
                 .attribute("successMessage", StringContains.containsString("2 transactions")));
     }
 
-    @Test
-    public void loadReconcile() {
-        // TODO Write test.
-    }
-
-    @Test
-    public void processReconcile() {
-        // TODO Write test.
-    }
-
     private Acct buildExistingAcct() {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MILLISECOND, 0);
@@ -375,4 +337,32 @@ public class AcctControllerTest {
         }
         return ofxParseResponse;
     }
+
+    private OfxParseResponse buildOfxParseResponse(Acct acct, Tran debit, Tran credit) {
+        OfxParseResponse ofxParseResponse = new OfxParseResponse();
+        OfxInst ofxInst = new OfxInst();
+        ofxInst.setOrganization(acct.getOrganization());
+        ofxInst.setFid(acct.getFid());
+        ofxParseResponse.setOfxInst(ofxInst);
+        OfxAcct ofxAcct = new OfxAcct();
+        ofxAcct.setAcctId(acct.getAcctNbrs().iterator().next().getNumber());
+        ofxAcct.setType(acct.getType());
+        ofxParseResponse.setOfxAcct(ofxAcct);
+        OfxStmtTran ofxStmtTranDebit = new OfxStmtTran();
+        ofxStmtTranDebit.setType(debit.getType());
+        ofxStmtTranDebit.setPostDate(debit.getPostDate());
+        ofxStmtTranDebit.setAmount(debit.getAmount());
+        ofxStmtTranDebit.setFitId(debit.getFitId());
+        ofxStmtTranDebit.setName(debit.getName());
+        ofxParseResponse.getOfxStmtTrans().add(ofxStmtTranDebit);
+        OfxStmtTran ofxStmtTranCredit = new OfxStmtTran();
+        ofxStmtTranCredit.setType(credit.getType());
+        ofxStmtTranCredit.setPostDate(credit.getPostDate());
+        ofxStmtTranCredit.setAmount(credit.getAmount());
+        ofxStmtTranCredit.setFitId(credit.getFitId());
+        ofxStmtTranCredit.setName(credit.getName());
+        ofxParseResponse.getOfxStmtTrans().add(ofxStmtTranCredit);
+        return ofxParseResponse;
+    }
+*/
 }

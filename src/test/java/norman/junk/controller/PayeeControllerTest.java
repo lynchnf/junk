@@ -1,6 +1,5 @@
 package norman.junk.controller;
 
-import java.util.Optional;
 import java.util.Random;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
@@ -29,27 +28,6 @@ public class PayeeControllerTest {
     private PayeeService payeeService;
 
     @Test
-    public void loadView() throws Exception {
-        Payee payee = buildExistingPayee();
-        BDDMockito.given(payeeService.findPayeeById(payee.getId())).willReturn(Optional.of(payee));
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payee").param("payeeId", "1");
-        ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("payeeView"));
-        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payee.getName())));
-    }
-
-    @Test
-    public void loadViewPayeeNotExist() throws Exception {
-        BDDMockito.given(payeeService.findPayeeById(Long.valueOf(2))).willReturn(Optional.empty());
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payee").param("payeeId", "2");
-        ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
-        resultActions.andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
-    }
-
-    @Test
     public void loadList() throws Exception {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payeeList");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
@@ -58,9 +36,20 @@ public class PayeeControllerTest {
     }
 
     @Test
+    public void loadView() throws Exception {
+        Payee payee = buildExistingPayee();
+        BDDMockito.given(payeeService.findPayeeById(payee.getId())).willReturn(payee);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payee").param("payeeId", "1");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("payeeView"));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payee.getName())));
+    }
+
+    @Test
     public void loadEdit() throws Exception {
         Payee payee = buildExistingPayee();
-        BDDMockito.given(payeeService.findPayeeById(payee.getId())).willReturn(Optional.of(payee));
+        BDDMockito.given(payeeService.findPayeeById(payee.getId())).willReturn(payee);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payeeEdit").param("payeeId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
@@ -69,8 +58,8 @@ public class PayeeControllerTest {
     }
 
     @Test
-    public void processEdit() throws Exception {
-        // TODO Write processEdit test.
+    public void processEdit() {
+        // TODO Write test.
     }
 
     private Payee buildExistingPayee() {

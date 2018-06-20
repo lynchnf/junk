@@ -1,6 +1,5 @@
 package norman.junk.controller;
 
-import java.util.Optional;
 import java.util.Random;
 import norman.junk.domain.Category;
 import norman.junk.service.CategoryService;
@@ -29,9 +28,17 @@ public class CategoryControllerTest {
     private CategoryService categoryService;
 
     @Test
+    public void loadList() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/categoryList");
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("categoryList"));
+    }
+
+    @Test
     public void loadView() throws Exception {
         Category category = buildExistingCategory();
-        BDDMockito.given(categoryService.findCategoryById(category.getId())).willReturn(Optional.of(category));
+        BDDMockito.given(categoryService.findCategoryById(category.getId())).willReturn(category);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/category").param("categoryId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
@@ -41,27 +48,9 @@ public class CategoryControllerTest {
     }
 
     @Test
-    public void loadViewCategoryNotExist() throws Exception {
-        BDDMockito.given(categoryService.findCategoryById(Long.valueOf(2))).willReturn(Optional.empty());
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/category").param("categoryId", "2");
-        ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
-        resultActions.andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
-    }
-
-    @Test
-    public void loadList() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/categoryList");
-        ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("categoryList"));
-    }
-
-    @Test
     public void loadEdit() throws Exception {
         Category category = buildExistingCategory();
-        BDDMockito.given(categoryService.findCategoryById(category.getId())).willReturn(Optional.of(category));
+        BDDMockito.given(categoryService.findCategoryById(category.getId())).willReturn(category);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/categoryEdit")
                 .param("categoryId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
@@ -72,8 +61,8 @@ public class CategoryControllerTest {
     }
 
     @Test
-    public void processEdit() throws Exception {
-        // TODO Write processEdit test.
+    public void processEdit() {
+        // TODO Write test.
     }
 
     private Category buildExistingCategory() {

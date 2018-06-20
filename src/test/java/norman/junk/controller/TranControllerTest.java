@@ -1,6 +1,5 @@
 package norman.junk.controller;
 
-import java.util.Optional;
 import norman.junk.domain.Acct;
 import norman.junk.domain.Tran;
 import norman.junk.service.PatternService;
@@ -32,31 +31,33 @@ public class TranControllerTest {
 
     @Test
     public void loadView() throws Exception {
-        Long tranId = Long.valueOf(1);
-        Tran tran = new Tran();
-        tran.setId(tranId);
-        Acct acct = new Acct();
-        String acctName = RandomStringUtils.randomAlphabetic(50);
-        acct.setName(acctName);
-        tran.setAcct(acct);
-        Optional<Tran> optionalTran = Optional.of(tran);
-        BDDMockito.given(tranService.findTranById(tranId)).willReturn(optionalTran);
+        Tran tran = buildExistingTran();
+        BDDMockito.given(tranService.findTranById(tran.getId())).willReturn(tran);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/tran").param("tranId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("tranView"));
-        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(acctName)));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(tran.getName())));
     }
 
     @Test
-    public void loadViewTranNotExist() throws Exception {
-        Long tranId = Long.valueOf(2);
-        Optional<Tran> optionalTran = Optional.empty();
-        BDDMockito.given(tranService.findTranById(tranId)).willReturn(optionalTran);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/tran").param("tranId", "2");
-        ResultActions resultActions = mockMvc.perform(requestBuilder);
-        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
-        resultActions.andExpect(MockMvcResultMatchers.flash().attributeExists("errorMessage"));
+    public void assignCategories() {
+        // TODO Write test.
+    }
+
+    private Tran buildExistingTran() {
+        Long acctId = Long.valueOf(1);
+        String acctName = RandomStringUtils.randomAlphabetic(50);
+        Acct acct = new Acct();
+        acct.setId(acctId);
+        acct.setName(acctName);
+        Long tranId = Long.valueOf(1);
+        String tranName = RandomStringUtils.randomAlphabetic(50);
+        Tran tran = new Tran();
+        tran.setId(tranId);
+        tran.setName(tranName);
+        tran.setAcct(acct);
+        acct.getTrans().add(tran);
+        return tran;
     }
 }

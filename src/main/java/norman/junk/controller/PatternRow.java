@@ -1,9 +1,10 @@
 package norman.junk.controller;
 
-import java.util.Optional;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import norman.junk.DatabaseException;
+import norman.junk.NotFoundException;
 import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
@@ -29,15 +30,12 @@ public class PatternRow {
         tranName = pattern.getTranName();
     }
 
-    public Pattern toPattern(CategoryService categoryService) {
+    public Pattern toPattern(CategoryService categoryService) throws DatabaseException, NotFoundException {
         Pattern pattern = new Pattern();
         pattern.setId(id);
         pattern.setVersion(version);
-        if (categoryId != null) {
-            Optional<Category> optionalCategory = categoryService.findCategoryById(categoryId);
-            if (optionalCategory.isPresent())
-                pattern.setCategory(optionalCategory.get());
-        }
+        Category category = categoryService.findCategoryById(categoryId);
+        pattern.setCategory(category);
         pattern.setTranName(tranName);
         return pattern;
     }

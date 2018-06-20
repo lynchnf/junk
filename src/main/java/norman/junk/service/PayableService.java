@@ -6,15 +6,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import norman.junk.DatabaseException;
+import norman.junk.NotFoundException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
 import norman.junk.repository.PayableRepository;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PayableService {
+    private static final Logger logger = LoggerFactory.getLogger(PayableService.class);
     private static final int ALMOST_DUE_DAYS = 14;
     private static final String OVERDUE_CLASS = "table-danger";
     private static final String ALMOST_DUE_CLASS = "table-warning";
@@ -36,21 +41,53 @@ public class PayableService {
         warning = cal.getTime();
     }
 
-    public Iterable<Payable> findAllPayables() {
-        return payableRepository.findAll();
+    public Iterable<Payable> findAllPayables() throws DatabaseException {
+        try {
+            return payableRepository.findAll();
+        } catch (Exception e) {
+            String msg = "Error finding all payables";
+            logger.error(msg, e);
+            throw new DatabaseException(msg, e);
+        }
     }
 
-    public Optional<Payable> findPayableById(Long payableId) {
-        return payableRepository.findById(payableId);
+    public Payable findPayableById(Long payableId) throws DatabaseException, NotFoundException {
+        Optional<Payable> optional;
+        try {
+            optional = payableRepository.findById(payableId);
+        } catch (Exception e) {
+            String msg = "Error finding payable, payableId=\"" + payableId + "\"";
+            logger.error(msg, e);
+            throw new DatabaseException(msg, e);
+        }
+        if (!optional.isPresent()) {
+            String msg = "Payable not found, payableId=\"" + payableId + "\"";
+            logger.warn(msg);
+            throw new NotFoundException(msg);
+        }
+        return optional.get();
     }
 
-    public Payable savePayable(Payable payable) {
-        return payableRepository.save(payable);
+    public Payable savePayable(Payable payable) throws DatabaseException {
+        try {
+            return payableRepository.save(payable);
+        } catch (Exception e) {
+            String msg = "Error saving payable";
+            logger.error(msg, e);
+            throw new DatabaseException(msg, e);
+        }
     }
 
-    public List<PayableDueBean> findAllPayableDues() {
+    public List<PayableDueBean> findAllPayableDues() throws DatabaseException {
         List<PayableDueBean> payableDues = new ArrayList<>();
-        Iterable<Payable> payables = payableRepository.findAllByOrderByDueDate();
+        Iterable<Payable> payables = null;
+        try {
+            payables = payableRepository.findAllByOrderByDueDate();
+        } catch (Exception e) {
+            String msg = "Error finding all payables orded by due date";
+            logger.error(msg, e);
+            throw new DatabaseException(msg, e);
+        }
         for (Payable payable : payables) {
             Long id = payable.getId();
             String payeeDisplayName = payable.getPayee().getNickname();
