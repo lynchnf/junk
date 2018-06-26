@@ -1,14 +1,9 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Payee</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <div class="form-group row">
@@ -68,33 +63,25 @@
     <a class="btn btn-primary" th:href="@{/payeeEdit(payeeId=${payee.id})}">Edit</a>
     <table class="table table-sm table-striped">
         <tr>
-            <th>Payment Due Date</th>
-            <th>New Balance Total</th>
+            <th>Due Date</th>
+            <th>Amount Due</th>
             <th>Previous Balance</th>
-            <th>Payments And Other Credits</th>
-            <th>Purchases And Adjustments</th>
-            <th>Fees Charged</th>
-            <th>Interest Charged</th>
-            <th>Statement Closing Date</th>
-            <th>Minimum Payment Due</th>
+            <th>Previous Payments</th>
+            <th>Statement Date</th>
+            <th>Minimum Payment</th>
         </tr>
         <tr th:each="payable:${payee.payables}">
             <td><a th:href="@{/payable(payableId=${payable.id})}"
-                   th:text="${#dates.format(payable.paymentDueDate,'M/d/yyyy')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.previousBalance,1,'DEFAULT',2,'DEFAULT')}"></a></td>
-            <td th:text="${#numbers.formatDecimal(payable.paymentsAndOtherCredits,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.purchasesAndAdjustments,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.feesCharged,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.interestCharged,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#dates.format(payable.statementClosingDate,'M/d/yyyy')}"></td>
-            <td th:text="${#numbers.formatDecimal(payable.minimumPaymentDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+                   th:text="${#dates.format(payable.dueDate,'M/d/yyyy')}"></a></td>
+            <td th:text="${#numbers.formatDecimal(payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.previousBalance,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.previousPayments,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#dates.format(payable.statementDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.minimumPayment,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>
     </table>
     <a class="btn btn-secondary" th:href="@{/payableEdit(payeeId=${payee.id})}">Add Payable</a>
 </main>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/popper-1.14.3.min.js"></script>
-<script src="js/bootstrap-4.1.1.min.js"></script>
+<footer th:replace="fragments/footer::footer"></footer>
 </body>
 </html>

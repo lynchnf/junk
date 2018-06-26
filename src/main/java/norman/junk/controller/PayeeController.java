@@ -22,6 +22,13 @@ public class PayeeController {
     @Autowired
     private PayeeService payeeService;
 
+    @RequestMapping("/payeeList")
+    public String loadList(Model model) {
+        Iterable<Payee> payees = payeeService.findAllPayees();
+        model.addAttribute("payees", payees);
+        return "payeeList";
+    }
+
     @RequestMapping("/payee")
     public String loadView(@RequestParam("payeeId") Long payeeId, Model model, RedirectAttributes redirectAttributes) {
         Optional<Payee> optionalPayee = payeeService.findPayeeById(payeeId);
@@ -36,13 +43,6 @@ public class PayeeController {
         Payee payee = optionalPayee.get();
         model.addAttribute("payee", payee);
         return "payeeView";
-    }
-
-    @RequestMapping("/payeeList")
-    public String loadList(Model model) {
-        Iterable<Payee> payees = payeeService.findAllPayees();
-        model.addAttribute("payees", payees);
-        return "payeeList";
     }
 
     @GetMapping("/payeeEdit")

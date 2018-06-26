@@ -1,14 +1,9 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Payable Edit</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <form th:action="@{/payableEdit}" th:object="${payableForm}" method="post">
@@ -17,24 +12,26 @@
         </ul>
         <input type="hidden" th:field="*{id}"/>
         <input type="hidden" th:field="*{version}"/>
-        <input type="hidden" th:field="*{payeeId}"/>
-        <input type="hidden" th:field="*{payeeDisplayName}"/>
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">Payee</label>
             <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="*{payeeDisplayName}"></p>
+                <select class="form-control" th:field="*{payeeId}" th:errorclass="is-invalid">
+                    <option value="">Please select ...</option>
+                    <option th:each="payee:${allPayees}" th:value="${payee.id}"
+                            th:text="${(payee.nickname != null)?payee.nickname:payee.name}"></option>
+                </select>
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Payment Due Date</label>
+            <label class="col-sm-3 col-form-label">Due Date (M/d/yyyy)</label>
             <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{paymentDueDate}" th:errorclass="is-invalid"/>
+                <input type="text" class="form-control" th:field="*{dueDate}" th:errorclass="is-invalid"/>
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">New Balance Total</label>
+            <label class="col-sm-3 col-form-label">Amount Due</label>
             <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{newBalanceTotal}" th:errorclass="is-invalid"/>
+                <input type="text" class="form-control" th:field="*{amountDue}" th:errorclass="is-invalid"/>
             </div>
         </div>
         <div class="form-group row">
@@ -44,48 +41,30 @@
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Payments And Other Credits</label>
+            <label class="col-sm-3 col-form-label">Previous Payments</label>
             <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{paymentsAndOtherCredits}"
-                       th:errorclass="is-invalid"/>
+                <input type="text" class="form-control" th:field="*{previousPayments}" th:errorclass="is-invalid"/>
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Purchases And Adjustments</label>
+            <label class="col-sm-3 col-form-label">Statement Date (M/d/yyyy)</label>
             <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{purchasesAndAdjustments}"
-                       th:errorclass="is-invalid"/>
+                <input type="text" class="form-control" th:field="*{statementDate}" th:errorclass="is-invalid"/>
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Fees Charged</label>
+            <label class="col-sm-3 col-form-label">Minimum Payment</label>
             <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{feesCharged}" th:errorclass="is-invalid"/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Interest Charged</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{interestCharged}" th:errorclass="is-invalid"/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Statement Closing Date</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{statementClosingDate}" th:errorclass="is-invalid"/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Minimum Payment Due</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" th:field="*{minimumPaymentDue}" th:errorclass="is-invalid"/>
+                <input type="text" class="form-control" th:field="*{minimumPayment}" th:errorclass="is-invalid"/>
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </main>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/popper-1.14.3.min.js"></script>
-<script src="js/bootstrap-4.1.1.min.js"></script>
+<footer th:replace="fragments/footer::footer"></footer>
+<script>
+    $("#dueDate").datepicker({uiLibrary: "bootstrap4"});
+    $("#statementDate").datepicker({uiLibrary: "bootstrap4"});
+</script>
 </body>
 </html>

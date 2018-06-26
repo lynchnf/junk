@@ -1,14 +1,11 @@
 package norman.junk.controller;
 
-import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
-import norman.junk.service.PayableBalanceBean;
 import norman.junk.service.PayableService;
 import norman.junk.service.PayeeService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +26,13 @@ public class PayableController {
     private PayeeService payeeService;
     @Autowired
     private PayableService payableService;
+
+    @RequestMapping("/payableList")
+    public String loadList(Model model) {
+        Iterable<Payable> payables = payableService.findAllPayables();
+        model.addAttribute("payables", payables);
+        return "payableList";
+    }
 
     @RequestMapping("/payable")
     public String loadView(@RequestParam("payableId") Long payableId, Model model,
@@ -46,42 +51,15 @@ public class PayableController {
         return "payableView";
     }
 
-    @RequestMapping("/payableList")
-    public String loadList(Model model) {
-        List<PayableBalanceBean> payableBalances = payableService.findAllPayableBalances();
-        model.addAttribute("payableBalances", payableBalances);
-        return "payableList";
-    }
-
     @GetMapping("/payableEdit")
     public String loadEdit(@RequestParam(value = "payableId", required = false) Long payableId,
             @RequestParam(value = "payeeId", required = false) Long payeeId, Model model,
             RedirectAttributes redirectAttributes) {
         // If no payable id, new payable.
         if (payableId == null) {
-            // If no payee id, we gots an error.
-            if (payeeId == null) {
-                String errorMessage = "No payee id.";
-                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-                logger.error(errorMessage);
-                return "redirect:/";
-            }
-            Optional<Payee> optionalPayee = payeeService.findPayeeById(payeeId);
-            // If no payee, we gots an error.
-            if (!optionalPayee.isPresent()) {
-                String errorMessage = "Payee not found, payeeId=\"" + payeeId + "\"";
-                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-                logger.error(errorMessage);
-                return "redirect:/";
-            }
             PayableForm payableForm = new PayableForm();
-            payableForm.setPayeeId(payeeId);
-            Payee payee = optionalPayee.get();
-            if (StringUtils.isBlank(payee.getNickname())) {
-                payableForm.setPayeeDisplayName(payee.getName());
-            } else {
-                payableForm.setPayeeDisplayName(payee.getNickname());
-            }
+            if (payeeId != null)
+                payableForm.setPayeeId(payeeId);
             model.addAttribute("payableForm", payableForm);
             return "payableEdit";
         }
@@ -118,21 +96,11 @@ public class PayableController {
                 return "redirect:/";
             }
             // Prepare to savePayment existing payable.
-            payable = payableForm.toPayable();
+            payable = payableForm.toPayable(payeeService);
         } else {
             // If no payable id, prepare to savePayment new payable.
-            payable = payableForm.toPayable();
+            payable = payableForm.toPayable(payeeService);
         }
-        Long payeeId = payableForm.getPayeeId();
-        Optional<Payee> optionalPayee = payeeService.findPayeeById(payeeId);
-        // If no payee, we gots an error.
-        if (!optionalPayee.isPresent()) {
-            String errorMessage = "Payee not found, payeeId=\"" + payeeId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage);
-            return "redirect:/";
-        }
-        payable.setPayee(optionalPayee.get());
         // Try to savePayment payable.
         Payable save;
         try {
@@ -156,5 +124,10 @@ public class PayableController {
             }
         }
         return "redirect:/payable?payableId={payableId}";
+    }
+
+    @ModelAttribute("allPayees")
+    public Iterable<Payee> loadPayeeDropDown() {
+        return payeeService.findAllPayees();
     }
 }

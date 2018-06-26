@@ -1,14 +1,9 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Payment Edit</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <form th:action="@{/paymentEdit}" th:object="${paymentForm}" method="post">
@@ -19,8 +14,8 @@
         <input type="hidden" th:field="*{version}"/>
         <input type="hidden" th:field="*{payableId}"/>
         <input type="hidden" th:field="*{payeeDisplayName}"/>
-        <input type="hidden" th:field="*{payablePaymentDueDate}"/>
-        <input type="hidden" th:field="*{payableNewBalanceTotal}"/>
+        <input type="hidden" th:field="*{payableDueDate}"/>
+        <input type="hidden" th:field="*{payableAmountDue}"/>
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">Payee</label>
             <div class="col-sm-9">
@@ -30,14 +25,14 @@
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">Payment Due Date</label>
             <div class="col-sm-9">
-                <p class="form-control-plaintext" th:text="*{#dates.format(payablePaymentDueDate,'M/d/yyyy')}"></p>
+                <p class="form-control-plaintext" th:text="*{#dates.format(payableDueDate,'M/d/yyyy')}"></p>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">New Balance Total</label>
             <div class="col-sm-9">
                 <p class="form-control-plaintext"
-                   th:text="*{#numbers.formatDecimal(payableNewBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></p>
+                   th:text="*{#numbers.formatDecimal(payableAmountDue,1,'DEFAULT',2,'DEFAULT')}"></p>
             </div>
         </div>
         <div class="form-group row">
@@ -67,8 +62,9 @@
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </main>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/popper-1.14.3.min.js"></script>
-<script src="js/bootstrap-4.1.1.min.js"></script>
+<footer th:replace="fragments/footer::footer"></footer>
+<script>
+    $("#paidDate").datepicker({uiLibrary: "bootstrap4"});
+</script>
 </body>
 </html>

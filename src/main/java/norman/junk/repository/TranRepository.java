@@ -6,4 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface TranRepository extends CrudRepository<Tran, Long> {
     List<Tran> findByAcct_IdAndFitId(Long acctId, String fitId);
+
+    List<Tran> findByCategoryIsNull();
 }

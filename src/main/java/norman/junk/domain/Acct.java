@@ -40,6 +40,8 @@ public class Acct {
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
     private AcctType type;
+    @Column(precision = 9, scale = 2)
+    private BigDecimal creditLimit;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "acct")
     private List<AcctNbr> acctNbrs = new ArrayList<>();
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "acct")
@@ -115,6 +117,14 @@ public class Acct {
 
     public void setType(AcctType type) {
         this.type = type;
+    }
+
+    public BigDecimal getCreditLimit() {
+        return creditLimit;
+    }
+
+    public void setCreditLimit(BigDecimal creditLimit) {
+        this.creditLimit = creditLimit;
     }
 
     public List<AcctNbr> getAcctNbrs() {

@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class PayableService {
     private static final int ALMOST_DUE_DAYS = 14;
-    private static final String OVERDUE_CLASS = "text-danger";
-    private static final String ALMOST_DUE_CLASS = "text-warning";
-    private static final String NOT_DUE_FOR_AWHILE_YET_CLASS = "text-body";
-    private static final String ALREADY_PAID_CLASS = "text-success";
+    private static final String OVERDUE_CLASS = "table-danger";
+    private static final String ALMOST_DUE_CLASS = "table-warning";
+    private static final String NOT_DUE_FOR_AWHILE_YET_CLASS = "table-light";
+    private static final String ALREADY_PAID_CLASS = "table-success";
     private Date today;
     private Date warning;
     @Autowired
@@ -36,59 +36,8 @@ public class PayableService {
         warning = cal.getTime();
     }
 
-    public List<PayableBalanceBean> findPayableBalancesDue() {
-        List<PayableBalanceBean> payableBalances = new ArrayList<>();
-        Iterable<Payable> payables = payableRepository.findAllByOrderByPaymentDueDate();
-        for (Payable payable : payables) {
-            PayableBalanceBean payableBalance = toPayableBalanceBean(payable);
-            if (payableBalance.getStyleClass() != null)
-                payableBalances.add(payableBalance);
-        }
-        return payableBalances;
-    }
-
-    public List<PayableBalanceBean> findAllPayableBalances() {
-        List<PayableBalanceBean> payableBalances = new ArrayList<>();
-        Iterable<Payable> payables = payableRepository.findAll();
-        for (Payable payable : payables) {
-            PayableBalanceBean payableBalance = toPayableBalanceBean(payable);
-            payableBalances.add(payableBalance);
-        }
-        return payableBalances;
-    }
-
-    private PayableBalanceBean toPayableBalanceBean(Payable payable) {
-        String payeeDisplayName = payable.getPayee().getNickname();
-        if (StringUtils.isBlank(payable.getPayee().getNickname())) {
-            payeeDisplayName = payable.getPayee().getName();
-        }
-        Date paymentDueDate = payable.getPaymentDueDate();
-        BigDecimal newBalanceTotal = payable.getNewBalanceTotal();
-        BigDecimal balance = newBalanceTotal;
-        Date lastPaymentDate = null;
-        for (Payment payment : payable.getPayments()) {
-            balance = balance.subtract(payment.getAmountPaid());
-            Date paymentPaidDate = payment.getPaidDate();
-            if (lastPaymentDate == null || lastPaymentDate.before(paymentPaidDate))
-                lastPaymentDate = paymentPaidDate;
-        }
-        String styleClass = null;
-        if (balance.compareTo(BigDecimal.ZERO) > 0) {
-            if (paymentDueDate.before(today)) {
-                styleClass = OVERDUE_CLASS;
-            } else if (paymentDueDate.before(warning)) {
-                styleClass = ALMOST_DUE_CLASS;
-            } else {
-                styleClass = NOT_DUE_FOR_AWHILE_YET_CLASS;
-            }
-        } else {
-            if (paymentDueDate.equals(today) || paymentDueDate.after(today) || lastPaymentDate.equals(today) ||
-                    lastPaymentDate.after(today)) {
-                styleClass = ALREADY_PAID_CLASS;
-            }
-        }
-        return new PayableBalanceBean(payable.getId(), payeeDisplayName, paymentDueDate, newBalanceTotal,
-                payable.getMinimumPaymentDue(), balance, lastPaymentDate, styleClass);
+    public Iterable<Payable> findAllPayables() {
+        return payableRepository.findAll();
     }
 
     public Optional<Payable> findPayableById(Long payableId) {
@@ -97,5 +46,57 @@ public class PayableService {
 
     public Payable savePayable(Payable payable) {
         return payableRepository.save(payable);
+    }
+
+    public List<PayableDueBean> findAllPayableDues() {
+        List<PayableDueBean> payableDues = new ArrayList<>();
+        Iterable<Payable> payables = payableRepository.findAllByOrderByDueDate();
+        for (Payable payable : payables) {
+            Long id = payable.getId();
+            String payeeDisplayName = payable.getPayee().getNickname();
+            if (StringUtils.isBlank(payable.getPayee().getNickname()))
+                payeeDisplayName = payable.getPayee().getName();
+            Date dueDate = payable.getDueDate();
+            BigDecimal amountDue = payable.getAmountDue();
+            BigDecimal minimumPayment = payable.getMinimumPayment();
+            Date lastPaidDate = null;
+            BigDecimal balanceDue = payable.getAmountDue();
+            BigDecimal previousBalance = payable.getPreviousBalance();
+            if (previousBalance != null) {
+                BigDecimal previousPayments = payable.getPreviousPayments();
+                if (previousPayments == null)
+                    previousPayments = BigDecimal.ZERO;
+                BigDecimal previousDue = previousBalance.add(previousPayments);
+                if (previousDue.compareTo(BigDecimal.ZERO) > 0)
+                    balanceDue = balanceDue.subtract(previousDue);
+            }
+            List<Payment> payments = payable.getPayments();
+            for (Payment payment : payments) {
+                if (lastPaidDate == null || lastPaidDate.before(payment.getPaidDate()))
+                    lastPaidDate = payment.getPaidDate();
+                balanceDue = balanceDue.subtract(payment.getAmountPaid());
+            }
+            String styleClass = null;
+            if (balanceDue.compareTo(BigDecimal.ZERO) > 0) {
+                if (dueDate.before(today)) {
+                    styleClass = OVERDUE_CLASS;
+                } else if (dueDate.before(warning)) {
+                    styleClass = ALMOST_DUE_CLASS;
+                } else {
+                    styleClass = NOT_DUE_FOR_AWHILE_YET_CLASS;
+                }
+            } else {
+                if (dueDate.equals(today) || dueDate.after(today) || lastPaidDate.equals(today) ||
+                        lastPaidDate.after(today)) {
+                    styleClass = ALREADY_PAID_CLASS;
+                }
+            }
+            if (styleClass != null) {
+                PayableDueBean payableDue = new PayableDueBean(id, payeeDisplayName, dueDate, amountDue, minimumPayment,
+                        lastPaidDate, balanceDue, styleClass);
+                payableDues.add(payableDue);
+            }
+        }
+        return payableDues;
     }
 }

@@ -1,7 +1,11 @@
 package norman.junk.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import norman.junk.domain.Pattern;
 import norman.junk.domain.Tran;
+import norman.junk.service.PatternService;
 import norman.junk.service.TranService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +21,8 @@ public class TranController {
     private static final Logger logger = LoggerFactory.getLogger(TranController.class);
     @Autowired
     private TranService tranService;
+    @Autowired
+    private PatternService patternService;
 
     @RequestMapping("/tran")
     public String loadView(@RequestParam("tranId") Long tranId, Model model, RedirectAttributes redirectAttributes) {
@@ -32,5 +38,33 @@ public class TranController {
         Tran tran = optionalTran.get();
         model.addAttribute("tran", tran);
         return "tranView";
+    }
+
+    @RequestMapping("/tranAssign")
+    public String assignCategories(RedirectAttributes redirectAttributes) {
+        List<Pattern> patterns = patternService.findAllPatterns();
+        List<Tran> trans = tranService.findAllNonAssigned();
+        List<Tran> assignUs = new ArrayList<>();
+        for (Tran tran : trans) {
+            boolean found = false;
+            for (int i = 0; i < patterns.size() && !found; i++) {
+                Pattern pattern = patterns.get(i);
+                if (tran.getName().matches(pattern.getTranName())) {
+                    tran.setCategory(pattern.getCategory());
+                    assignUs.add(tran);
+                    found = true;
+                }
+            }
+        }
+        try {
+            Iterable<Tran> saveAll = tranService.saveAllTrans(assignUs);
+            String successMessage = "Categories successfully assigned to " + assignUs.size() + " transactions";
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+        } catch (Exception e) {
+            String errorMessage = "Categories could not be assigned to transactions";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
+            logger.error(errorMessage, e);
+        }
+        return "redirect:/";
     }
 }

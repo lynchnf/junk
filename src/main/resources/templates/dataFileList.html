@@ -1,31 +1,27 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Data File List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <table class="table table-sm table-striped">
         <tr>
             <th>Original Filename</th>
+            <th>Content Type</th>
+            <th>Size</th>
             <th>Upload Timestamp</th>
             <th>Status</th>
         </tr>
         <tr th:each="dataFile:${dataFiles}">
-            <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.originalFilename}"></a>
-            </td>
+            <td><a th:href="@{/dataFile(dataFileId=${dataFile.id})}" th:text="${dataFile.originalFilename}"></a></td>
+            <td th:text="${dataFile.contentType}"></td>
+            <td th:text="${#numbers.formatInteger(dataFile.size,1,'DEFAULT')}"></td>
             <td th:text="${#dates.format(dataFile.uploadTimestamp,'M/d/yyyy H:m:s')}"></td>
             <td th:text="${dataFile.status}"></td>
     </table>
 </main>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/popper-1.14.3.min.js"></script>
-<script src="js/bootstrap-4.1.1.min.js"></script>
+<footer th:replace="fragments/footer::footer"></footer>
 </body>
 </html>

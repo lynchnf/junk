@@ -1,36 +1,33 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Payable List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <table class="table table-sm table-striped">
         <tr>
             <th>Payee</th>
-            <th>Payment Due Date</th>
-            <th>New Balance Total</th>
-            <th>Minimum Payment Due</th>
-            <th>Balance</th>
+            <th>Due Date</th>
+            <th>Amount Due</th>
+            <th>Previous Balance</th>
+            <th>Previous Payments</th>
+            <th>Statement Date</th>
+            <th>Minimum Payment</th>
         </tr>
-        <tr th:each="payableBalance:${payableBalances}">
-            <td><a th:href="@{/payable(payableId=${payableBalance.id})}"
-                   th:text="${payableBalance.payeeDisplayName}"></a></td>
-            <td th:text="${#dates.format(payableBalance.paymentDueDate,'M/d/yyyy')}"></td>
-            <td th:text="${#numbers.formatDecimal(payableBalance.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payableBalance.minimumPaymentDue,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#numbers.formatDecimal(payableBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
+        <tr th:each="payable:${payables}">
+            <td><a th:href="@{/payable(payableId=${payable.id})}"
+                   th:text="${(payable.payee.nickname != null)?payable.payee.nickname:payable.payee.name}"></a></td>
+            <td th:text="${#dates.format(payable.dueDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.previousBalance,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.previousPayments,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${#dates.format(payable.statementDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(payable.minimumPayment,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>
     </table>
 </main>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/popper-1.14.3.min.js"></script>
-<script src="js/bootstrap-4.1.1.min.js"></script>
+<footer th:replace="fragments/footer::footer"></footer>
 </body>
 </html>

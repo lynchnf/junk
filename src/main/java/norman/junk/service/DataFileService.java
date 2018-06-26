@@ -11,15 +11,15 @@ public class DataFileService {
     @Autowired
     private DataFileRepository dataFileRepository;
 
-    public DataFile saveDataFile(DataFile dataFile) {
-        return dataFileRepository.save(dataFile);
+    public Iterable<DataFile> findAllDataFiles() {
+        return dataFileRepository.findAll();
     }
 
     public Optional<DataFile> findDataFileById(Long dataFileId) {
         return dataFileRepository.findById(dataFileId);
     }
 
-    public Iterable<DataFile> findAllDataFiles() {
-        return dataFileRepository.findAll();
+    public DataFile saveDataFile(DataFile dataFile) {
+        return dataFileRepository.save(dataFile);
     }
 }

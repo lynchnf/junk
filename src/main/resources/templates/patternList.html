@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head::head"></head>
+<body>
+<header th:replace="fragments/header::header"></header>
+<main class="container">
+    <h1>Category Pattern List</h1>
+    <div th:replace="fragments/alerts::alerts"></div>
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>Seq</th>
+            <th>Tran Name</th>
+            <th>Category</th>
+        </tr>
+        <tr th:each="pattern:${patterns}">
+            <td th:text="${pattern.seq}"></td>
+            <td th:text="${pattern.tranName}"></td>
+            <td th:text="${pattern.category.name}"></td>
+        </tr>
+    </table>
+    <a class="btn btn-primary" th:href="@{/patternEdit}">Edit</a>
+</main>
+<footer th:replace="fragments/footer::footer"></footer>
+</body>
+</html>

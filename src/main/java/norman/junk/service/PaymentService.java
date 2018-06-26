@@ -11,12 +11,12 @@ public class PaymentService {
     @Autowired
     PaymentRepository paymentRepository;
 
-    public Optional<Payment> findPaymentById(Long paymentId) {
-        return paymentRepository.findById(paymentId);
-    }
-
     public Iterable<Payment> findAllPayments() {
         return paymentRepository.findAll();
+    }
+
+    public Optional<Payment> findPaymentById(Long paymentId) {
+        return paymentRepository.findById(paymentId);
     }
 
     public Payment savePayment(Payment payment) {

@@ -27,6 +27,13 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
+    @RequestMapping("/paymentList")
+    public String loadList(Model model) {
+        Iterable<Payment> payments = paymentService.findAllPayments();
+        model.addAttribute("payments", payments);
+        return "paymentList";
+    }
+
     @RequestMapping("/payment")
     public String loadView(@RequestParam("paymentId") Long paymentId, Model model,
             RedirectAttributes redirectAttributes) {
@@ -42,13 +49,6 @@ public class PaymentController {
         Payment payment = optionalPayment.get();
         model.addAttribute("payment", payment);
         return "paymentView";
-    }
-
-    @RequestMapping("/paymentList")
-    public String loadList(Model model) {
-        Iterable<Payment> payments = paymentService.findAllPayments();
-        model.addAttribute("payments", payments);
-        return "paymentList";
     }
 
     @GetMapping("/paymentEdit")
@@ -80,8 +80,8 @@ public class PaymentController {
             } else {
                 paymentForm.setPayeeDisplayName(payable.getPayee().getNickname());
             }
-            paymentForm.setPayablePaymentDueDate(payable.getPaymentDueDate());
-            paymentForm.setPayableNewBalanceTotal(payable.getNewBalanceTotal());
+            paymentForm.setPayableDueDate(payable.getDueDate());
+            paymentForm.setPayableAmountDue(payable.getAmountDue());
             model.addAttribute("paymentForm", paymentForm);
             return "paymentEdit";
         }

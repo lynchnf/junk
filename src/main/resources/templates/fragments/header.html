@@ -1,11 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:fragment="header">
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
@@ -34,12 +29,22 @@
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown">Payables</a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" th:href="@{/payableList}">Payable List</a>
+                        <a class="dropdown-item" th:href="@{/payableEdit}">Add Payable</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown">Payments</a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" th:href="@{/paymentList}">Payment List</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown">Categories</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" th:href="@{/categoryList}">Category List</a>
+                        <a class="dropdown-item" th:href="@{/categoryEdit}">Add Category</a>
+                        <a class="dropdown-item" th:href="@{/patternList}">Category Patterns</a>
+                        <a class="dropdown-item" th:href="@{/tranAssign}">Auto Assign</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -50,7 +55,7 @@
                 </li>
             </ul>
         </div>
-        <div class="small">Version: foo-bar</div>
+        <div th:replace="fragments/version::version"></div>
     </nav>
 </header>
 <script src="js/jquery-3.3.1.min.js"></script>

@@ -26,26 +26,20 @@ public class Payable {
     @Version
     private Integer version = 0;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PAYEE_ID", nullable = false)
+    @JoinColumn(name = "payee_id", nullable = false)
     private Payee payee;
+    @Temporal(TemporalType.DATE)
+    private Date dueDate;
+    @Column(precision = 9, scale = 2)
+    private BigDecimal amountDue;
     @Column(precision = 9, scale = 2)
     private BigDecimal previousBalance;
     @Column(precision = 9, scale = 2)
-    private BigDecimal paymentsAndOtherCredits;
-    @Column(precision = 9, scale = 2)
-    private BigDecimal purchasesAndAdjustments;
-    @Column(precision = 9, scale = 2)
-    private BigDecimal feesCharged;
-    @Column(precision = 9, scale = 2)
-    private BigDecimal interestCharged;
-    @Column(precision = 9, scale = 2)
-    private BigDecimal newBalanceTotal;
+    private BigDecimal previousPayments;
     @Temporal(TemporalType.DATE)
-    private Date statementClosingDate;
+    private Date statementDate;
     @Column(precision = 9, scale = 2)
-    private BigDecimal minimumPaymentDue;
-    @Temporal(TemporalType.DATE)
-    private Date paymentDueDate;
+    private BigDecimal minimumPayment;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "payable")
     private List<Payment> payments = new ArrayList<>();
 
@@ -73,6 +67,22 @@ public class Payable {
         this.payee = payee;
     }
 
+    public Date getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public BigDecimal getAmountDue() {
+        return amountDue;
+    }
+
+    public void setAmountDue(BigDecimal amountDue) {
+        this.amountDue = amountDue;
+    }
+
     public BigDecimal getPreviousBalance() {
         return previousBalance;
     }
@@ -81,68 +91,28 @@ public class Payable {
         this.previousBalance = previousBalance;
     }
 
-    public BigDecimal getPaymentsAndOtherCredits() {
-        return paymentsAndOtherCredits;
+    public BigDecimal getPreviousPayments() {
+        return previousPayments;
     }
 
-    public void setPaymentsAndOtherCredits(BigDecimal paymentsAndOtherCredits) {
-        this.paymentsAndOtherCredits = paymentsAndOtherCredits;
+    public void setPreviousPayments(BigDecimal previousPayments) {
+        this.previousPayments = previousPayments;
     }
 
-    public BigDecimal getPurchasesAndAdjustments() {
-        return purchasesAndAdjustments;
+    public Date getStatementDate() {
+        return statementDate;
     }
 
-    public void setPurchasesAndAdjustments(BigDecimal purchasesAndAdjustments) {
-        this.purchasesAndAdjustments = purchasesAndAdjustments;
+    public void setStatementDate(Date statementDate) {
+        this.statementDate = statementDate;
     }
 
-    public BigDecimal getFeesCharged() {
-        return feesCharged;
+    public BigDecimal getMinimumPayment() {
+        return minimumPayment;
     }
 
-    public void setFeesCharged(BigDecimal feesCharged) {
-        this.feesCharged = feesCharged;
-    }
-
-    public BigDecimal getInterestCharged() {
-        return interestCharged;
-    }
-
-    public void setInterestCharged(BigDecimal interestCharged) {
-        this.interestCharged = interestCharged;
-    }
-
-    public BigDecimal getNewBalanceTotal() {
-        return newBalanceTotal;
-    }
-
-    public void setNewBalanceTotal(BigDecimal newBalanceTotal) {
-        this.newBalanceTotal = newBalanceTotal;
-    }
-
-    public Date getStatementClosingDate() {
-        return statementClosingDate;
-    }
-
-    public void setStatementClosingDate(Date statementClosingDate) {
-        this.statementClosingDate = statementClosingDate;
-    }
-
-    public BigDecimal getMinimumPaymentDue() {
-        return minimumPaymentDue;
-    }
-
-    public void setMinimumPaymentDue(BigDecimal minimumPaymentDue) {
-        this.minimumPaymentDue = minimumPaymentDue;
-    }
-
-    public Date getPaymentDueDate() {
-        return paymentDueDate;
-    }
-
-    public void setPaymentDueDate(Date paymentDueDate) {
-        this.paymentDueDate = paymentDueDate;
+    public void setMinimumPayment(BigDecimal minimumPayment) {
+        this.minimumPayment = minimumPayment;
     }
 
     public List<Payment> getPayments() {

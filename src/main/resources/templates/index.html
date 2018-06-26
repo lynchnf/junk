@@ -1,28 +1,24 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:replace="fragments/header::header"></header>
 <main class="container-fluid">
-    <h1>Dashboard</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-5">
             <table class="table table-sm table-striped">
                 <tr>
                     <th>Name</th>
                     <th>Type</th>
+                    <th>Credit Limit</th>
                     <th>Balance</th>
                     <th>Last Tran</th>
                 </tr>
                 <tr th:each="acctSummary:${acctSummaries}">
                     <td><a th:href="@{/acct(acctId=${acctSummary.id})}" th:text="${acctSummary.name}"></a></td>
                     <td th:text="${acctSummary.type}"></td>
+                    <td th:text="${#numbers.formatDecimal(acctSummary.creditLimit,1,'DEFAULT',2,'DEFAULT')}"></td>
                     <td th:text="${#numbers.formatDecimal(acctSummary.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
                     <td th:text="${#dates.format(acctSummary.lastTranDate,'M/d/yyyy')}"></td>
                 </tr>
@@ -35,31 +31,29 @@
                 <button type="submit" class="btn btn-primary">Upload</button>
             </form>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-7">
             <table class="table table-sm table-striped">
                 <tr>
                     <th>Payee</th>
                     <th>Due Date</th>
                     <th>Amount Due</th>
-                    <th>Minimum Due</th>
-                    <th>Last Payment</th>
+                    <th>Minimum Payment</th>
+                    <th>Last Paid Date</th>
                     <th>Balance Due</th>
                 </tr>
-                <tr th:each="payableBalance:${payableBalances}" th:class="${payableBalance.styleClass}">
-                    <td><a th:href="@{/payable(payableId=${payableBalance.id})}"
-                           th:text="${payableBalance.payeeDisplayName}"></a></td>
-                    <td th:text="${#dates.format(payableBalance.paymentDueDate,'M/d/yyyy')}"></td>
-                    <td th:text="${#numbers.formatDecimal(payableBalance.newBalanceTotal,1,'DEFAULT',2,'DEFAULT')}"></td>
-                    <td th:text="${#numbers.formatDecimal(payableBalance.minimumPaymentDue,1,'DEFAULT',2,'DEFAULT')}"></td>
-                    <td th:text="${#dates.format(payableBalance.lastPaymentDate,'M/d/yyyy')}"></td>
-                    <td th:text="${#numbers.formatDecimal(payableBalance.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
+                <tr th:each="payableDue:${payableDues}" th:class="${payableDue.styleClass}">
+                    <td><a th:href="@{/payable(payableId=${payableDue.id})}"
+                           th:text="${payableDue.payeeDisplayName}"></a></td>
+                    <td th:text="${#dates.format(payableDue.dueDate,'M/d/yyyy')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableDue.amountDue,1,'DEFAULT',2,'DEFAULT')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableDue.minimumPayment,1,'DEFAULT',2,'DEFAULT')}"></td>
+                    <td th:text="${#dates.format(payableDue.lastPaidDate,'M/d/yyyy')}"></td>
+                    <td th:text="${#numbers.formatDecimal(payableDue.balanceDue,1,'DEFAULT',2,'DEFAULT')}"></td>
                 </tr>
             </table>
         </div>
     </div>
 </main>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/popper-1.14.3.min.js"></script>
-<script src="js/bootstrap-4.1.1.min.js"></script>
+<footer th:replace="fragments/footer::footer"></footer>
 </body>
 </html>

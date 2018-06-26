@@ -5,5 +5,5 @@ import norman.junk.domain.Payable;
 import org.springframework.data.repository.CrudRepository;
 
 public interface PayableRepository extends CrudRepository<Payable, Long> {
-    List<Payable> findAllByOrderByPaymentDueDate();
+    List<Payable> findAllByOrderByDueDate();
 }

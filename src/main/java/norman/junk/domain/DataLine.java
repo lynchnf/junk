@@ -18,7 +18,7 @@ public class DataLine {
     @Version
     private Integer version = 0;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DATA_FILE_ID", nullable = false)
+    @JoinColumn(name = "data_file_id", nullable = false)
     private DataFile dataFile;
     private Integer seq;
     @Column(length = 255)

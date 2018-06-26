@@ -74,8 +74,6 @@ public class PayableControllerTest {
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("payableEdit"));
-        resultActions.andExpect(
-                MockMvcResultMatchers.content().string(StringContains.containsString(payable.getPayee().getName())));
     }
 
     @Test
@@ -102,8 +100,8 @@ public class PayableControllerTest {
         BigDecimal newBalTot = BigDecimal.valueOf(random.nextInt(10000), 2);
         Payable payable = new Payable();
         payable.setId(payableId);
-        payable.setPaymentDueDate(payDueDt);
-        payable.setNewBalanceTotal(newBalTot);
+        payable.setDueDate(payDueDt);
+        payable.setAmountDue(newBalTot);
         payable.setPayee(payee);
         payee.getPayables().add(payable);
         return payable;

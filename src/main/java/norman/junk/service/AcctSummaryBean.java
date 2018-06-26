@@ -8,13 +8,16 @@ public class AcctSummaryBean {
     private Long id;
     private String name;
     private AcctType type;
+    private BigDecimal creditLimit;
     private BigDecimal balance;
     private Date lastTranDate;
 
-    public AcctSummaryBean(Long id, String name, AcctType type, BigDecimal balance, Date lastTranDate) {
+    public AcctSummaryBean(Long id, String name, AcctType type, BigDecimal creditLimit, BigDecimal balance,
+            Date lastTranDate) {
         this.id = id;
         this.name = name;
         this.type = type;
+        this.creditLimit = creditLimit;
         this.balance = balance;
         this.lastTranDate = lastTranDate;
     }
@@ -29,6 +32,10 @@ public class AcctSummaryBean {
 
     public AcctType getType() {
         return type;
+    }
+
+    public BigDecimal getCreditLimit() {
+        return creditLimit;
     }
 
     public BigDecimal getBalance() {

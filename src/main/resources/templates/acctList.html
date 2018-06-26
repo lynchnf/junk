@@ -1,33 +1,34 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="css/bootstrap-4.1.1.min.css">
-    <title>Junk</title>
-</head>
+<head th:replace="fragments/head::head"></head>
 <body>
 <header th:replace="fragments/header::header"></header>
-<main class="container-fluid">
+<main class="container">
     <h1>Account List</h1>
     <div th:replace="fragments/alerts::alerts"></div>
     <table class="table table-sm table-striped">
         <tr>
             <th>Name</th>
+            <th>Begin Date</th>
+            <th>Begin Balance</th>
+            <th>Organization</th>
+            <th>FID</th>
+            <th>Bank Id</th>
             <th>Type</th>
-            <th>Balance</th>
-            <th>Last Tran Date</th>
+            <th>Credit Limit</th>
         </tr>
-        <tr th:each="acctSummary:${acctSummaries}">
-            <td><a th:href="@{/acct(acctId=${acctSummary.id})}" th:text="${acctSummary.name}"></a></td>
-            <td th:text="${acctSummary.type}"></td>
-            <td th:text="${#numbers.formatDecimal(acctSummary.balance,1,'DEFAULT',2,'DEFAULT')}"></td>
-            <td th:text="${#dates.format(acctSummary.lastTranDate,'M/d/yyyy')}"></td>
+        <tr th:each="acct:${accts}">
+            <td><a th:href="@{/acct(acctId=${acct.id})}" th:text="${acct.name}"></a></td>
+            <td th:text="${#dates.format(acct.beginDate,'M/d/yyyy')}"></td>
+            <td th:text="${#numbers.formatDecimal(acct.beginBalance,1,'DEFAULT',2,'DEFAULT')}"></td>
+            <td th:text="${acct.organization}"></td>
+            <td th:text="${acct.fid}"></td>
+            <td th:text="${acct.bankId}"></td>
+            <td th:text="${acct.type}"></td>
+            <td th:text="${#numbers.formatDecimal(acct.creditLimit,1,'DEFAULT',2,'DEFAULT')}"></td>
         </tr>
     </table>
 </main>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/popper-1.14.3.min.js"></script>
-<script src="js/bootstrap-4.1.1.min.js"></script>
+<footer th:replace="fragments/footer::footer"></footer>
 </body>
 </html>
