@@ -4,13 +4,20 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import norman.junk.DatabaseException;
+import norman.junk.NewInconceivableException;
+import norman.junk.NewNotFoundException;
 import norman.junk.NotFoundException;
 import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
 import norman.junk.validation.RegexPattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static norman.junk.controller.MessagesConstants.UNEXPECTED_ERROR;
 
 public class PatternRow {
+    private static final Logger logger = LoggerFactory.getLogger(PatternRow.class);
     private Long id;
     private Integer version = 0;
     @NotNull
@@ -34,10 +41,15 @@ public class PatternRow {
         Pattern pattern = new Pattern();
         pattern.setId(id);
         pattern.setVersion(version);
-        Category category = categoryService.findCategoryById(categoryId);
-        pattern.setCategory(category);
         pattern.setTranName(tranName);
-        return pattern;
+        try {
+            Category category = categoryService.findCategoryById(categoryId);
+            pattern.setCategory(category);
+            return pattern;
+        } catch (NewNotFoundException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+        }
     }
 
     public Long getId() {
