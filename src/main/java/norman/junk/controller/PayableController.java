@@ -1,8 +1,8 @@
 package norman.junk.controller;
 
 import javax.validation.Valid;
-import norman.junk.DatabaseException;
-import norman.junk.NotFoundException;
+import norman.junk.NewNotFoundException;
+import norman.junk.NewUpdatedByAnotherException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayableService;
@@ -20,26 +20,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
+import static norman.junk.controller.MessagesConstants.OPTIMISTIC_LOCK_ERROR;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_ADDED;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
+
 @Controller
 public class PayableController {
     private static final Logger logger = LoggerFactory.getLogger(PayableController.class);
-    private static final String DATABASE_ERROR = "Unexpected Database Error.";
-    private static final String PAYEE_NOT_FOUND = "Payee not found.";
-    private static final String PAYABLE_NOT_FOUND = "Payable not found";
     @Autowired
     private PayeeService payeeService;
     @Autowired
     private PayableService payableService;
 
     @RequestMapping("/payableList")
-    public String loadList(Model model, RedirectAttributes redirectAttributes) {
-        Iterable<Payable> payables;
-        try {
-            payables = payableService.findAllPayables();
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+    public String loadList(Model model) {
+        Iterable<Payable> payables = payableService.findAllPayables();
         model.addAttribute("payables", payables);
         return "payableList";
     }
@@ -47,18 +43,14 @@ public class PayableController {
     @RequestMapping("/payable")
     public String loadView(@RequestParam("payableId") Long payableId, Model model,
             RedirectAttributes redirectAttributes) {
-        Payable payable;
         try {
-            payable = payableService.findPayableById(payableId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", PAYABLE_NOT_FOUND);
-            return "redirect:/";
+            Payable payable = payableService.findPayableById(payableId);
+            model.addAttribute("payable", payable);
+            return "payableView";
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
+            return "redirect:/payableList";
         }
-        model.addAttribute("payable", payable);
-        return "payableView";
     }
 
     @GetMapping("/payableEdit")
@@ -74,19 +66,15 @@ public class PayableController {
             return "payableEdit";
         }
         // Otherwise, edit existing payable.
-        Payable payable;
         try {
-            payable = payableService.findPayableById(payableId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", PAYABLE_NOT_FOUND);
-            return "redirect:/";
+            Payable payable = payableService.findPayableById(payableId);
+            PayableForm payableForm = new PayableForm(payable);
+            model.addAttribute("payableForm", payableForm);
+            return "payableEdit";
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
+            return "redirect:/payableList";
         }
-        PayableForm payableForm = new PayableForm(payable);
-        model.addAttribute("payableForm", payableForm);
-        return "payableEdit";
     }
 
     @PostMapping("/payableEdit")
@@ -95,50 +83,27 @@ public class PayableController {
         if (bindingResult.hasErrors()) {
             return "payableEdit";
         }
+        // Convert form to entity and save.
         Long payableId = payableForm.getId();
-        Payable payable;
-        // Verify existing payable still exists.
-        if (payableId != null) {
-            try {
-                payable = payableService.findPayableById(payableId);
-            } catch (DatabaseException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-                return "redirect:/";
-            } catch (NotFoundException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", PAYABLE_NOT_FOUND);
-                return "redirect:/";
-            }
-        }
-        // Convert form to entity ...
-        payable = payableForm.toPayable(payeeService);
-        // ... and save.
-        Payable save;
+        Payable payable = payableForm.toPayable(payeeService);
         try {
-            save = payableService.savePayable(payable);
-        } catch (DatabaseException e) {
-            String errorMessage = "New payable could not be added";
+            Payable save = payableService.savePayable(payable);
+            String successMessage = String.format(SUCCESSFULLY_ADDED, "Payable", save.getId());
             if (payableId != null)
-                errorMessage = "Payable could not be updated, payableId=\"" + payableId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
-            logger.error(errorMessage, e);
-            if (payableId == null) {
-                return "redirect:/";
-            } else {
-                redirectAttributes.addAttribute("payableId", payableId);
-                return "redirect:/payable?payableId={payableId}";
-            }
+                successMessage = String.format(SUCCESSFULLY_UPDATED, "Payable", save.getId());
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+            redirectAttributes.addAttribute("payableId", save.getId());
+            return "redirect:/payable?payableId={payableId}";
+        } catch (NewUpdatedByAnotherException e) {
+            redirectAttributes
+                    .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payable", payableId));
+            redirectAttributes.addAttribute("payableId", payableId);
+            return "redirect:/payable?payableId={payableId}";
         }
-        String successMessage = "Payable successfully added, payableId=\"" + save.getId() + "\"";
-        if (payableId != null)
-            successMessage = "Payable successfully updated, payableId=\"" + save.getId() + "\"";
-        redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        redirectAttributes.addAttribute("payableId", save.getId());
-        return "redirect:/payable?payableId={payableId}";
     }
 
     @ModelAttribute("allPayees")
-    public Iterable<Payee> loadPayeeDropDown() throws DatabaseException {
-        // FIXME Handle exception somehow.
+    public Iterable<Payee> loadPayeeDropDown() {
         return payeeService.findAllPayees();
     }
 }

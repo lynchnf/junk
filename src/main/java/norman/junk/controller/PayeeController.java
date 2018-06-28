@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static norman.junk.controller.MessagesConstants.*;
+import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
+import static norman.junk.controller.MessagesConstants.OPTIMISTIC_LOCK_ERROR;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_ADDED;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class PayeeController {

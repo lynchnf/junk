@@ -2,6 +2,7 @@ package norman.junk.controller;
 
 import javax.validation.Valid;
 import norman.junk.DatabaseException;
+import norman.junk.NewNotFoundException;
 import norman.junk.NotFoundException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
 
 @Controller
 public class PaymentController {
@@ -74,15 +77,13 @@ public class PaymentController {
                 logger.error(errorMessage);
                 return "redirect:/";
             }
-            Payable payable;
+            Payable payable = null;
             try {
                 payable = payableService.findPayableById(payableId);
-            } catch (DatabaseException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-                return "redirect:/";
-            } catch (NotFoundException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", PAYABLE_NOT_FOUND);
-                return "redirect:/";
+            } catch (NewNotFoundException e) {
+                redirectAttributes
+                        .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
+                return "redirect:/payableList";
             }
             PaymentForm paymentForm = new PaymentForm();
             paymentForm.setPayableId(payableId);
@@ -136,15 +137,11 @@ public class PaymentController {
         payment = paymentForm.toPayment();
         // ... attach parent entity ...
         Long payableId = paymentForm.getPayableId();
-        Payable payable;
         try {
-            payable = payableService.findPayableById(payableId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", PAYABLE_NOT_FOUND);
-            return "redirect:/";
+            Payable payable = payableService.findPayableById(payableId);
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
+            return "redirect:/payableList";
         }
         // .. and save.
         Payment save;

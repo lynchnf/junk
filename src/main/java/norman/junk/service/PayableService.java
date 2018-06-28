@@ -7,7 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import norman.junk.DatabaseException;
-import norman.junk.NotFoundException;
+import norman.junk.NewNotFoundException;
+import norman.junk.NewUpdatedByAnotherException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
 import norman.junk.repository.PayableRepository;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,53 +43,33 @@ public class PayableService {
         warning = cal.getTime();
     }
 
-    public Iterable<Payable> findAllPayables() throws DatabaseException {
-        try {
-            return payableRepository.findAll();
-        } catch (Exception e) {
-            String msg = "Error finding all payables";
-            logger.error(msg, e);
-            throw new DatabaseException(msg, e);
-        }
+    public Iterable<Payable> findAllPayables() {
+        return payableRepository.findAll();
     }
 
-    public Payable findPayableById(Long payableId) throws DatabaseException, NotFoundException {
-        Optional<Payable> optional;
-        try {
-            optional = payableRepository.findById(payableId);
-        } catch (Exception e) {
-            String msg = "Error finding payable, payableId=\"" + payableId + "\"";
-            logger.error(msg, e);
-            throw new DatabaseException(msg, e);
-        }
+    public Payable findPayableById(Long payableId) throws NewNotFoundException {
+        Optional<Payable> optional = payableRepository.findById(payableId);
         if (!optional.isPresent()) {
             String msg = "Payable not found, payableId=\"" + payableId + "\"";
             logger.warn(msg);
-            throw new NotFoundException(msg);
+            throw new NewNotFoundException(msg);
         }
         return optional.get();
     }
 
-    public Payable savePayable(Payable payable) throws DatabaseException {
+    public Payable savePayable(Payable payable) throws NewUpdatedByAnotherException {
         try {
             return payableRepository.save(payable);
-        } catch (Exception e) {
-            String msg = "Error saving payable";
-            logger.error(msg, e);
-            throw new DatabaseException(msg, e);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            String msg = "Could not save payable, payableId=\"" + payable.getId() + "\"";
+            logger.warn(msg, e);
+            throw new NewUpdatedByAnotherException(msg, e);
         }
     }
 
     public List<PayableDueBean> findAllPayableDues() throws DatabaseException {
         List<PayableDueBean> payableDues = new ArrayList<>();
-        Iterable<Payable> payables = null;
-        try {
-            payables = payableRepository.findAllByOrderByDueDate();
-        } catch (Exception e) {
-            String msg = "Error finding all payables orded by due date";
-            logger.error(msg, e);
-            throw new DatabaseException(msg, e);
-        }
+        Iterable<Payable> payables = payableRepository.findAllByOrderByDueDate();
         for (Payable payable : payables) {
             Long id = payable.getId();
             String payeeDisplayName = payable.getPayee().getNickname();
