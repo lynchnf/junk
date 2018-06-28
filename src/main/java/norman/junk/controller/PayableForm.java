@@ -7,13 +7,19 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import norman.junk.DatabaseException;
+import norman.junk.NewInconceivableException;
+import norman.junk.NewNotFoundException;
 import norman.junk.NotFoundException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
+import static norman.junk.controller.MessagesConstants.*;
 
 public class PayableForm {
+    private static final Logger logger = LoggerFactory.getLogger(PayableForm.class);
     private Long id;
     private Integer version = 0;
     @NotNull
@@ -52,19 +58,24 @@ public class PayableForm {
         minimumPayment = payable.getMinimumPayment();
     }
 
-    public Payable toPayable(PayeeService payeeService) throws DatabaseException, NotFoundException {
+    public Payable toPayable(PayeeService payeeService) {
         Payable payable = new Payable();
         payable.setId(id);
         payable.setVersion(version);
-        Payee payee = payeeService.findPayeeById(payeeId);
-        payable.setPayee(payee);
         payable.setDueDate(dueDate);
         payable.setAmountDue(amountDue);
         payable.setPreviousBalance(previousBalance);
         payable.setPreviousPayments(previousPayments);
         payable.setStatementDate(statementDate);
         payable.setMinimumPayment(minimumPayment);
-        return payable;
+        try {
+            Payee payee = payeeService.findPayeeById(payeeId);
+            payable.setPayee(payee);
+            return payable;
+        } catch (NewNotFoundException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+        }
     }
 
     public Long getId() {

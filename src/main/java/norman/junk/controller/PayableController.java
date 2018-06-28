@@ -110,15 +110,7 @@ public class PayableController {
             }
         }
         // Convert form to entity ...
-        try {
-            payable = payableForm.toPayable(payeeService);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", PAYEE_NOT_FOUND);
-            return "redirect:/";
-        }
+        payable = payableForm.toPayable(payeeService);
         // ... and save.
         Payable save;
         try {

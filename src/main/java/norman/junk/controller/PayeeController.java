@@ -1,8 +1,8 @@
 package norman.junk.controller;
 
 import javax.validation.Valid;
-import norman.junk.DatabaseException;
-import norman.junk.NotFoundException;
+import norman.junk.NewNotFoundException;
+import norman.junk.NewUpdatedByAnotherException;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
 import org.slf4j.Logger;
@@ -17,41 +17,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static norman.junk.controller.MessagesConstants.*;
+
 @Controller
 public class PayeeController {
     private static final Logger logger = LoggerFactory.getLogger(PayeeController.class);
-    private static final String DATABASE_ERROR = "Unexpected Database Error.";
-    private static final String PAYEE_NOT_FOUND = "Payee not found.";
     @Autowired
     private PayeeService payeeService;
 
     @RequestMapping("/payeeList")
-    public String loadList(Model model, RedirectAttributes redirectAttributes) {
-        Iterable<Payee> payees;
-        try {
-            payees = payeeService.findAllPayees();
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+    public String loadList(Model model) {
+        Iterable<Payee> payees = payeeService.findAllPayees();
         model.addAttribute("payees", payees);
         return "payeeList";
     }
 
     @RequestMapping("/payee")
     public String loadView(@RequestParam("payeeId") Long payeeId, Model model, RedirectAttributes redirectAttributes) {
-        Payee payee;
         try {
-            payee = payeeService.findPayeeById(payeeId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", PAYEE_NOT_FOUND);
-            return "redirect:/";
+            Payee payee = payeeService.findPayeeById(payeeId);
+            model.addAttribute("payee", payee);
+            return "payeeView";
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payee", payeeId));
+            return "redirect:/payeeList";
         }
-        model.addAttribute("payee", payee);
-        return "payeeView";
     }
 
     @GetMapping("/payeeEdit")
@@ -63,19 +53,15 @@ public class PayeeController {
             return "payeeEdit";
         }
         // Otherwise, edit existing payee.
-        Payee payee;
         try {
-            payee = payeeService.findPayeeById(payeeId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", PAYEE_NOT_FOUND);
-            return "redirect:/";
+            Payee payee = payeeService.findPayeeById(payeeId);
+            PayeeForm payeeForm = new PayeeForm(payee);
+            model.addAttribute("payeeForm", payeeForm);
+            return "payeeEdit";
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payee", payeeId));
+            return "redirect:/payeeList";
         }
-        PayeeForm payeeForm = new PayeeForm(payee);
-        model.addAttribute("payeeForm", payeeForm);
-        return "payeeEdit";
     }
 
     @PostMapping("/payeeEdit")
@@ -84,34 +70,22 @@ public class PayeeController {
         if (bindingResult.hasErrors()) {
             return "payeeEdit";
         }
-        Long payeeId = payeeForm.getId();
-        Payee payee;
-        // Verify existing payee still exists.
-        if (payeeId != null) {
-            try {
-                payeeService.findPayeeById(payeeId);
-            } catch (DatabaseException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-                return "redirect:/";
-            } catch (NotFoundException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", PAYEE_NOT_FOUND);
-                return "redirect:/";
-            }
-        }
         // Convert form to entity and save.
-        payee = payeeForm.toPayee();
-        Payee save;
+        Long payeeId = payeeForm.getId();
+        Payee payee = payeeForm.toPayee();
         try {
-            save = payeeService.savePayee(payee);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
+            Payee save = payeeService.savePayee(payee);
+            String successMessage = String.format(SUCCESSFULLY_ADDED, "Payee", save.getId());
+            if (payeeId != null)
+                successMessage = String.format(SUCCESSFULLY_UPDATED, "Payee", save.getId());
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+            redirectAttributes.addAttribute("payeeId", save.getId());
+            return "redirect:/payee?payeeId={payeeId}";
+        } catch (NewUpdatedByAnotherException e) {
+            redirectAttributes
+                    .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payee", payeeId));
+            redirectAttributes.addAttribute("payeeId", payeeId);
+            return "redirect:/payee?payeeId={payeeId}";
         }
-        String successMessage = "Payee successfully added, payeeId=\"" + save.getId() + "\"";
-        if (payeeId != null)
-            successMessage = "Payee successfully updated, payeeId=\"" + save.getId() + "\"";
-        redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        redirectAttributes.addAttribute("payeeId", save.getId());
-        return "redirect:/payee?payeeId={payeeId}";
     }
 }

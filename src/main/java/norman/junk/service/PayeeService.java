@@ -1,13 +1,14 @@
 package norman.junk.service;
 
 import java.util.Optional;
-import norman.junk.DatabaseException;
-import norman.junk.NotFoundException;
+import norman.junk.NewNotFoundException;
+import norman.junk.NewUpdatedByAnotherException;
 import norman.junk.domain.Payee;
 import norman.junk.repository.PayeeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,40 +17,27 @@ public class PayeeService {
     @Autowired
     private PayeeRepository payeeRepository;
 
-    public Iterable<Payee> findAllPayees() throws DatabaseException {
-        try {
-            return payeeRepository.findAll();
-        } catch (Exception e) {
-            String msg = "Error finding all payees";
-            logger.error(msg, e);
-            throw new DatabaseException(msg, e);
-        }
+    public Iterable<Payee> findAllPayees() {
+        return payeeRepository.findAll();
     }
 
-    public Payee findPayeeById(Long payeeId) throws DatabaseException, NotFoundException {
-        Optional<Payee> optional;
-        try {
-            optional = payeeRepository.findById(payeeId);
-        } catch (Exception e) {
-            String msg = "Error finding payee, payeeId=\"" + payeeId + "\"";
-            logger.error(msg, e);
-            throw new DatabaseException(msg, e);
-        }
+    public Payee findPayeeById(Long payeeId) throws NewNotFoundException {
+        Optional<Payee> optional = payeeRepository.findById(payeeId);
         if (!optional.isPresent()) {
             String msg = "Payee not found, payeeId=\"" + payeeId + "\"";
             logger.warn(msg);
-            throw new NotFoundException(msg);
+            throw new NewNotFoundException(msg);
         }
         return optional.get();
     }
 
-    public Payee savePayee(Payee payee) throws DatabaseException {
+    public Payee savePayee(Payee payee) throws NewUpdatedByAnotherException {
         try {
             return payeeRepository.save(payee);
-        } catch (Exception e) {
-            String msg = "Error saving payee";
-            logger.error(msg, e);
-            throw new DatabaseException(msg, e);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            String msg = "Could not save payee, payeeId=\"" + payee.getId() + "\"";
+            logger.warn(msg, e);
+            throw new NewUpdatedByAnotherException(msg, e);
         }
     }
 }
