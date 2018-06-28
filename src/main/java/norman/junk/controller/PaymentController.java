@@ -1,9 +1,8 @@
 package norman.junk.controller;
 
 import javax.validation.Valid;
-import norman.junk.DatabaseException;
 import norman.junk.NewNotFoundException;
-import norman.junk.NotFoundException;
+import norman.junk.NewUpdatedByAnotherException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
 import norman.junk.service.PayableService;
@@ -22,27 +21,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
+import static norman.junk.controller.MessagesConstants.OPTIMISTIC_LOCK_ERROR;
+import static norman.junk.controller.MessagesConstants.PARENT_ID_NEEDED_FOR_ADD_ERROR;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_ADDED;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class PaymentController {
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
-    private static final String DATABASE_ERROR = "Unexpected Database Error.";
-    private static final String PAYMENT_NOT_FOUND = "Payment not found.";
-    private static final String PAYABLE_NOT_FOUND = "Payable not found.";
     @Autowired
     private PaymentService paymentService;
     @Autowired
     private PayableService payableService;
 
     @RequestMapping("/paymentList")
-    public String loadList(Model model, RedirectAttributes redirectAttributes) {
-        Iterable<Payment> payments;
-        try {
-            payments = paymentService.findAllPayments();
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+    public String loadList(Model model) {
+        Iterable<Payment> payments = paymentService.findAllPayments();
         model.addAttribute("payments", payments);
         return "paymentList";
     }
@@ -50,18 +44,14 @@ public class PaymentController {
     @RequestMapping("/payment")
     public String loadView(@RequestParam("paymentId") Long paymentId, Model model,
             RedirectAttributes redirectAttributes) {
-        Payment payment;
         try {
-            payment = paymentService.findPaymentById(paymentId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", PAYMENT_NOT_FOUND);
-            return "redirect:/";
+            Payment payment = paymentService.findPaymentById(paymentId);
+            model.addAttribute("payment", payment);
+            return "paymentView";
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payment", paymentId));
+            return "redirect:/paymentList";
         }
-        model.addAttribute("payment", payment);
-        return "paymentView";
     }
 
     @GetMapping("/paymentEdit")
@@ -70,49 +60,75 @@ public class PaymentController {
             RedirectAttributes redirectAttributes) {
         // If no payment id, new payment.
         if (paymentId == null) {
-            // Must have a payable.
             if (payableId == null) {
-                String errorMessage = "No payable id.";
-                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-                logger.error(errorMessage);
-                return "redirect:/";
+                String msg = String.format(PARENT_ID_NEEDED_FOR_ADD_ERROR, "Payment", "Payable");
+                logger.warn(msg);
+                redirectAttributes.addFlashAttribute("errorMessage", msg);
+                return "redirect:/payableList";
             }
-            Payable payable = null;
             try {
-                payable = payableService.findPayableById(payableId);
+                Payable payable = payableService.findPayableById(payableId);
+                PaymentForm paymentForm = new PaymentForm();
+                paymentForm.setPayableId(payableId);
+                if (StringUtils.isBlank(payable.getPayee().getNickname())) {
+                    paymentForm.setPayeeDisplayName(payable.getPayee().getName());
+                } else {
+                    paymentForm.setPayeeDisplayName(payable.getPayee().getNickname());
+                }
+                paymentForm.setPayableDueDate(payable.getDueDate());
+                paymentForm.setPayableAmountDue(payable.getAmountDue());
+                model.addAttribute("paymentForm", paymentForm);
+                return "paymentEdit";
             } catch (NewNotFoundException e) {
                 redirectAttributes
                         .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
                 return "redirect:/payableList";
             }
-            PaymentForm paymentForm = new PaymentForm();
-            paymentForm.setPayableId(payableId);
-            if (StringUtils.isBlank(payable.getPayee().getNickname())) {
-                paymentForm.setPayeeDisplayName(payable.getPayee().getName());
-            } else {
-                paymentForm.setPayeeDisplayName(payable.getPayee().getNickname());
-            }
-            paymentForm.setPayableDueDate(payable.getDueDate());
-            paymentForm.setPayableAmountDue(payable.getAmountDue());
-            model.addAttribute("paymentForm", paymentForm);
-            return "paymentEdit";
         }
         // Otherwise, edit existing payment.
-        Payment payment;
         try {
-            payment = paymentService.findPaymentById(paymentId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", PAYMENT_NOT_FOUND);
-            return "redirect:/";
+            Payment payment = paymentService.findPaymentById(paymentId);
+            PaymentForm paymentForm = new PaymentForm(payment);
+            model.addAttribute("paymentForm", paymentForm);
+            return "paymentEdit";
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payment", paymentId));
+            return "redirect:/paymentList";
         }
-        PaymentForm paymentForm = new PaymentForm(payment);
-        model.addAttribute("paymentForm", paymentForm);
-        return "paymentEdit";
     }
 
+    @PostMapping("/paymentEdit")
+    public String processEdit(@Valid PaymentForm paymentForm, BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "paymentEdit";
+        }
+        // Convert form to entity and save.
+        Long paymentId = paymentForm.getId();
+        Payment payment = paymentForm.toPayment(payableService);
+        try {
+            Payment save = paymentService.savePayment(payment);
+            String successMessage = String.format(SUCCESSFULLY_ADDED, "Payment", save.getId());
+            if (paymentId != null)
+                successMessage = String.format(SUCCESSFULLY_UPDATED, "Payment", save.getId());
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+            redirectAttributes.addAttribute("paymentId", save.getId());
+            return "redirect:/payment?paymentId={paymentId}";
+        } catch (NewUpdatedByAnotherException e) {
+            redirectAttributes
+                    .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payment", paymentId));
+            redirectAttributes.addAttribute("paymentId", paymentId);
+            return "redirect:/payment?paymentId={paymentId}";
+        }
+    }
+
+
+
+
+
+
+
+/*
     @PostMapping("/paymentEdit")
     public String processEdit(@Valid PaymentForm paymentForm, BindingResult bindingResult,
             RedirectAttributes redirectAttributes) {
@@ -158,4 +174,5 @@ public class PaymentController {
         redirectAttributes.addAttribute("paymentId", save.getId());
         return "redirect:/payment?paymentId={paymentId}";
     }
+*/
 }

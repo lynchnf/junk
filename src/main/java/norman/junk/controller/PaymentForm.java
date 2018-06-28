@@ -6,11 +6,20 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import norman.junk.NewInconceivableException;
+import norman.junk.NewNotFoundException;
+import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
+import norman.junk.service.PayableService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import static norman.junk.controller.MessagesConstants.UNEXPECTED_ERROR;
+
 public class PaymentForm {
+    private static final Logger logger = LoggerFactory.getLogger(PaymentForm.class);
     private Long id;
     private Integer version = 0;
     private Long payableId;
@@ -51,7 +60,7 @@ public class PaymentForm {
         transNumber = payment.getTransNumber();
     }
 
-    public Payment toPayment() {
+    public Payment toPayment(PayableService payableService) {
         Payment payment = new Payment();
         payment.setId(id);
         payment.setVersion(version);
@@ -59,7 +68,14 @@ public class PaymentForm {
         payment.setAmountPaid(amountPaid);
         payment.setConfirmCode(StringUtils.trimToNull(confirmCode));
         payment.setTransNumber(StringUtils.trimToNull(transNumber));
-        return payment;
+        try {
+            Payable payable = payableService.findPayableById(payableId);
+            payment.setPayable(payable);
+            return payment;
+        } catch (NewNotFoundException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+        }
     }
 
     public Long getId() {
