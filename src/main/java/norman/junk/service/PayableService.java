@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class PayableService {
     private static final int ALMOST_DUE_DAYS = 14;
-    private static final String OVERDUE_CLASS = "table-danger";
-    private static final String ALMOST_DUE_CLASS = "table-warning";
-    private static final String NOT_DUE_FOR_AWHILE_YET_CLASS = "table-light";
-    private static final String ALREADY_PAID_CLASS = "table-success";
+    protected static final String OVERDUE_CLASS = "table-danger";
+    protected static final String ALMOST_DUE_CLASS = "table-warning";
+    protected static final String NOT_DUE_FOR_AWHILE_YET_CLASS = "table-light";
+    protected static final String ALREADY_PAID_CLASS = "table-success";
     private Date today;
     private Date warning;
     @Autowired

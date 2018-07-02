@@ -21,10 +21,8 @@ public class PayableForm {
     @DateTimeFormat(pattern = "M/d/yyyy")
     private Date dueDate;
     @NotNull
-    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal amountDue;
-    @Min(0)
     @Digits(integer = 7, fraction = 2)
     private BigDecimal previousBalance;
     @Max(0)
