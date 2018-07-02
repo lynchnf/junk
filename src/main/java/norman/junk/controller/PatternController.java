@@ -2,8 +2,7 @@ package norman.junk.controller;
 
 import java.util.List;
 import javax.validation.Valid;
-import norman.junk.DatabaseException;
-import norman.junk.NotFoundException;
+import norman.junk.NewOptimisticLockingException;
 import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
@@ -20,12 +19,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static norman.junk.controller.MessagesConstants.MULTI_OPTIMISTIC_LOCK_ERROR;
+
 @Controller
 public class PatternController {
+    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(PatternController.class);
-    private static final String DATABASE_ERROR = "Unexpected Database Error.";
-    private static final String PATTERN_NOT_FOUND = "Pattern not found.";
-    private static final String CATEGORY_NOT_FOUND = "Category not found.";
     @Autowired
     private PatternService patternService;
     @Autowired
@@ -33,26 +32,14 @@ public class PatternController {
 
     @RequestMapping("/patternList")
     public String loadList(Model model, RedirectAttributes redirectAttributes) {
-        Iterable<Pattern> patterns;
-        try {
-            patterns = patternService.findAllPatterns();
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+        Iterable<Pattern> patterns = patternService.findAllPatterns();
         model.addAttribute("patterns", patterns);
         return "patternList";
     }
 
     @GetMapping("/patternEdit")
     public String loadEdit(Model model, RedirectAttributes redirectAttributes) {
-        Iterable<Pattern> patterns;
-        try {
-            patterns = patternService.findAllPatterns();
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+        Iterable<Pattern> patterns = patternService.findAllPatterns();
         PatternForm patternForm = new PatternForm(patterns);
         model.addAttribute("patternForm", patternForm);
         return "patternEdit";
@@ -64,24 +51,21 @@ public class PatternController {
         if (bindingResult.hasErrors()) {
             return "patternEdit";
         }
+        List<Pattern> patterns = patternForm.toPatterns(categoryService);
         try {
-            List<Pattern> patterns = patternForm.toPatterns(categoryService);
             Iterable<Pattern> saveAll = patternService.saveAllPatterns(patterns);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", CATEGORY_NOT_FOUND);
-            return "redirect:/";
+            String successMessage = "Category Patterns successfully saved";
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+            return "redirect:/patternList";
+        } catch (NewOptimisticLockingException e) {
+            redirectAttributes
+                    .addFlashAttribute("errorMessage", String.format(MULTI_OPTIMISTIC_LOCK_ERROR, "Patterns"));
+            return "redirect:/patternList";
         }
-        String successMessage = "Category Patterns successfully saved";
-        redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        return "redirect:/patternList";
     }
 
     @ModelAttribute("allCategories")
-    public Iterable<Category> loadCategoryDropDown() throws DatabaseException {
-        // FIXME Handle exception somehow.
+    public Iterable<Category> loadCategoryDropDown() {
         return categoryService.findAllCategories();
     }
 }

@@ -5,20 +5,17 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import norman.junk.JunkException;
+import norman.junk.NewOfxParseException;
 import norman.junk.domain.AcctType;
 import norman.junk.domain.CorrectAction;
 import norman.junk.domain.DataFile;
 import norman.junk.domain.DataLine;
 import norman.junk.domain.TranType;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OfxParseService {
-    private static final Logger logger = LoggerFactory.getLogger(OfxParseService.class);
     private static final String FI = "<FI>";
     private static final String FI_END = "</FI>";
     private static final String ORG = "<ORG>";
@@ -52,7 +49,7 @@ public class OfxParseService {
         OFX, FI, BANKACCTFROM, CCACCTFROM, BANKTRANLIST, STMTTRN
     }
 
-    public OfxParseResponse parseUploadedFile(DataFile dataFile) throws JunkException {
+    public OfxParseResponse parseUploadedFile(DataFile dataFile) throws NewOfxParseException {
         OfxParseResponse response = new OfxParseResponse();
         State state = State.OFX;
         for (DataLine dataLine : dataFile.getDataLines()) {
@@ -397,9 +394,7 @@ public class OfxParseService {
                         int idx = response.getOfxStmtTrans().size() - 1;
                         response.getOfxStmtTrans().get(idx).setPostDate(d);
                     } catch (ParseException e) {
-                        String msg = "Error parsing post date in line=\"" + line + "\".";
-                        logger.error(msg, e);
-                        throw new JunkException(msg, e);
+                        throw new NewOfxParseException("Error parsing post date in line=\"" + line + "\".", e);
                     }
                 } else if (line.contains(DTUSER)) {
                     String s = StringUtils.substringAfter(line, DTUSER);
@@ -408,9 +403,7 @@ public class OfxParseService {
                         int idx = response.getOfxStmtTrans().size() - 1;
                         response.getOfxStmtTrans().get(idx).setUserDate(d);
                     } catch (ParseException e) {
-                        String msg = "Error parsing user date in line=\"" + line + "\".";
-                        logger.error(msg, e);
-                        throw new JunkException(msg, e);
+                        throw new NewOfxParseException("Error parsing user date in line=\"" + line + "\".", e);
                     }
                 } else if (line.contains(TRNAMT)) {
                     String s = StringUtils.substringAfter(line, TRNAMT);
@@ -460,21 +453,15 @@ public class OfxParseService {
         return response;
     }
 
-    private void badState(State state) throws JunkException {
-        String msg = "Invalid state=\"" + state + "\".";
-        logger.error(msg);
-        throw new JunkException(msg);
+    private void badState(State state) throws NewOfxParseException {
+        throw new NewOfxParseException("Invalid state=\"" + state + "\".");
     }
 
-    private void badToken(State state, String line) throws JunkException {
-        String msg = "Invalid token found: state=\"" + state + "\", line=\"" + line + "\".";
-        logger.error(msg);
-        throw new JunkException(msg);
+    private void badToken(State state, String line) throws NewOfxParseException {
+        throw new NewOfxParseException("Invalid token found: state=\"" + state + "\", line=\"" + line + "\".");
     }
 
-    private void missingToken(State state, String line) throws JunkException {
-        String msg = "No valid token found: state=\"" + state + "\", line=\"" + line + "\".";
-        logger.error(msg);
-        throw new JunkException(msg);
+    private void missingToken(State state, String line) throws NewOfxParseException {
+        throw new NewOfxParseException("No valid token found: state=\"" + state + "\", line=\"" + line + "\".");
     }
 }

@@ -2,7 +2,7 @@ package norman.junk.controller;
 
 import javax.validation.Valid;
 import norman.junk.NewNotFoundException;
-import norman.junk.NewUpdatedByAnotherException;
+import norman.junk.NewOptimisticLockingException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
 import norman.junk.service.PayableService;
@@ -28,6 +28,7 @@ import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class PaymentController {
+    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
     @Autowired
     private PaymentService paymentService;
@@ -114,65 +115,11 @@ public class PaymentController {
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("paymentId", save.getId());
             return "redirect:/payment?paymentId={paymentId}";
-        } catch (NewUpdatedByAnotherException e) {
+        } catch (NewOptimisticLockingException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payment", paymentId));
             redirectAttributes.addAttribute("paymentId", paymentId);
             return "redirect:/payment?paymentId={paymentId}";
         }
     }
-
-
-
-
-
-
-
-/*
-    @PostMapping("/paymentEdit")
-    public String processEdit(@Valid PaymentForm paymentForm, BindingResult bindingResult,
-            RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            return "paymentEdit";
-        }
-        Long paymentId = paymentForm.getId();
-        Payment payment;
-        // Verify existing payment still exists.
-        if (paymentId != null) {
-            try {
-                paymentService.findPaymentById(paymentId);
-            } catch (DatabaseException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-                return "redirect:/";
-            } catch (NotFoundException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", PAYMENT_NOT_FOUND);
-                return "redirect:/";
-            }
-        }
-        // Convert form to entity ...
-        payment = paymentForm.toPayment();
-        // ... attach parent entity ...
-        Long payableId = paymentForm.getPayableId();
-        try {
-            Payable payable = payableService.findPayableById(payableId);
-        } catch (NewNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
-            return "redirect:/payableList";
-        }
-        // .. and save.
-        Payment save;
-        try {
-            save = paymentService.savePayment(payment);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
-        String successMessage = "Payment successfully added, paymentId=\"" + save.getId() + "\"";
-        if (paymentId != null)
-            successMessage = "Payment successfully updated, paymentId=\"" + save.getId() + "\"";
-        redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        redirectAttributes.addAttribute("paymentId", save.getId());
-        return "redirect:/payment?paymentId={paymentId}";
-    }
-*/
 }

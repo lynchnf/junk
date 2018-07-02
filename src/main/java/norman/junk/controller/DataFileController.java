@@ -1,7 +1,6 @@
 package norman.junk.controller;
 
-import norman.junk.DatabaseException;
-import norman.junk.NotFoundException;
+import norman.junk.NewNotFoundException;
 import norman.junk.domain.DataFile;
 import norman.junk.service.DataFileService;
 import org.slf4j.Logger;
@@ -13,23 +12,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
+
 @Controller
 public class DataFileController {
+    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(DataFileController.class);
-    private static final String DATABASE_ERROR = "Unexpected Database Error.";
-    private static final String DATA_FILE_NOT_FOUND = "DataFile not found.";
     @Autowired
     private DataFileService dataFileService;
 
     @RequestMapping("/dataFileList")
-    public String loadList(Model model, RedirectAttributes redirectAttributes) {
-        Iterable<DataFile> dataFiles;
-        try {
-            dataFiles = dataFileService.findAllDataFiles();
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+    public String loadList(Model model) {
+        Iterable<DataFile> dataFiles = dataFileService.findAllDataFiles();
         model.addAttribute("dataFiles", dataFiles);
         return "dataFileList";
     }
@@ -37,17 +31,14 @@ public class DataFileController {
     @RequestMapping("/dataFile")
     public String loadView(@RequestParam("dataFileId") Long dataFileId, Model model,
             RedirectAttributes redirectAttributes) {
-        DataFile dataFile;
         try {
-            dataFile = dataFileService.findDataFileById(dataFileId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATA_FILE_NOT_FOUND);
-            return "redirect:/";
+            DataFile dataFile = dataFileService.findDataFileById(dataFileId);
+            model.addAttribute("dataFile", dataFile);
+            return "dataFileView";
+        } catch (NewNotFoundException e) {
+            redirectAttributes
+                    .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "DataFile", dataFileId));
+            return "redirect:/dataFileList";
         }
-        model.addAttribute("dataFile", dataFile);
-        return "dataFileView";
     }
 }

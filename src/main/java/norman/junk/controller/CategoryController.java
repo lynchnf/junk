@@ -2,7 +2,7 @@ package norman.junk.controller;
 
 import javax.validation.Valid;
 import norman.junk.NewNotFoundException;
-import norman.junk.NewUpdatedByAnotherException;
+import norman.junk.NewOptimisticLockingException;
 import norman.junk.domain.Category;
 import norman.junk.service.CategoryService;
 import org.slf4j.Logger;
@@ -24,6 +24,7 @@ import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class CategoryController {
+    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);
     @Autowired
     private CategoryService categoryService;
@@ -87,7 +88,7 @@ public class CategoryController {
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("categoryId", save.getId());
             return "redirect:/category?categoryId={categoryId}";
-        } catch (NewUpdatedByAnotherException e) {
+        } catch (NewOptimisticLockingException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Category", categoryId));
             redirectAttributes.addAttribute("categoryId", categoryId);

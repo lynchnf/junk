@@ -3,8 +3,6 @@ package norman.junk.controller;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
-import norman.junk.DatabaseException;
-import norman.junk.NotFoundException;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
 
@@ -22,7 +20,7 @@ public class PatternForm {
         }
     }
 
-    public List<Pattern> toPatterns(CategoryService categoryService) throws DatabaseException, NotFoundException {
+    public List<Pattern> toPatterns(CategoryService categoryService) {
         List<Pattern> patterns = new ArrayList<>();
         for (int i = 0; i < patternRows.size(); i++) {
             PatternRow patternRow = patternRows.get(i);

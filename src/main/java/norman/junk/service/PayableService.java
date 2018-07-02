@@ -6,22 +6,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import norman.junk.DatabaseException;
 import norman.junk.NewNotFoundException;
-import norman.junk.NewUpdatedByAnotherException;
+import norman.junk.NewOptimisticLockingException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
 import norman.junk.repository.PayableRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PayableService {
-    private static final Logger logger = LoggerFactory.getLogger(PayableService.class);
     private static final int ALMOST_DUE_DAYS = 14;
     private static final String OVERDUE_CLASS = "table-danger";
     private static final String ALMOST_DUE_CLASS = "table-warning";
@@ -50,24 +46,21 @@ public class PayableService {
     public Payable findPayableById(Long payableId) throws NewNotFoundException {
         Optional<Payable> optional = payableRepository.findById(payableId);
         if (!optional.isPresent()) {
-            String msg = "Payable not found, payableId=\"" + payableId + "\"";
-            logger.warn(msg);
-            throw new NewNotFoundException(msg);
+            throw new NewNotFoundException("Payable not found, payableId=\"" + payableId + "\"");
         }
         return optional.get();
     }
 
-    public Payable savePayable(Payable payable) throws NewUpdatedByAnotherException {
+    public Payable savePayable(Payable payable) throws NewOptimisticLockingException {
         try {
             return payableRepository.save(payable);
         } catch (ObjectOptimisticLockingFailureException e) {
-            String msg = "Could not save payable, payableId=\"" + payable.getId() + "\"";
-            logger.warn(msg, e);
-            throw new NewUpdatedByAnotherException(msg, e);
+            throw new NewOptimisticLockingException(
+                    "Optimistic locking failure while saving payable, payableId=\"" + payable.getId() + "\"", e);
         }
     }
 
-    public List<PayableDueBean> findAllPayableDues() throws DatabaseException {
+    public List<PayableDueBean> findAllPayableDues() {
         List<PayableDueBean> payableDues = new ArrayList<>();
         Iterable<Payable> payables = payableRepository.findAllByOrderByDueDate();
         for (Payable payable : payables) {

@@ -11,9 +11,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
-import norman.junk.DatabaseException;
-import norman.junk.JunkException;
-import norman.junk.NotFoundException;
+import norman.junk.NewInconceivableException;
+import norman.junk.NewNotFoundException;
+import norman.junk.NewOfxParseException;
+import norman.junk.NewOptimisticLockingException;
 import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.DataFile;
@@ -41,14 +42,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
+import static norman.junk.controller.MessagesConstants.OPTIMISTIC_LOCK_ERROR;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_ADDED;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
+import static norman.junk.controller.MessagesConstants.UNEXPECTED_ERROR;
+
 @Controller
 public class AcctController {
+    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(AcctController.class);
-    private static final String DATABASE_ERROR = "Unexpected Database Error.";
-    private static final String DATA_FILE_NOT_FOUND = "DataFile not found.";
-    private static final String ACCT_NOT_FOUND = "Acct not found.";
-    private static final String ACCT_NBR_NOT_FOUND = "AcctNbr not found.";
-    private static final String OFX_PARSE_ERROR = "OFX parse error.";
     @Autowired
     private AcctService acctService;
     @Autowired
@@ -59,88 +62,47 @@ public class AcctController {
     private TranService tranService;
 
     @RequestMapping("/acctList")
-    public String loadList(Model model, RedirectAttributes redirectAttributes) {
-        Iterable<Acct> accts;
-        try {
-            accts = acctService.findAllAccts();
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+    public String loadList(Model model) {
+        Iterable<Acct> accts = acctService.findAllAccts();
         model.addAttribute("accts", accts);
         return "acctList";
     }
 
     @RequestMapping("/acct")
     public String loadView(@RequestParam("acctId") Long acctId, Model model, RedirectAttributes redirectAttributes) {
-        Acct acct;
         try {
-            acct = acctService.findAcctById(acctId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
-            return "redirect:/";
+            Acct acct = acctService.findAcctById(acctId);
+            model.addAttribute("acct", acct);
+            AcctNbr currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+            model.addAttribute("currentAcctNbr", currentAcctNbr);
+            List<TranBalanceBean> tranBalances = acctService.findTranBalancesByAcctId(acct.getId());
+            model.addAttribute("tranBalances", tranBalances);
+            return "acctView";
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Acct", acctId));
+            return "redirect:/acctList";
         }
-        model.addAttribute("acct", acct);
-        AcctNbr currentAcctNbr;
-        try {
-            currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NBR_NOT_FOUND);
-            return "redirect:/";
-        }
-        model.addAttribute("currentAcctNbr", currentAcctNbr);
-        List<TranBalanceBean> tranBalances = null;
-        try {
-            tranBalances = acctService.findTranBalancesByAcctId(acct.getId());
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
-            return "redirect:/";
-        }
-        model.addAttribute("tranBalances", tranBalances);
-        return "acctView";
     }
 
     @GetMapping("/acctEdit")
     public String loadEdit(@RequestParam(value = "acctId", required = false) Long acctId, Model model,
             RedirectAttributes redirectAttributes) {
-        // If no acct id, new account.
+        // If no acct id, new acct.
         if (acctId == null) {
             model.addAttribute("acctForm", new AcctForm());
             return "acctEdit";
         }
-        // Otherwise, edit existing account.
-        Acct acct;
+        // Otherwise, edit existing acct.
         try {
-            acct = acctService.findAcctById(acctId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
-            return "redirect:/";
+            Acct acct = acctService.findAcctById(acctId);
+            AcctNbr currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+            AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
+            model.addAttribute("acctForm", acctForm);
+            return "acctEdit";
+        } catch (NewNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Acct", acctId));
+            return "redirect:/acctList";
         }
-        AcctNbr currentAcctNbr;
-        try {
-            currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NBR_NOT_FOUND);
-            return "redirect:/";
-        }
-        AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
-        model.addAttribute("acctForm", acctForm);
-        return "acctEdit";
     }
 
     @PostMapping("/acctEdit")
@@ -149,23 +111,11 @@ public class AcctController {
         if (bindingResult.hasErrors()) {
             return "acctEdit";
         }
-        Long acctId = acctForm.getId();
-        Acct acct;
-        // Verify existing account still exists.
-        if (acctId != null) {
-            try {
-                acct = acctService.findAcctById(acctId);
-            } catch (DatabaseException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-                return "redirect:/";
-            } catch (NotFoundException e) {
-                redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
-                return "redirect:/";
-            }
-        }
         // Convert form to entity ...
-        acct = acctForm.toAcct();
-        // If this is an existing account and either the acctNumber or effective date changed, we need to save the account number with the account.
+        Long acctId = acctForm.getId();
+        Acct acct = acctForm.toAcct();
+        // If this is an existing account and either the acctNumber or effective date changed, we need to save the
+        // account number with the account.
         if (acctId != null && (!acctForm.getNumber().equals(acctForm.getOldNumber()) ||
                 !acctForm.getEffDate().equals(acctForm.getOldEffDate()))) {
             AcctNbr acctNbr = acctForm.toAcctNbr();
@@ -178,56 +128,42 @@ public class AcctController {
             acctNbr.setAcct(acct);
             acct.getAcctNbrs().add(acctNbr);
         }
-        // .. and save account.
+        // ... and save.
         Acct save;
         try {
             save = acctService.saveAcct(acct);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
+            String successMessage = String.format(SUCCESSFULLY_ADDED, "Acct", save.getId());
+            if (acctId != null)
+                successMessage = String.format(SUCCESSFULLY_UPDATED, "Acct", save.getId());
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+            redirectAttributes.addAttribute("acctId", save.getId());
+        } catch (NewOptimisticLockingException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Acct", acctId));
+            redirectAttributes.addAttribute("acctId", acctId);
+            return "redirect:/acct?acctId={acctId}";
         }
-        String successMessage = "Account successfully added, acctId=\"" + save.getId() + "\"";
-        if (acctId != null)
-            successMessage = "Account successfully updated, acctId=\"" + save.getId() + "\"";
-        redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        redirectAttributes.addAttribute("acctId", save.getId());
         // If no data file id, we're done.
         if (acctForm.getDataFileId() == null)
             return "redirect:/acct?acctId={acctId}";
-        //
-        // If we have a data file id, then we're trying to parse a data file and save it into a new or existing account and into new transactions.
+        // If we have a data file id, then we're trying to parse a data file and save it into a new or existing account
+        // and into new transactions.
         //
         // Verify existing data file still exists.
         Long dataFileId = acctForm.getDataFileId();
-        DataFile dataFile;
         try {
-            dataFile = dataFileService.findDataFileById(dataFileId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATA_FILE_NOT_FOUND);
-            return "redirect:/";
-        }
-        // Update the status of the data file to say we saved the account.
-        dataFile.setStatus(DataFileStatus.ACCT_SAVED);
-        try {
+            DataFile dataFile = dataFileService.findDataFileById(dataFileId);
+            // Update the status of the data file to say we saved the account.
+            dataFile.setStatus(DataFileStatus.ACCT_SAVED);
             dataFile = dataFileService.saveDataFile(dataFile);
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
+            // If data file will not parse, we gots an error.
+            OfxParseResponse response = ofxParseService.parseUploadedFile(dataFile);
+            // Save the new transactions.
+            saveTrans(save, dataFile, response, acctService, dataFileService, redirectAttributes);
             return "redirect:/";
+        } catch (NewNotFoundException | NewOptimisticLockingException | NewOfxParseException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
-        // If data file will not parse, we gots an error.
-        OfxParseResponse response;
-        try {
-            response = ofxParseService.parseUploadedFile(dataFile);
-        } catch (JunkException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", OFX_PARSE_ERROR);
-            return "redirect:/";
-        }
-        // Save the new transactions.
-        saveTrans(save, dataFile, response, acctService, dataFileService, redirectAttributes);
-        return "redirect:/";
     }
 
     @GetMapping("/acctUpload")
@@ -237,57 +173,29 @@ public class AcctController {
         // A data file has been uploaded and the application could not determine which account it belongs to, so we
         // showed the user a page where he made that decision. Now we need to load the account edit page so the user can
         // save the account and continue to parse the data file.
-        DataFile dataFile;
         try {
-            dataFile = dataFileService.findDataFileById(dataFileId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATA_FILE_NOT_FOUND);
-            return "redirect:/";
-        }
-        // If data file will not parse, we gots an error.
-        OfxParseResponse response;
-        try {
-            response = ofxParseService.parseUploadedFile(dataFile);
-        } catch (JunkException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", OFX_PARSE_ERROR);
-            return "redirect:/";
-        }
-        // If no account id, new account.
-        if (acctId == null) {
-            AcctForm acctForm = new AcctForm(response);
+            DataFile dataFile = dataFileService.findDataFileById(dataFileId);
+            // If data file will not parse, we gots an error.
+            OfxParseResponse response = ofxParseService.parseUploadedFile(dataFile);
+            // If no account id, new account.
+            if (acctId == null) {
+                AcctForm acctForm = new AcctForm(response);
+                acctForm.setDataFileId(dataFile.getId());
+                model.addAttribute("acctForm", acctForm);
+                return "acctEdit";
+            }
+            // Otherwise, edit existing acount.
+            Acct acct = acctService.findAcctById(acctId);
+            AcctNbr currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+            AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
+            acctForm.setNumber(response.getOfxAcct().getAcctId());
             acctForm.setDataFileId(dataFile.getId());
             model.addAttribute("acctForm", acctForm);
             return "acctEdit";
+        } catch (NewNotFoundException | NewOfxParseException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
-        // Otherwise, edit existing acount.
-        Acct acct;
-        try {
-            acct = acctService.findAcctById(acctId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
-            return "redirect:/";
-        }
-        AcctNbr currentAcctNbr;
-        try {
-            currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NBR_NOT_FOUND);
-            return "redirect:/";
-        }
-        AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
-        acctForm.setNumber(response.getOfxAcct().getAcctId());
-        acctForm.setDataFileId(dataFile.getId());
-        model.addAttribute("acctForm", acctForm);
-        return "acctEdit";
     }
 
     @PostMapping("/dataFileUpload")
@@ -324,9 +232,9 @@ public class AcctController {
         }
         try {
             dataFile = dataFileService.saveDataFile(dataFile);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
+        } catch (NewOptimisticLockingException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
         //
         // Part 2: Parse the data file.
@@ -335,9 +243,9 @@ public class AcctController {
             response = ofxParseService.parseUploadedFile(dataFile);
             dataFile.setStatus(DataFileStatus.PARSED);
             dataFile = dataFileService.saveDataFile(dataFile);
-        } catch (JunkException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", OFX_PARSE_ERROR);
-            return "redirect:/";
+        } catch (NewOfxParseException | NewOptimisticLockingException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
         //
         // Part 3: Save the parsed data.
@@ -350,13 +258,7 @@ public class AcctController {
         // scenario.
         String ofxFid = response.getOfxInst().getFid();
         String ofxAcctId = response.getOfxAcct().getAcctId();
-        List<AcctNbr> acctNbrsByFidAndNumber = null;
-        try {
-            acctNbrsByFidAndNumber = acctService.findAcctNbrsByFidAndNumber(ofxFid, ofxAcctId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+        List<AcctNbr> acctNbrsByFidAndNumber = acctService.findAcctNbrsByFidAndNumber(ofxFid, ofxAcctId);
         Map<Long, Acct> acctMap = new HashMap<>();
         for (AcctNbr acctNbr : acctNbrsByFidAndNumber) {
             Acct acct = acctNbr.getAcct();
@@ -376,13 +278,7 @@ public class AcctController {
             return "redirect:/";
         }
         // Otherwise, we found no account number records. Try again using just the financial institution id.
-        List<Acct> acctsByFid = null;
-        try {
-            acctsByFid = acctService.findAcctsByFid(ofxFid);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        }
+        List<Acct> acctsByFid = acctService.findAcctsByFid(ofxFid);
         // If we found one or more accounts, we will need to go to an account disambiguation page to get input from the user.
         if (acctsByFid.size() > 0) {
             model.addAttribute("dataFileId", dataFile.getId());
@@ -390,16 +286,7 @@ public class AcctController {
             model.addAttribute("ofxAcct", response.getOfxAcct());
             List<AcctNbr> acctNbrs = new ArrayList<>();
             for (Acct acct : acctsByFid) {
-                AcctNbr currentAcctNbr;
-                try {
-                    currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-                } catch (DatabaseException e) {
-                    redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-                    return "redirect:/";
-                } catch (NotFoundException e) {
-                    redirectAttributes.addFlashAttribute("errorMessage", ACCT_NBR_NOT_FOUND);
-                    return "redirect:/";
-                }
+                AcctNbr currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
                 acctNbrs.add(currentAcctNbr);
             }
             model.addAttribute("acctNbrs", acctNbrs);
@@ -416,21 +303,17 @@ public class AcctController {
     @GetMapping("/acctReconcile")
     public String loadReconcile(@RequestParam(value = "acctId") Long acctId, Model model,
             RedirectAttributes redirectAttributes) {
-        Acct acct;
         try {
-            acct = acctService.findAcctById(acctId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
-            return "redirect:/";
+            Acct acct = acctService.findAcctById(acctId);
+            AcctReconcileForm acctReconcileForm = new AcctReconcileForm();
+            acctReconcileForm.setAcctId(acctId);
+            acctReconcileForm.setAcctName(acct.getName());
+            model.addAttribute("acctReconcileForm", acctReconcileForm);
+            return "acctReconcile";
+        } catch (NewNotFoundException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
-        AcctReconcileForm acctReconcileForm = new AcctReconcileForm();
-        acctReconcileForm.setAcctId(acctId);
-        acctReconcileForm.setAcctName(acct.getName());
-        model.addAttribute("acctReconcileForm", acctReconcileForm);
-        return "acctReconcile";
     }
 
     @PostMapping("/acctReconcile")
@@ -446,49 +329,39 @@ public class AcctController {
             logger.error(msg);
             return "redirect:/";
         }
-        Acct acct;
         try {
-            acct = acctService.findAcctById(acctId);
-        } catch (DatabaseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", DATABASE_ERROR);
-            return "redirect:/";
-        } catch (NotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", ACCT_NOT_FOUND);
-            return "redirect:/";
-        }
-        BigDecimal balance = acct.getBeginBalance();
-        List<Tran> trans = acct.getTrans();
-        List<Tran> reconcileUs = new ArrayList<>();
-        for (Tran tran : trans) {
-            Date postDate = tran.getPostDate();
-            Date reconcileDate = acctReconcileForm.getReconcileDate();
-            if (postDate.equals(reconcileDate) || postDate.before(reconcileDate)) {
-                balance = balance.add(tran.getAmount());
-                reconcileUs.add(tran);
+            Acct acct = acctService.findAcctById(acctId);
+            BigDecimal balance = acct.getBeginBalance();
+            List<Tran> trans = acct.getTrans();
+            List<Tran> reconcileUs = new ArrayList<>();
+            for (Tran tran : trans) {
+                Date postDate = tran.getPostDate();
+                Date reconcileDate = acctReconcileForm.getReconcileDate();
+                if (postDate.equals(reconcileDate) || postDate.before(reconcileDate)) {
+                    balance = balance.add(tran.getAmount());
+                    reconcileUs.add(tran);
+                }
             }
-        }
-        BigDecimal reconcileAmount = acctReconcileForm.getReconcileAmount();
-        if (balance.compareTo(reconcileAmount) != 0) {
-            String errorMessage = String
-                    .format("Account not able to reconciled, difference=%.2f", balance.subtract(reconcileAmount));
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            redirectAttributes.addAttribute("acctId", acctId);
-            return "redirect:/acct?acctId={acctId}";
-        }
-        for (Tran reconcileMe : reconcileUs) {
-            reconcileMe.setReconciled(Boolean.TRUE);
-        }
-        try {
+            BigDecimal reconcileAmount = acctReconcileForm.getReconcileAmount();
+            if (balance.compareTo(reconcileAmount) != 0) {
+                String errorMessage = String
+                        .format("Account not able to reconciled, difference=%.2f", balance.subtract(reconcileAmount));
+                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+                redirectAttributes.addAttribute("acctId", acctId);
+                return "redirect:/acct?acctId={acctId}";
+            }
+            for (Tran reconcileMe : reconcileUs) {
+                reconcileMe.setReconciled(Boolean.TRUE);
+            }
             Iterable<Tran> saveAll = tranService.saveAllTrans(reconcileUs);
             String successMessage = "Account successfully reconciled, acctId=\"" + acctId + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        } catch (Exception e) {
-            String errorMessage = "Account could not be reconciled, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage + ", error=\"" + e.getMessage() + "\"");
-            logger.error(errorMessage, e);
+            redirectAttributes.addAttribute("acctId", acctId);
+            return "redirect:/acct?acctId={acctId}";
+        } catch (NewNotFoundException | NewOptimisticLockingException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
-        redirectAttributes.addAttribute("acctId", acctId);
-        return "redirect:/acct?acctId={acctId}";
     }
 
     private void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService,
@@ -503,12 +376,7 @@ public class AcctController {
         }
         int count = 0;
         for (OfxStmtTran ofxStmtTran : ofxStmtTranMap.values()) {
-            List<Tran> trans = null;
-            try {
-                trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
-            } catch (DatabaseException e) {
-                e.printStackTrace();
-            }
+            List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
             if (trans.size() > 1) {
                 String errorMessage =
                         "UNEXPECTED ERROR: Multiple transactions found for acctId=\"" + acct.getId() + ", fitId=\"" +
@@ -545,10 +413,9 @@ public class AcctController {
             String successMessage =
                     "Account successfully updated with " + count + " transactions, acctId=\"" + acct.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        } catch (Exception e) {
-            String errorMessage = "New transactions could not be added to account, acctId=\"" + acct.getId() + "\"";
-            logger.error(errorMessage, e);
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+        } catch (NewOptimisticLockingException e) {
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 }

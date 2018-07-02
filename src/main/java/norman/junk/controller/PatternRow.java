@@ -3,10 +3,8 @@ package norman.junk.controller;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import norman.junk.DatabaseException;
 import norman.junk.NewInconceivableException;
 import norman.junk.NewNotFoundException;
-import norman.junk.NotFoundException;
 import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
@@ -37,7 +35,7 @@ public class PatternRow {
         tranName = pattern.getTranName();
     }
 
-    public Pattern toPattern(CategoryService categoryService) throws DatabaseException, NotFoundException {
+    public Pattern toPattern(CategoryService categoryService) {
         Pattern pattern = new Pattern();
         pattern.setId(id);
         pattern.setVersion(version);

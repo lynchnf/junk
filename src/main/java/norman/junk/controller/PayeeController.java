@@ -2,7 +2,7 @@ package norman.junk.controller;
 
 import javax.validation.Valid;
 import norman.junk.NewNotFoundException;
-import norman.junk.NewUpdatedByAnotherException;
+import norman.junk.NewOptimisticLockingException;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
 import org.slf4j.Logger;
@@ -24,6 +24,7 @@ import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class PayeeController {
+    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(PayeeController.class);
     @Autowired
     private PayeeService payeeService;
@@ -84,7 +85,7 @@ public class PayeeController {
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("payeeId", save.getId());
             return "redirect:/payee?payeeId={payeeId}";
-        } catch (NewUpdatedByAnotherException e) {
+        } catch (NewOptimisticLockingException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payee", payeeId));
             redirectAttributes.addAttribute("payeeId", payeeId);

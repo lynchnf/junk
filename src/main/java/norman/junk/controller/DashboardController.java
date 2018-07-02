@@ -1,8 +1,6 @@
 package norman.junk.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import norman.junk.DatabaseException;
 import norman.junk.service.AcctService;
 import norman.junk.service.AcctSummaryBean;
 import norman.junk.service.PayableDueBean;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class DashboardController {
+    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
     @Autowired
     private AcctService acctService;
@@ -24,21 +23,9 @@ public class DashboardController {
 
     @RequestMapping("/")
     public String loadView(Model model) {
-        List<AcctSummaryBean> acctSummaries = null;
-        try {
-            acctSummaries = acctService.findAllAcctSummaries();
-        } catch (DatabaseException e) {
-            // FIXME Handle exception somehow.
-            throw new RuntimeException(e);
-        }
+        List<AcctSummaryBean> acctSummaries = acctService.findAllAcctSummaries();
         model.addAttribute("acctSummaries", acctSummaries);
-        List<PayableDueBean> payableDues = new ArrayList<>();
-        try {
-            payableDues = payableService.findAllPayableDues();
-        } catch (DatabaseException e) {
-            // FIXME Handle exception somehow.
-            throw new RuntimeException(e);
-        }
+        List<PayableDueBean> payableDues = payableService.findAllPayableDues();
         model.addAttribute("payableDues", payableDues);
         return "index";
     }
