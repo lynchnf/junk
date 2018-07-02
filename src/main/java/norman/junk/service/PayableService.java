@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class PayableService {
     private static final int ALMOST_DUE_DAYS = 14;
-    private static final String OVERDUE_CLASS = "table-danger";
-    private static final String ALMOST_DUE_CLASS = "table-warning";
-    private static final String NOT_DUE_FOR_AWHILE_YET_CLASS = "table-light";
-    private static final String ALREADY_PAID_CLASS = "table-success";
+    protected static final String OVERDUE_CLASS = "table-danger";
+    protected static final String ALMOST_DUE_CLASS = "table-warning";
+    protected static final String NOT_DUE_FOR_AWHILE_YET_CLASS = "table-light";
+    protected static final String ALREADY_PAID_CLASS = "table-success";
     private Date today;
     private Date warning;
     @Autowired
@@ -86,8 +86,11 @@ public class PayableService {
                     styleClass = NOT_DUE_FOR_AWHILE_YET_CLASS;
                 }
             } else {
-                if (dueDate.equals(today) || dueDate.after(today) || lastPaidDate.equals(today) ||
-                        lastPaidDate.after(today)) {
+                // If the balance is zero (or less) and the due date and the last paid date (if there is one) are both
+                // in the past, then we don't need to see this payable any more. Otherwise, show it with the
+                // already-paid style.
+                if (dueDate.equals(today) || dueDate.after(today) ||
+                        lastPaidDate != null && (lastPaidDate.equals(today) || lastPaidDate.after(today))) {
                     styleClass = ALREADY_PAID_CLASS;
                 }
             }
