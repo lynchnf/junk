@@ -128,7 +128,7 @@ public class AcctControllerTest {
         resultActions.andExpect(MockMvcResultMatchers.status().isFound());
         resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
         resultActions.andExpect(MockMvcResultMatchers.flash()
-                .attribute("successMessage", StringContains.containsString("2 transactions")));
+                .attribute("successMessage", StringContains.containsString("2 Transactions")));
     }
 
     @Test
@@ -197,7 +197,7 @@ public class AcctControllerTest {
         resultActions.andExpect(MockMvcResultMatchers.status().isFound());
         resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
         resultActions.andExpect(MockMvcResultMatchers.flash()
-                .attribute("successMessage", StringContains.containsString("0 transactions")));
+                .attribute("successMessage", StringContains.containsString("0 Transactions")));
     }
 
     @Test
@@ -232,7 +232,7 @@ public class AcctControllerTest {
         resultActions.andExpect(MockMvcResultMatchers.status().isFound());
         resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
         resultActions.andExpect(MockMvcResultMatchers.flash()
-                .attribute("successMessage", StringContains.containsString("2 transactions")));
+                .attribute("successMessage", StringContains.containsString("2 Transactions")));
     }
 
     @Test
