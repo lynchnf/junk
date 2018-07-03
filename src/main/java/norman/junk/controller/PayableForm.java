@@ -6,8 +6,8 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import norman.junk.NewInconceivableException;
-import norman.junk.NewNotFoundException;
+import norman.junk.JunkInconceivableException;
+import norman.junk.JunkNotFoundException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
@@ -71,9 +71,9 @@ public class PayableForm {
             Payee payee = payeeService.findPayeeById(payeeId);
             payable.setPayee(payee);
             return payable;
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 

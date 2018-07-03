@@ -1,8 +1,8 @@
 package norman.junk.service;
 
 import java.util.Optional;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Payee;
 import norman.junk.repository.PayeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +18,19 @@ public class PayeeService {
         return payeeRepository.findAll();
     }
 
-    public Payee findPayeeById(Long payeeId) throws NewNotFoundException {
+    public Payee findPayeeById(Long payeeId) throws JunkNotFoundException {
         Optional<Payee> optional = payeeRepository.findById(payeeId);
         if (!optional.isPresent()) {
-            throw new NewNotFoundException("Payee not found, payeeId=\"" + payeeId + "\"");
+            throw new JunkNotFoundException("Payee not found, payeeId=\"" + payeeId + "\"");
         }
         return optional.get();
     }
 
-    public Payee savePayee(Payee payee) throws NewOptimisticLockingException {
+    public Payee savePayee(Payee payee) throws JunkOptimisticLockingException {
         try {
             return payeeRepository.save(payee);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new NewOptimisticLockingException(
+            throw new JunkOptimisticLockingException(
                     "Optimistic locking failure while saving payee, payeeId=\"" + payee.getId() + "\"", e);
         }
     }

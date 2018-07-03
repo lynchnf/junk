@@ -11,10 +11,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
-import norman.junk.NewInconceivableException;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOfxParseException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkInconceivableException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOfxParseException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.DataFile;
@@ -78,7 +78,7 @@ public class AcctController {
             List<TranBalanceBean> tranBalances = acctService.findTranBalancesByAcctId(acct.getId());
             model.addAttribute("tranBalances", tranBalances);
             return "acctView";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Acct", acctId));
             return "redirect:/acctList";
         }
@@ -99,7 +99,7 @@ public class AcctController {
             AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
             model.addAttribute("acctForm", acctForm);
             return "acctEdit";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Acct", acctId));
             return "redirect:/acctList";
         }
@@ -137,7 +137,7 @@ public class AcctController {
                 successMessage = String.format(SUCCESSFULLY_UPDATED, "Acct", save.getId());
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("acctId", save.getId());
-        } catch (NewOptimisticLockingException e) {
+        } catch (JunkOptimisticLockingException e) {
             redirectAttributes.addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Acct", acctId));
             redirectAttributes.addAttribute("acctId", acctId);
             return "redirect:/acct?acctId={acctId}";
@@ -160,9 +160,9 @@ public class AcctController {
             // Save the new transactions.
             saveTrans(save, dataFile, response, acctService, dataFileService, redirectAttributes);
             return "redirect:/";
-        } catch (NewNotFoundException | NewOptimisticLockingException | NewOfxParseException e) {
+        } catch (JunkNotFoundException | JunkOptimisticLockingException | JunkOfxParseException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 
@@ -192,9 +192,9 @@ public class AcctController {
             acctForm.setDataFileId(dataFile.getId());
             model.addAttribute("acctForm", acctForm);
             return "acctEdit";
-        } catch (NewNotFoundException | NewOfxParseException e) {
+        } catch (JunkNotFoundException | JunkOfxParseException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 
@@ -232,9 +232,9 @@ public class AcctController {
         }
         try {
             dataFile = dataFileService.saveDataFile(dataFile);
-        } catch (NewOptimisticLockingException e) {
+        } catch (JunkOptimisticLockingException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
         //
         // Part 2: Parse the data file.
@@ -243,9 +243,9 @@ public class AcctController {
             response = ofxParseService.parseUploadedFile(dataFile);
             dataFile.setStatus(DataFileStatus.PARSED);
             dataFile = dataFileService.saveDataFile(dataFile);
-        } catch (NewOfxParseException | NewOptimisticLockingException e) {
+        } catch (JunkOfxParseException | JunkOptimisticLockingException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
         //
         // Part 3: Save the parsed data.
@@ -310,9 +310,9 @@ public class AcctController {
             acctReconcileForm.setAcctName(acct.getName());
             model.addAttribute("acctReconcileForm", acctReconcileForm);
             return "acctReconcile";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 
@@ -358,9 +358,9 @@ public class AcctController {
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("acctId", acctId);
             return "redirect:/acct?acctId={acctId}";
-        } catch (NewNotFoundException | NewOptimisticLockingException e) {
+        } catch (JunkNotFoundException | JunkOptimisticLockingException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 
@@ -413,9 +413,9 @@ public class AcctController {
             String successMessage =
                     "Account successfully updated with " + count + " transactions, acctId=\"" + acct.getId() + "\"";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
-        } catch (NewOptimisticLockingException e) {
+        } catch (JunkOptimisticLockingException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 }

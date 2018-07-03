@@ -3,8 +3,8 @@ package norman.junk.controller;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import norman.junk.NewInconceivableException;
-import norman.junk.NewNotFoundException;
+import norman.junk.JunkInconceivableException;
+import norman.junk.JunkNotFoundException;
 import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
@@ -44,9 +44,9 @@ public class PatternRow {
             Category category = categoryService.findCategoryById(categoryId);
             pattern.setCategory(category);
             return pattern;
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 

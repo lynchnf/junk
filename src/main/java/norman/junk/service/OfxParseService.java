@@ -5,7 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import norman.junk.NewOfxParseException;
+import norman.junk.JunkOfxParseException;
 import norman.junk.domain.AcctType;
 import norman.junk.domain.CorrectAction;
 import norman.junk.domain.DataFile;
@@ -49,7 +49,7 @@ public class OfxParseService {
         OFX, FI, BANKACCTFROM, CCACCTFROM, BANKTRANLIST, STMTTRN
     }
 
-    public OfxParseResponse parseUploadedFile(DataFile dataFile) throws NewOfxParseException {
+    public OfxParseResponse parseUploadedFile(DataFile dataFile) throws JunkOfxParseException {
         OfxParseResponse response = new OfxParseResponse();
         State state = State.OFX;
         for (DataLine dataLine : dataFile.getDataLines()) {
@@ -394,7 +394,7 @@ public class OfxParseService {
                         int idx = response.getOfxStmtTrans().size() - 1;
                         response.getOfxStmtTrans().get(idx).setPostDate(d);
                     } catch (ParseException e) {
-                        throw new NewOfxParseException("Error parsing post date in line=\"" + line + "\".", e);
+                        throw new JunkOfxParseException("Error parsing post date in line=\"" + line + "\".", e);
                     }
                 } else if (line.contains(DTUSER)) {
                     String s = StringUtils.substringAfter(line, DTUSER);
@@ -403,7 +403,7 @@ public class OfxParseService {
                         int idx = response.getOfxStmtTrans().size() - 1;
                         response.getOfxStmtTrans().get(idx).setUserDate(d);
                     } catch (ParseException e) {
-                        throw new NewOfxParseException("Error parsing user date in line=\"" + line + "\".", e);
+                        throw new JunkOfxParseException("Error parsing user date in line=\"" + line + "\".", e);
                     }
                 } else if (line.contains(TRNAMT)) {
                     String s = StringUtils.substringAfter(line, TRNAMT);
@@ -453,15 +453,15 @@ public class OfxParseService {
         return response;
     }
 
-    private void badState(State state) throws NewOfxParseException {
-        throw new NewOfxParseException("Invalid state=\"" + state + "\".");
+    private void badState(State state) throws JunkOfxParseException {
+        throw new JunkOfxParseException("Invalid state=\"" + state + "\".");
     }
 
-    private void badToken(State state, String line) throws NewOfxParseException {
-        throw new NewOfxParseException("Invalid token found: state=\"" + state + "\", line=\"" + line + "\".");
+    private void badToken(State state, String line) throws JunkOfxParseException {
+        throw new JunkOfxParseException("Invalid token found: state=\"" + state + "\", line=\"" + line + "\".");
     }
 
-    private void missingToken(State state, String line) throws NewOfxParseException {
-        throw new NewOfxParseException("No valid token found: state=\"" + state + "\", line=\"" + line + "\".");
+    private void missingToken(State state, String line) throws JunkOfxParseException {
+        throw new JunkOfxParseException("No valid token found: state=\"" + state + "\", line=\"" + line + "\".");
     }
 }

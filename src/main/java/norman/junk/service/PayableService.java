@@ -6,8 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
 import norman.junk.repository.PayableRepository;
@@ -43,19 +43,19 @@ public class PayableService {
         return payableRepository.findAll();
     }
 
-    public Payable findPayableById(Long payableId) throws NewNotFoundException {
+    public Payable findPayableById(Long payableId) throws JunkNotFoundException {
         Optional<Payable> optional = payableRepository.findById(payableId);
         if (!optional.isPresent()) {
-            throw new NewNotFoundException("Payable not found, payableId=\"" + payableId + "\"");
+            throw new JunkNotFoundException("Payable not found, payableId=\"" + payableId + "\"");
         }
         return optional.get();
     }
 
-    public Payable savePayable(Payable payable) throws NewOptimisticLockingException {
+    public Payable savePayable(Payable payable) throws JunkOptimisticLockingException {
         try {
             return payableRepository.save(payable);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new NewOptimisticLockingException(
+            throw new JunkOptimisticLockingException(
                     "Optimistic locking failure while saving payable, payableId=\"" + payable.getId() + "\"", e);
         }
     }

@@ -1,8 +1,8 @@
 package norman.junk.controller;
 
 import javax.validation.Valid;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class PayeeController {
             Payee payee = payeeService.findPayeeById(payeeId);
             model.addAttribute("payee", payee);
             return "payeeView";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payee", payeeId));
             return "redirect:/payeeList";
         }
@@ -62,7 +62,7 @@ public class PayeeController {
             PayeeForm payeeForm = new PayeeForm(payee);
             model.addAttribute("payeeForm", payeeForm);
             return "payeeEdit";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payee", payeeId));
             return "redirect:/payeeList";
         }
@@ -85,7 +85,7 @@ public class PayeeController {
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("payeeId", save.getId());
             return "redirect:/payee?payeeId={payeeId}";
-        } catch (NewOptimisticLockingException e) {
+        } catch (JunkOptimisticLockingException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payee", payeeId));
             redirectAttributes.addAttribute("payeeId", payeeId);

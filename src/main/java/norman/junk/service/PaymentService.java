@@ -1,8 +1,8 @@
 package norman.junk.service;
 
 import java.util.Optional;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Payment;
 import norman.junk.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +18,19 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
-    public Payment findPaymentById(Long paymentId) throws NewNotFoundException {
+    public Payment findPaymentById(Long paymentId) throws JunkNotFoundException {
         Optional<Payment> optional = paymentRepository.findById(paymentId);
         if (!optional.isPresent()) {
-            throw new NewNotFoundException("Payment not found, paymentId=\"" + paymentId + "\"");
+            throw new JunkNotFoundException("Payment not found, paymentId=\"" + paymentId + "\"");
         }
         return optional.get();
     }
 
-    public Payment savePayment(Payment payment) throws NewOptimisticLockingException {
+    public Payment savePayment(Payment payment) throws JunkOptimisticLockingException {
         try {
             return paymentRepository.save(payment);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new NewOptimisticLockingException(
+            throw new JunkOptimisticLockingException(
                     "Optimistic locking failure while saving payment, paymentId=\"" + payment.getId() + "\"", e);
         }
     }

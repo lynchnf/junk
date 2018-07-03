@@ -2,9 +2,9 @@ package norman.junk.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import norman.junk.NewInconceivableException;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkInconceivableException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Pattern;
 import norman.junk.domain.Tran;
 import norman.junk.service.PatternService;
@@ -36,7 +36,7 @@ public class TranController {
             Tran tran = tranService.findTranById(tranId);
             model.addAttribute("tran", tran);
             return "tranView";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Transaction", tranId));
             return "redirect:/";
         }
@@ -63,9 +63,9 @@ public class TranController {
             String successMessage = "Categories successfully assigned to " + assignUs.size() + " transactions";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             return "redirect:/";
-        } catch (NewOptimisticLockingException e) {
+        } catch (JunkOptimisticLockingException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new NewInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
     }
 }

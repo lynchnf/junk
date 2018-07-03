@@ -2,7 +2,7 @@ package norman.junk.controller;
 
 import java.util.List;
 import javax.validation.Valid;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Category;
 import norman.junk.domain.Pattern;
 import norman.junk.service.CategoryService;
@@ -57,7 +57,7 @@ public class PatternController {
             String successMessage = "Category Patterns successfully saved";
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             return "redirect:/patternList";
-        } catch (NewOptimisticLockingException e) {
+        } catch (JunkOptimisticLockingException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(MULTI_OPTIMISTIC_LOCK_ERROR, "Patterns"));
             return "redirect:/patternList";

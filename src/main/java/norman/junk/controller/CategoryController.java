@@ -1,8 +1,8 @@
 package norman.junk.controller;
 
 import javax.validation.Valid;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Category;
 import norman.junk.service.CategoryService;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class CategoryController {
             Category category = categoryService.findCategoryById(categoryId);
             model.addAttribute("category", category);
             return "categoryView";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Category", categoryId));
             return "redirect:/categoryList";
@@ -64,7 +64,7 @@ public class CategoryController {
             CategoryForm categoryForm = new CategoryForm(category);
             model.addAttribute("categoryForm", categoryForm);
             return "categoryEdit";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Category", categoryId));
             return "redirect:/categoryList";
@@ -88,7 +88,7 @@ public class CategoryController {
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("categoryId", save.getId());
             return "redirect:/category?categoryId={categoryId}";
-        } catch (NewOptimisticLockingException e) {
+        } catch (JunkOptimisticLockingException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Category", categoryId));
             redirectAttributes.addAttribute("categoryId", categoryId);

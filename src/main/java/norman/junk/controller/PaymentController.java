@@ -1,8 +1,8 @@
 package norman.junk.controller;
 
 import javax.validation.Valid;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payment;
 import norman.junk.service.PayableService;
@@ -49,7 +49,7 @@ public class PaymentController {
             Payment payment = paymentService.findPaymentById(paymentId);
             model.addAttribute("payment", payment);
             return "paymentView";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payment", paymentId));
             return "redirect:/paymentList";
         }
@@ -80,7 +80,7 @@ public class PaymentController {
                 paymentForm.setPayableAmountDue(payable.getAmountDue());
                 model.addAttribute("paymentForm", paymentForm);
                 return "paymentEdit";
-            } catch (NewNotFoundException e) {
+            } catch (JunkNotFoundException e) {
                 redirectAttributes
                         .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
                 return "redirect:/payableList";
@@ -92,7 +92,7 @@ public class PaymentController {
             PaymentForm paymentForm = new PaymentForm(payment);
             model.addAttribute("paymentForm", paymentForm);
             return "paymentEdit";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payment", paymentId));
             return "redirect:/paymentList";
         }
@@ -115,7 +115,7 @@ public class PaymentController {
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             redirectAttributes.addAttribute("paymentId", save.getId());
             return "redirect:/payment?paymentId={paymentId}";
-        } catch (NewOptimisticLockingException e) {
+        } catch (JunkOptimisticLockingException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payment", paymentId));
             redirectAttributes.addAttribute("paymentId", paymentId);

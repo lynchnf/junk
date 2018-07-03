@@ -1,7 +1,7 @@
 package norman.junk.service;
 
 import java.util.List;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Pattern;
 import norman.junk.repository.PatternRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +17,11 @@ public class PatternService {
         return patternRepository.findAllByOrderBySeq();
     }
 
-    public Iterable<Pattern> saveAllPatterns(List<Pattern> patterns) throws NewOptimisticLockingException {
+    public Iterable<Pattern> saveAllPatterns(List<Pattern> patterns) throws JunkOptimisticLockingException {
         try {
             return patternRepository.saveAll(patterns);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new NewOptimisticLockingException("Optimistic locking failure while saving patterns", e);
+            throw new JunkOptimisticLockingException("Optimistic locking failure while saving patterns", e);
         }
     }
 }

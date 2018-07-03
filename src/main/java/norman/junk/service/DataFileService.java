@@ -1,8 +1,8 @@
 package norman.junk.service;
 
 import java.util.Optional;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.DataFile;
 import norman.junk.repository.DataFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +18,19 @@ public class DataFileService {
         return dataFileRepository.findAll();
     }
 
-    public DataFile findDataFileById(Long dataFileId) throws NewNotFoundException {
+    public DataFile findDataFileById(Long dataFileId) throws JunkNotFoundException {
         Optional<DataFile> optional = dataFileRepository.findById(dataFileId);
         if (!optional.isPresent()) {
-            throw new NewNotFoundException("DataFile not found, dataFileId=\"" + dataFileId + "\"");
+            throw new JunkNotFoundException("DataFile not found, dataFileId=\"" + dataFileId + "\"");
         }
         return optional.get();
     }
 
-    public DataFile saveDataFile(DataFile dataFile) throws NewOptimisticLockingException {
+    public DataFile saveDataFile(DataFile dataFile) throws JunkOptimisticLockingException {
         try {
             return dataFileRepository.save(dataFile);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new NewOptimisticLockingException(
+            throw new JunkOptimisticLockingException(
                     "Optimistic locking failure while saving dataFile, dataFileId=\"" + dataFile.getId() + "\"", e);
         }
     }

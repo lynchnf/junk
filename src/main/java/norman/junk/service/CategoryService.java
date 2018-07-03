@@ -1,8 +1,8 @@
 package norman.junk.service;
 
 import java.util.Optional;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Category;
 import norman.junk.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +18,19 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Category findCategoryById(Long categoryId) throws NewNotFoundException {
+    public Category findCategoryById(Long categoryId) throws JunkNotFoundException {
         Optional<Category> optional = categoryRepository.findById(categoryId);
         if (!optional.isPresent()) {
-            throw new NewNotFoundException("Category not found, categoryId=\"" + categoryId + "\"");
+            throw new JunkNotFoundException("Category not found, categoryId=\"" + categoryId + "\"");
         }
         return optional.get();
     }
 
-    public Category saveCategory(Category category) throws NewOptimisticLockingException {
+    public Category saveCategory(Category category) throws JunkOptimisticLockingException {
         try {
             return categoryRepository.save(category);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new NewOptimisticLockingException(
+            throw new JunkOptimisticLockingException(
                     "Optimistic locking failure while saving category, categoryId=\"" + category.getId() + "\"", e);
         }
     }

@@ -1,6 +1,6 @@
 package norman.junk.controller;
 
-import norman.junk.NewNotFoundException;
+import norman.junk.JunkNotFoundException;
 import norman.junk.domain.DataFile;
 import norman.junk.service.DataFileService;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class DataFileController {
             DataFile dataFile = dataFileService.findDataFileById(dataFileId);
             model.addAttribute("dataFile", dataFile);
             return "dataFileView";
-        } catch (NewNotFoundException e) {
+        } catch (JunkNotFoundException e) {
             redirectAttributes
                     .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "DataFile", dataFileId));
             return "redirect:/dataFileList";

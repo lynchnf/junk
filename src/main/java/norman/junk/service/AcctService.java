@@ -7,9 +7,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import norman.junk.NewInconceivableException;
-import norman.junk.NewNotFoundException;
-import norman.junk.NewOptimisticLockingException;
+import norman.junk.JunkInconceivableException;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.Tran;
@@ -36,19 +36,19 @@ public class AcctService {
         return acctRepository.findAll();
     }
 
-    public Acct findAcctById(Long acctId) throws NewNotFoundException {
+    public Acct findAcctById(Long acctId) throws JunkNotFoundException {
         Optional<Acct> optional = acctRepository.findById(acctId);
         if (!optional.isPresent()) {
-            throw new NewNotFoundException("Acct not found, acctId=\"" + acctId + "\"");
+            throw new JunkNotFoundException("Acct not found, acctId=\"" + acctId + "\"");
         }
         return optional.get();
     }
 
-    public Acct saveAcct(Acct acct) throws NewOptimisticLockingException {
+    public Acct saveAcct(Acct acct) throws JunkOptimisticLockingException {
         try {
             return acctRepository.save(acct);
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new NewOptimisticLockingException(
+            throw new JunkOptimisticLockingException(
                     "Optimistic locking failure while saving acct, acctId=\"" + acct.getId() + "\"", e);
         }
     }
@@ -63,7 +63,7 @@ public class AcctService {
         if (acctNbrList.isEmpty()) {
             String msg = "No acctNbrs found, acctId=\"" + acctId + "\"";
             logger.error(msg);
-            throw new NewInconceivableException(msg);
+            throw new JunkInconceivableException(msg);
         }
         return acctNbrList.iterator().next();
     }
@@ -76,7 +76,7 @@ public class AcctService {
         return tranRepository.findByAcct_IdAndFitId(acctId, fitId);
     }
 
-    public List<TranBalanceBean> findTranBalancesByAcctId(Long acctId) throws NewNotFoundException {
+    public List<TranBalanceBean> findTranBalancesByAcctId(Long acctId) throws JunkNotFoundException {
         List<TranBalanceBean> tranBalances = new ArrayList<>();
         Acct acct = findAcctById(acctId);
         BigDecimal balance = acct.getBeginBalance();
