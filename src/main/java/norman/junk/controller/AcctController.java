@@ -83,7 +83,7 @@ public class AcctController {
             model.addAttribute("tranBalances", tranBalances);
             return "acctView";
         } catch (JunkNotFoundException e) {
-            String msg = String.format(NOT_FOUND_ERROR, "Acct", acctId);
+            String msg = String.format(NOT_FOUND_ERROR, "Account", acctId);
             logger.warn(msg, e);
             redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/acctList";
@@ -106,7 +106,7 @@ public class AcctController {
             model.addAttribute("acctForm", acctForm);
             return "acctEdit";
         } catch (JunkNotFoundException e) {
-            String msg = String.format(NOT_FOUND_ERROR, "Acct", acctId);
+            String msg = String.format(NOT_FOUND_ERROR, "Account", acctId);
             logger.warn(msg, e);
             redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/acctList";
@@ -145,9 +145,9 @@ public class AcctController {
             logger.error(UNEXPECTED_ERROR, e);
             throw new JunkInconceivableException(UNEXPECTED_ERROR + "-01: " + e.getMessage(), e);
         }
-        String successMessage = String.format(SUCCESSFULLY_ADDED, "Acct", save.getId());
+        String successMessage = String.format(SUCCESSFULLY_ADDED, "Account", save.getId());
         if (acctId != null)
-            successMessage = String.format(SUCCESSFULLY_UPDATED, "Acct", save.getId());
+            successMessage = String.format(SUCCESSFULLY_UPDATED, "Account", save.getId());
         redirectAttributes.addFlashAttribute("successMessage", successMessage);
         redirectAttributes.addAttribute("acctId", save.getId());
         // If no data file id, we're done.
@@ -461,7 +461,7 @@ public class AcctController {
             model.addAttribute("acctReconcileForm", acctReconcileForm);
             return "acctReconcile";
         } catch (JunkNotFoundException e) {
-            String msg = String.format(NOT_FOUND_ERROR, "Acct", acctId);
+            String msg = String.format(NOT_FOUND_ERROR, "Account", acctId);
             logger.warn(msg, e);
             redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/acctList";
