@@ -16,7 +16,6 @@ import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
 
 @Controller
 public class DataFileController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(DataFileController.class);
     @Autowired
     private DataFileService dataFileService;
@@ -36,8 +35,9 @@ public class DataFileController {
             model.addAttribute("dataFile", dataFile);
             return "dataFileView";
         } catch (JunkNotFoundException e) {
-            redirectAttributes
-                    .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "DataFile", dataFileId));
+            String msg = String.format(NOT_FOUND_ERROR, "DataFile", dataFileId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/dataFileList";
         }
     }

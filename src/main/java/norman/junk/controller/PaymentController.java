@@ -28,7 +28,6 @@ import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class PaymentController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
     @Autowired
     private PaymentService paymentService;
@@ -50,7 +49,9 @@ public class PaymentController {
             model.addAttribute("payment", payment);
             return "paymentView";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payment", paymentId));
+            String msg = String.format(NOT_FOUND_ERROR, "Payment", paymentId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/paymentList";
         }
     }
@@ -81,9 +82,10 @@ public class PaymentController {
                 model.addAttribute("paymentForm", paymentForm);
                 return "paymentEdit";
             } catch (JunkNotFoundException e) {
-                redirectAttributes
-                        .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
-                return "redirect:/payableList";
+                String msg = String.format(NOT_FOUND_ERROR, "Payment", paymentId);
+                logger.warn(msg, e);
+                redirectAttributes.addFlashAttribute("errorMessage", msg);
+                return "redirect:/paymentList";
             }
         }
         // Otherwise, edit existing payment.
@@ -93,7 +95,9 @@ public class PaymentController {
             model.addAttribute("paymentForm", paymentForm);
             return "paymentEdit";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payment", paymentId));
+            String msg = String.format(NOT_FOUND_ERROR, "Payment", paymentId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/paymentList";
         }
     }
@@ -116,8 +120,9 @@ public class PaymentController {
             redirectAttributes.addAttribute("paymentId", save.getId());
             return "redirect:/payment?paymentId={paymentId}";
         } catch (JunkOptimisticLockingException e) {
-            redirectAttributes
-                    .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payment", paymentId));
+            String msg = String.format(OPTIMISTIC_LOCK_ERROR, "Payment", paymentId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             redirectAttributes.addAttribute("paymentId", paymentId);
             return "redirect:/payment?paymentId={paymentId}";
         }

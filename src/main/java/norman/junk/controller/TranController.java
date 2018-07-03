@@ -2,7 +2,6 @@ package norman.junk.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import norman.junk.JunkInconceivableException;
 import norman.junk.JunkNotFoundException;
 import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Pattern;
@@ -18,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static norman.junk.controller.MessagesConstants.MULTI_OPTIMISTIC_LOCK_ERROR;
 import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
-import static norman.junk.controller.MessagesConstants.UNEXPECTED_ERROR;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_ASSIGNED_CATEGORIES;
 
 @Controller
 public class TranController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(TranController.class);
     @Autowired
     private TranService tranService;
@@ -37,8 +36,10 @@ public class TranController {
             model.addAttribute("tran", tran);
             return "tranView";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Transaction", tranId));
-            return "redirect:/";
+            String msg = String.format(NOT_FOUND_ERROR, "Tran", tranId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+            return "redirect:/tranList";
         }
     }
 
@@ -59,13 +60,15 @@ public class TranController {
             }
         }
         try {
-            Iterable<Tran> saveAll = tranService.saveAllTrans(assignUs);
-            String successMessage = "Categories successfully assigned to " + assignUs.size() + " transactions";
+            tranService.saveAllTrans(assignUs);
+            String successMessage = String.format(SUCCESSFULLY_ASSIGNED_CATEGORIES, assignUs.size());
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             return "redirect:/";
         } catch (JunkOptimisticLockingException e) {
-            logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            String msg = String.format(MULTI_OPTIMISTIC_LOCK_ERROR, "Transactions");
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+            return "redirect:/";
         }
     }
 }

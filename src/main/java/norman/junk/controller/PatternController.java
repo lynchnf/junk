@@ -58,9 +58,10 @@ public class PatternController {
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             return "redirect:/patternList";
         } catch (JunkOptimisticLockingException e) {
-            redirectAttributes
-                    .addFlashAttribute("errorMessage", String.format(MULTI_OPTIMISTIC_LOCK_ERROR, "Patterns"));
-            return "redirect:/patternList";
+            String msg = String.format(MULTI_OPTIMISTIC_LOCK_ERROR, "Patterns");
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+            return "redirect:/";
         }
     }
 

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class DashboardController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
     @Autowired
     private AcctService acctService;

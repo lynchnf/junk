@@ -74,7 +74,7 @@ public class PaymentForm {
             return payment;
         } catch (JunkNotFoundException e) {
             logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage(), e);
         }
     }
 

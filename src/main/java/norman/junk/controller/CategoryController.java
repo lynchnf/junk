@@ -24,7 +24,6 @@ import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class CategoryController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);
     @Autowired
     private CategoryService categoryService;
@@ -44,8 +43,9 @@ public class CategoryController {
             model.addAttribute("category", category);
             return "categoryView";
         } catch (JunkNotFoundException e) {
-            redirectAttributes
-                    .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Category", categoryId));
+            String msg = String.format(NOT_FOUND_ERROR, "Category", categoryId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/categoryList";
         }
     }
@@ -65,8 +65,9 @@ public class CategoryController {
             model.addAttribute("categoryForm", categoryForm);
             return "categoryEdit";
         } catch (JunkNotFoundException e) {
-            redirectAttributes
-                    .addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Category", categoryId));
+            String msg = String.format(NOT_FOUND_ERROR, "Category", categoryId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/categoryList";
         }
     }
@@ -89,8 +90,9 @@ public class CategoryController {
             redirectAttributes.addAttribute("categoryId", save.getId());
             return "redirect:/category?categoryId={categoryId}";
         } catch (JunkOptimisticLockingException e) {
-            redirectAttributes
-                    .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Category", categoryId));
+            String msg = String.format(OPTIMISTIC_LOCK_ERROR, "Category", categoryId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             redirectAttributes.addAttribute("categoryId", categoryId);
             return "redirect:/category?categoryId={categoryId}";
         }

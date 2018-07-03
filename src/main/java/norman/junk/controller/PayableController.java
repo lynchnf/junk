@@ -27,12 +27,11 @@ import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class PayableController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(PayableController.class);
     @Autowired
-    private PayeeService payeeService;
-    @Autowired
     private PayableService payableService;
+    @Autowired
+    private PayeeService payeeService;
 
     @RequestMapping("/payableList")
     public String loadList(Model model) {
@@ -49,7 +48,9 @@ public class PayableController {
             model.addAttribute("payable", payable);
             return "payableView";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
+            String msg = String.format(NOT_FOUND_ERROR, "Payable", payableId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/payableList";
         }
     }
@@ -73,7 +74,9 @@ public class PayableController {
             model.addAttribute("payableForm", payableForm);
             return "payableEdit";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payable", payableId));
+            String msg = String.format(NOT_FOUND_ERROR, "Payable", payableId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/payableList";
         }
     }
@@ -96,8 +99,9 @@ public class PayableController {
             redirectAttributes.addAttribute("payableId", save.getId());
             return "redirect:/payable?payableId={payableId}";
         } catch (JunkOptimisticLockingException e) {
-            redirectAttributes
-                    .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payable", payableId));
+            String msg = String.format(OPTIMISTIC_LOCK_ERROR, "Payable", payableId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             redirectAttributes.addAttribute("payableId", payableId);
             return "redirect:/payable?payableId={payableId}";
         }

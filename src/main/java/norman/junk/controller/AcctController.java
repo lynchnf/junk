@@ -44,13 +44,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import static norman.junk.controller.MessagesConstants.NOT_FOUND_ERROR;
 import static norman.junk.controller.MessagesConstants.OPTIMISTIC_LOCK_ERROR;
+import static norman.junk.controller.MessagesConstants.RECONCILE_ERROR;
 import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_ADDED;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_RECONCILED;
 import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPLOADED_TRANS;
 import static norman.junk.controller.MessagesConstants.UNEXPECTED_ERROR;
+import static norman.junk.controller.MessagesConstants.UPLOADED_FILE_NOT_FOUND_ERROR;
+import static norman.junk.controller.MessagesConstants.UPLOADED_FILE_READ_ERROR;
 
 @Controller
 public class AcctController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(AcctController.class);
     @Autowired
     private AcctService acctService;
@@ -79,7 +83,9 @@ public class AcctController {
             model.addAttribute("tranBalances", tranBalances);
             return "acctView";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Acct", acctId));
+            String msg = String.format(NOT_FOUND_ERROR, "Acct", acctId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/acctList";
         }
     }
@@ -100,7 +106,9 @@ public class AcctController {
             model.addAttribute("acctForm", acctForm);
             return "acctEdit";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Acct", acctId));
+            String msg = String.format(NOT_FOUND_ERROR, "Acct", acctId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/acctList";
         }
     }
@@ -129,41 +137,108 @@ public class AcctController {
             acct.getAcctNbrs().add(acctNbr);
         }
         // ... and save.
-        Acct save;
+        Acct save = null;
         try {
             save = acctService.saveAcct(acct);
-            String successMessage = String.format(SUCCESSFULLY_ADDED, "Acct", save.getId());
-            if (acctId != null)
-                successMessage = String.format(SUCCESSFULLY_UPDATED, "Acct", save.getId());
-            redirectAttributes.addFlashAttribute("successMessage", successMessage);
-            redirectAttributes.addAttribute("acctId", save.getId());
         } catch (JunkOptimisticLockingException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Acct", acctId));
-            redirectAttributes.addAttribute("acctId", acctId);
-            return "redirect:/acct?acctId={acctId}";
+            // FIXME Unhandled JunkOptimisticLockingException for Acct
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-01: " + e.getMessage(), e);
         }
+        String successMessage = String.format(SUCCESSFULLY_ADDED, "Acct", save.getId());
+        if (acctId != null)
+            successMessage = String.format(SUCCESSFULLY_UPDATED, "Acct", save.getId());
+        redirectAttributes.addFlashAttribute("successMessage", successMessage);
+        redirectAttributes.addAttribute("acctId", save.getId());
         // If no data file id, we're done.
         if (acctForm.getDataFileId() == null)
             return "redirect:/acct?acctId={acctId}";
         // If we have a data file id, then we're trying to parse a data file and save it into a new or existing account
         // and into new transactions.
         //
-        // Verify existing data file still exists.
+        // Update the status of the data file to say we saved the account.
         Long dataFileId = acctForm.getDataFileId();
+        DataFile dataFile = null;
         try {
-            DataFile dataFile = dataFileService.findDataFileById(dataFileId);
-            // Update the status of the data file to say we saved the account.
-            dataFile.setStatus(DataFileStatus.ACCT_SAVED);
-            dataFile = dataFileService.saveDataFile(dataFile);
-            // If data file will not parse, we gots an error.
-            OfxParseResponse response = ofxParseService.parseUploadedFile(dataFile);
-            // Save the new transactions.
-            saveTrans(save, dataFile, response, acctService, dataFileService, redirectAttributes);
-            return "redirect:/";
-        } catch (JunkNotFoundException | JunkOptimisticLockingException | JunkOfxParseException e) {
+            dataFile = dataFileService.findDataFileById(dataFileId);
+        } catch (JunkNotFoundException e) {
+            // FIXME Unhandled JunkNotFoundException for DataFile
             logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-02: " + e.getMessage(), e);
         }
+        dataFile.setStatus(DataFileStatus.ACCT_SAVED);
+        try {
+            dataFile = dataFileService.saveDataFile(dataFile);
+        } catch (JunkOptimisticLockingException e) {
+            // FIXME Unhandled JunkOptimisticLockingException for DataFile
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-03: " + e.getMessage(), e);
+        }
+        // ************************************************************************************************************
+        //
+        // Parse the data file.
+        OfxParseResponse response = null;
+        try {
+            response = ofxParseService.parseUploadedFile(dataFile);
+        } catch (JunkOfxParseException e) {
+            // FIXME Unhandled JunkOfxParseException for DataFile
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-04: " + e.getMessage(), e);
+        }
+        // The OFX file downloaded from the bank should never, ever have duplicate entries, but guess what!
+        // Sometime it does! Now we have to guard against that.
+        Map<String, OfxStmtTran> ofxStmtTranMap = new LinkedHashMap<>();
+        for (OfxStmtTran ofxStmtTran : response.getOfxStmtTrans()) {
+            String fitId = StringUtils.trimToNull(ofxStmtTran.getFitId());
+            if (fitId != null)
+                ofxStmtTranMap.put(fitId, ofxStmtTran);
+        }
+        int count = 0;
+        for (OfxStmtTran ofxStmtTran : ofxStmtTranMap.values()) {
+            List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
+            if (trans.size() > 1) {
+                // FIXME Unhandled Bad Thing.
+                throw new JunkInconceivableException(UNEXPECTED_ERROR + "-05");
+            }
+            if (trans.size() == 0 && (ofxStmtTran.getPostDate().equals(acct.getBeginDate()) ||
+                    ofxStmtTran.getPostDate().after(acct.getBeginDate()))) {
+                Tran tran = new Tran();
+                tran.setType(ofxStmtTran.getType());
+                tran.setPostDate(ofxStmtTran.getPostDate());
+                tran.setUserDate(ofxStmtTran.getUserDate());
+                tran.setAmount(ofxStmtTran.getAmount());
+                tran.setFitId(StringUtils.trimToNull(ofxStmtTran.getFitId()));
+                tran.setSic(StringUtils.trimToNull(ofxStmtTran.getSic()));
+                tran.setCheckNumber(StringUtils.trimToNull(ofxStmtTran.getCheckNumber()));
+                tran.setCorrectFitId(StringUtils.trimToNull(ofxStmtTran.getCorrectFitId()));
+                tran.setCorrectAction(ofxStmtTran.getCorrectAction());
+                tran.setName(StringUtils.trimToNull(ofxStmtTran.getName()));
+                tran.setOfxCategory(StringUtils.trimToNull(ofxStmtTran.getCategory()));
+                tran.setMemo(StringUtils.trimToNull(ofxStmtTran.getMemo()));
+                tran.setReconciled(Boolean.FALSE);
+                tran.setAcct(acct);
+                acct.getTrans().add(tran);
+                count++;
+            }
+        }
+        try {
+            acctService.saveAcct(acct);
+        } catch (JunkOptimisticLockingException e) {
+            // FIXME Unhandled JunkOptimisticLockingException for Acct
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-06: " + e.getMessage(), e);
+        }
+        dataFile.setStatus(DataFileStatus.TRAN_SAVED);
+        try {
+            dataFileService.saveDataFile(dataFile);
+        } catch (JunkOptimisticLockingException e) {
+            // FIXME Unhandled JunkOptimisticLockingException for DataFile
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-07: " + e.getMessage(), e);
+        }
+        successMessage = String.format(SUCCESSFULLY_UPLOADED_TRANS, count, acct.getId());
+        redirectAttributes.addFlashAttribute("successMessage", successMessage);
+        return "redirect:/";
     }
 
     @GetMapping("/acctUpload")
@@ -173,29 +248,45 @@ public class AcctController {
         // A data file has been uploaded and the application could not determine which account it belongs to, so we
         // showed the user a page where he made that decision. Now we need to load the account edit page so the user can
         // save the account and continue to parse the data file.
+        DataFile dataFile = null;
         try {
-            DataFile dataFile = dataFileService.findDataFileById(dataFileId);
-            // If data file will not parse, we gots an error.
-            OfxParseResponse response = ofxParseService.parseUploadedFile(dataFile);
-            // If no account id, new account.
-            if (acctId == null) {
-                AcctForm acctForm = new AcctForm(response);
-                acctForm.setDataFileId(dataFile.getId());
-                model.addAttribute("acctForm", acctForm);
-                return "acctEdit";
-            }
-            // Otherwise, edit existing acount.
-            Acct acct = acctService.findAcctById(acctId);
-            AcctNbr currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
-            AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
-            acctForm.setNumber(response.getOfxAcct().getAcctId());
+            dataFile = dataFileService.findDataFileById(dataFileId);
+        } catch (JunkNotFoundException e) {
+            // FIXME Unhandled JunkNotFoundException for DataFile
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-11: " + e.getMessage(), e);
+        }
+        // If data file will not parse, we gots an error.
+        OfxParseResponse response = null;
+        try {
+            response = ofxParseService.parseUploadedFile(dataFile);
+        } catch (JunkOfxParseException e) {
+            // FIXME Unhandled JunkOfxParseException for DataFile
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-12: " + e.getMessage(), e);
+        }
+        // If no account id, new account.
+        if (acctId == null) {
+            AcctForm acctForm = new AcctForm(response);
             acctForm.setDataFileId(dataFile.getId());
             model.addAttribute("acctForm", acctForm);
             return "acctEdit";
-        } catch (JunkNotFoundException | JunkOfxParseException e) {
-            logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
         }
+        // Otherwise, edit existing acount.
+        Acct acct = null;
+        try {
+            acct = acctService.findAcctById(acctId);
+        } catch (JunkNotFoundException e) {
+            // FIXME Unhandled JunkNotFoundException for Acct
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-13: " + e.getMessage(), e);
+        }
+        AcctNbr currentAcctNbr = acctService.findCurrentAcctNbrByAcctId(acct.getId());
+        AcctForm acctForm = new AcctForm(acct, currentAcctNbr);
+        acctForm.setNumber(response.getOfxAcct().getAcctId());
+        acctForm.setDataFileId(dataFile.getId());
+        model.addAttribute("acctForm", acctForm);
+        return "acctEdit";
     }
 
     @PostMapping("/dataFileUpload")
@@ -203,7 +294,8 @@ public class AcctController {
             RedirectAttributes redirectAttributes) {
         // Part 1: Upload a file, read it, and save it in a data file database entity.
         if (multipartFile.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Upload file is empty or missing.");
+            // No need to log this. I press UPLOAD without selecting a file all the time.
+            redirectAttributes.addFlashAttribute("errorMessage", UPLOADED_FILE_NOT_FOUND_ERROR);
             return "redirect:/";
         }
         // Try to upload the file and save it to the database.
@@ -225,27 +317,35 @@ public class AcctController {
                 dataFile.getDataLines().add(dataLine);
             }
         } catch (IOException e) {
-            String errorMessage = "Error while reading from uploaded file " + multipartFile.getOriginalFilename() + ".";
-            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-            logger.error(errorMessage, e);
+            String msg = String.format(UPLOADED_FILE_READ_ERROR, multipartFile.getOriginalFilename());
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/";
         }
         try {
             dataFile = dataFileService.saveDataFile(dataFile);
         } catch (JunkOptimisticLockingException e) {
+            // FIXME Unhandled JunkOptimisticLockingException for DataFile
             logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-21: " + e.getMessage(), e);
         }
         //
         // Part 2: Parse the data file.
-        OfxParseResponse response;
+        OfxParseResponse response = null;
         try {
             response = ofxParseService.parseUploadedFile(dataFile);
-            dataFile.setStatus(DataFileStatus.PARSED);
-            dataFile = dataFileService.saveDataFile(dataFile);
-        } catch (JunkOfxParseException | JunkOptimisticLockingException e) {
+        } catch (JunkOfxParseException e) {
+            // FIXME Unhandled JunkOfxParseException for DataFile
             logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-22: " + e.getMessage(), e);
+        }
+        dataFile.setStatus(DataFileStatus.PARSED);
+        try {
+            dataFile = dataFileService.saveDataFile(dataFile);
+        } catch (JunkOptimisticLockingException e) {
+            // FIXME Unhandled JunkOptimisticLockingException for DataFile
+            logger.error(UNEXPECTED_ERROR, e);
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-23: " + e.getMessage(), e);
         }
         //
         // Part 3: Save the parsed data.
@@ -267,15 +367,65 @@ public class AcctController {
         // If we found exactly one account, save the new transactions.
         if (acctMap.size() == 1) {
             Acct acct = acctMap.values().iterator().next();
-            saveTrans(acct, dataFile, response, acctService, dataFileService, redirectAttributes);
+            // The OFX file downloaded from the bank should never, ever have duplicate entries, but guess what!
+            // Sometime it does! Now we have to guard against that.
+            Map<String, OfxStmtTran> ofxStmtTranMap = new LinkedHashMap<>();
+            for (OfxStmtTran ofxStmtTran : response.getOfxStmtTrans()) {
+                String fitId = StringUtils.trimToNull(ofxStmtTran.getFitId());
+                if (fitId != null)
+                    ofxStmtTranMap.put(fitId, ofxStmtTran);
+            }
+            int count = 0;
+            for (OfxStmtTran ofxStmtTran : ofxStmtTranMap.values()) {
+                List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
+                if (trans.size() > 1) {
+                    // FIXME Unhandled Bad Thing.
+                    throw new JunkInconceivableException(UNEXPECTED_ERROR + "-24");
+                }
+                if (trans.size() == 0 && (ofxStmtTran.getPostDate().equals(acct.getBeginDate()) ||
+                        ofxStmtTran.getPostDate().after(acct.getBeginDate()))) {
+                    Tran tran = new Tran();
+                    tran.setType(ofxStmtTran.getType());
+                    tran.setPostDate(ofxStmtTran.getPostDate());
+                    tran.setUserDate(ofxStmtTran.getUserDate());
+                    tran.setAmount(ofxStmtTran.getAmount());
+                    tran.setFitId(StringUtils.trimToNull(ofxStmtTran.getFitId()));
+                    tran.setSic(StringUtils.trimToNull(ofxStmtTran.getSic()));
+                    tran.setCheckNumber(StringUtils.trimToNull(ofxStmtTran.getCheckNumber()));
+                    tran.setCorrectFitId(StringUtils.trimToNull(ofxStmtTran.getCorrectFitId()));
+                    tran.setCorrectAction(ofxStmtTran.getCorrectAction());
+                    tran.setName(StringUtils.trimToNull(ofxStmtTran.getName()));
+                    tran.setOfxCategory(StringUtils.trimToNull(ofxStmtTran.getCategory()));
+                    tran.setMemo(StringUtils.trimToNull(ofxStmtTran.getMemo()));
+                    tran.setReconciled(Boolean.FALSE);
+                    tran.setAcct(acct);
+                    acct.getTrans().add(tran);
+                    count++;
+                }
+            }
+            try {
+                acctService.saveAcct(acct);
+            } catch (JunkOptimisticLockingException e) {
+                // FIXME Unhandled JunkOptimisticLockingException for Acct
+                logger.error(UNEXPECTED_ERROR, e);
+                throw new JunkInconceivableException(UNEXPECTED_ERROR + "-25: " + e.getMessage(), e);
+            }
+            dataFile.setStatus(DataFileStatus.TRAN_SAVED);
+            try {
+                dataFileService.saveDataFile(dataFile);
+            } catch (JunkOptimisticLockingException e) {
+                // FIXME Unhandled JunkOptimisticLockingException for DataFile
+                logger.error(UNEXPECTED_ERROR, e);
+                throw new JunkInconceivableException(UNEXPECTED_ERROR + "-26: " + e.getMessage(), e);
+            }
+            String successMessage = String.format(SUCCESSFULLY_UPLOADED_TRANS, count, acct.getId());
+            redirectAttributes.addFlashAttribute("successMessage", successMessage);
             return "redirect:/";
         }
         if (acctMap.size() > 1) {
             // If we found multiple accounts, things are really fucked up.
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "UNEXPECTED ERROR: Multiple Account Records found for fid=\"" + ofxFid + "\", number=\"" +
-                            ofxAcctId + "\"");
-            return "redirect:/";
+            // FIXME Unhandled Bad Thing.
+            throw new JunkInconceivableException(UNEXPECTED_ERROR + "-27");
         }
         // Otherwise, we found no account number records. Try again using just the financial institution id.
         List<Acct> acctsByFid = acctService.findAcctsByFid(ofxFid);
@@ -311,8 +461,10 @@ public class AcctController {
             model.addAttribute("acctReconcileForm", acctReconcileForm);
             return "acctReconcile";
         } catch (JunkNotFoundException e) {
-            logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            String msg = String.format(NOT_FOUND_ERROR, "Acct", acctId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+            return "redirect:/acctList";
         }
     }
 
@@ -323,12 +475,6 @@ public class AcctController {
             return "acctReconcile";
         }
         Long acctId = acctReconcileForm.getAcctId();
-        if (acctId == null) {
-            String msg = "Account Id is null when reconciling an Account";
-            redirectAttributes.addFlashAttribute("errorMessage", "UNEXPECTED ERROR: " + msg);
-            logger.error(msg);
-            return "redirect:/";
-        }
         try {
             Acct acct = acctService.findAcctById(acctId);
             BigDecimal balance = acct.getBeginBalance();
@@ -344,8 +490,7 @@ public class AcctController {
             }
             BigDecimal reconcileAmount = acctReconcileForm.getReconcileAmount();
             if (balance.compareTo(reconcileAmount) != 0) {
-                String errorMessage = String
-                        .format("Account not able to reconciled, difference=%.2f", balance.subtract(reconcileAmount));
+                String errorMessage = String.format(RECONCILE_ERROR, balance.subtract(reconcileAmount));
                 redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
                 redirectAttributes.addAttribute("acctId", acctId);
                 return "redirect:/acct?acctId={acctId}";
@@ -354,68 +499,20 @@ public class AcctController {
                 reconcileMe.setReconciled(Boolean.TRUE);
             }
             Iterable<Tran> saveAll = tranService.saveAllTrans(reconcileUs);
-            String successMessage = "Account successfully reconciled, acctId=\"" + acctId + "\"";
-            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+            redirectAttributes.addFlashAttribute("successMessage", String.format(SUCCESSFULLY_RECONCILED, acctId));
             redirectAttributes.addAttribute("acctId", acctId);
             return "redirect:/acct?acctId={acctId}";
-        } catch (JunkNotFoundException | JunkOptimisticLockingException e) {
-            logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
-        }
-    }
-
-    private void saveTrans(Acct acct, DataFile dataFile, OfxParseResponse response, AcctService acctService,
-            DataFileService dataFileService, RedirectAttributes redirectAttributes) {
-        // The OFX file downloaded from the bank should never, ever have duplicate entries, but guess what!
-        // Sometime it does! Now we have to guard against that.
-        Map<String, OfxStmtTran> ofxStmtTranMap = new LinkedHashMap<>();
-        for (OfxStmtTran ofxStmtTran : response.getOfxStmtTrans()) {
-            String fitId = StringUtils.trimToNull(ofxStmtTran.getFitId());
-            if (fitId != null)
-                ofxStmtTranMap.put(fitId, ofxStmtTran);
-        }
-        int count = 0;
-        for (OfxStmtTran ofxStmtTran : ofxStmtTranMap.values()) {
-            List<Tran> trans = acctService.findTransByAcctIdAndFitId(acct.getId(), ofxStmtTran.getFitId());
-            if (trans.size() > 1) {
-                String errorMessage =
-                        "UNEXPECTED ERROR: Multiple transactions found for acctId=\"" + acct.getId() + ", fitId=\"" +
-                                ofxStmtTran.getFitId() + "\"";
-                logger.error(errorMessage);
-                redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
-                return;
-            }
-            if (trans.size() == 0 && (ofxStmtTran.getPostDate().equals(acct.getBeginDate()) ||
-                    ofxStmtTran.getPostDate().after(acct.getBeginDate()))) {
-                Tran tran = new Tran();
-                tran.setType(ofxStmtTran.getType());
-                tran.setPostDate(ofxStmtTran.getPostDate());
-                tran.setUserDate(ofxStmtTran.getUserDate());
-                tran.setAmount(ofxStmtTran.getAmount());
-                tran.setFitId(StringUtils.trimToNull(ofxStmtTran.getFitId()));
-                tran.setSic(StringUtils.trimToNull(ofxStmtTran.getSic()));
-                tran.setCheckNumber(StringUtils.trimToNull(ofxStmtTran.getCheckNumber()));
-                tran.setCorrectFitId(StringUtils.trimToNull(ofxStmtTran.getCorrectFitId()));
-                tran.setCorrectAction(ofxStmtTran.getCorrectAction());
-                tran.setName(StringUtils.trimToNull(ofxStmtTran.getName()));
-                tran.setOfxCategory(StringUtils.trimToNull(ofxStmtTran.getCategory()));
-                tran.setMemo(StringUtils.trimToNull(ofxStmtTran.getMemo()));
-                tran.setReconciled(Boolean.FALSE);
-                tran.setAcct(acct);
-                acct.getTrans().add(tran);
-                count++;
-            }
-        }
-        try {
-            acctService.saveAcct(acct);
-            dataFile.setStatus(DataFileStatus.TRAN_SAVED);
-            dataFileService.saveDataFile(dataFile);
-            String successMessage =
-                    "Account successfully updated with " + count + " transactions, acctId=\"" + acct.getId() + "\"";
-            redirectAttributes.addFlashAttribute("successMessage", successMessage);
+        } catch (JunkNotFoundException e) {
+            String msg = String.format(NOT_FOUND_ERROR, "Account", acctId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+            return "redirect:/acctList";
         } catch (JunkOptimisticLockingException e) {
-            logger.error(UNEXPECTED_ERROR, e);
-            throw new JunkInconceivableException(UNEXPECTED_ERROR + ": " + e.getMessage());
+            String msg = String.format(OPTIMISTIC_LOCK_ERROR, "Account", acctId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+            redirectAttributes.addAttribute("acctId", acctId);
+            return "redirect:/acct?acctId={acctId}";
         }
     }
 }

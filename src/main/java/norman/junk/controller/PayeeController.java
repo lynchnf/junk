@@ -24,7 +24,6 @@ import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED;
 
 @Controller
 public class PayeeController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(PayeeController.class);
     @Autowired
     private PayeeService payeeService;
@@ -43,7 +42,9 @@ public class PayeeController {
             model.addAttribute("payee", payee);
             return "payeeView";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payee", payeeId));
+            String msg = String.format(NOT_FOUND_ERROR, "Payee", payeeId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/payeeList";
         }
     }
@@ -63,7 +64,9 @@ public class PayeeController {
             model.addAttribute("payeeForm", payeeForm);
             return "payeeEdit";
         } catch (JunkNotFoundException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", String.format(NOT_FOUND_ERROR, "Payee", payeeId));
+            String msg = String.format(NOT_FOUND_ERROR, "Payee", payeeId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             return "redirect:/payeeList";
         }
     }
@@ -86,8 +89,9 @@ public class PayeeController {
             redirectAttributes.addAttribute("payeeId", save.getId());
             return "redirect:/payee?payeeId={payeeId}";
         } catch (JunkOptimisticLockingException e) {
-            redirectAttributes
-                    .addFlashAttribute("errorMessage", String.format(OPTIMISTIC_LOCK_ERROR, "Payee", payeeId));
+            String msg = String.format(OPTIMISTIC_LOCK_ERROR, "Payee", payeeId);
+            logger.warn(msg, e);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
             redirectAttributes.addAttribute("payeeId", payeeId);
             return "redirect:/payee?payeeId={payeeId}";
         }
