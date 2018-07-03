@@ -1,13 +1,13 @@
 package norman.junk.controller;
 
-import java.util.Random;
+import norman.junk.FakeDataUtil;
 import norman.junk.domain.Payee;
 import norman.junk.service.PayeeService;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.core.StringContains;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,11 +21,22 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @RunWith(SpringRunner.class)
 @WebMvcTest(PayeeController.class)
 public class PayeeControllerTest {
-    private final Random random = new Random();
+    private Long payee1Id;
+    private Payee payee1;
+    private String payee1Name;
+    private String payee1Number;
     @Autowired
     private MockMvc mockMvc;
     @MockBean
     private PayeeService payeeService;
+
+    @Before
+    public void setUp() throws Exception {
+        payee1Id = Long.valueOf(1);
+        payee1 = FakeDataUtil.buildPayee(1);
+        payee1Name = payee1.getName();
+        payee1Number = payee1.getNumber();
+    }
 
     @Test
     public void loadList() throws Exception {
@@ -37,39 +48,35 @@ public class PayeeControllerTest {
 
     @Test
     public void loadView() throws Exception {
-        Payee payee = buildExistingPayee();
-        BDDMockito.given(payeeService.findPayeeById(payee.getId())).willReturn(payee);
+        Mockito.when(payeeService.findPayeeById(payee1Id)).thenReturn(payee1);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payee").param("payeeId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("payeeView"));
-        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payee.getName())));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payee1Name)));
     }
 
     @Test
     public void loadEdit() throws Exception {
-        Payee payee = buildExistingPayee();
-        BDDMockito.given(payeeService.findPayeeById(payee.getId())).willReturn(payee);
+        Mockito.when(payeeService.findPayeeById(payee1Id)).thenReturn(payee1);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/payeeEdit").param("payeeId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("payeeEdit"));
-        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payee.getName())));
+        resultActions.andExpect(MockMvcResultMatchers.content().string(StringContains.containsString(payee1Name)));
     }
 
     @Test
-    public void processEdit() {
-        // TODO Write test.
-    }
-
-    private Payee buildExistingPayee() {
-        Long payeeId = Long.valueOf(1);
-        String payeeName = RandomStringUtils.randomAlphabetic(50);
-        String number = RandomStringUtils.randomNumeric(50);
-        Payee payee = new Payee();
-        payee.setId(payeeId);
-        payee.setName(payeeName);
-        payee.setNumber(number);
-        return payee;
+    public void processEdit() throws Exception {
+        Mockito.when(payeeService.savePayee(Mockito.any())).thenReturn(payee1);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/payeeEdit")
+                .param("id", payee1Id.toString()).param("version", "0").param("name", payee1Name)
+                .param("number", payee1Number);
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+        resultActions.andExpect(MockMvcResultMatchers.status().isFound());
+        resultActions.andExpect(MockMvcResultMatchers.view().name("redirect:/payee?payeeId={payeeId}"));
+        resultActions.andExpect(MockMvcResultMatchers.model().attribute("payeeId", "1"));
+        resultActions.andExpect(
+                MockMvcResultMatchers.flash().attribute("successMessage", StringContains.containsString("id=1")));
     }
 }

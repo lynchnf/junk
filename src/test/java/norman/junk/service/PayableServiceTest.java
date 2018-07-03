@@ -4,13 +4,15 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import norman.junk.FakeDataUtil;
+import norman.junk.JunkNotFoundException;
+import norman.junk.JunkOptimisticLockingException;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
 import norman.junk.domain.Payment;
 import norman.junk.repository.PayableRepository;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,13 +21,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 public class PayableServiceTest {
     private Random random = new Random();
+    private Long payable1Id;
+    private Long payable2Id;
+    private Payee payee1;
+    private Payable payable1;
+    private BigDecimal payable1AmountDue;
 
     @TestConfiguration
     static class PayableServiceTestConfiguration {
@@ -42,22 +52,52 @@ public class PayableServiceTest {
 
     @Before
     public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
+        payable1Id = Long.valueOf(1);
+        payable2Id = Long.valueOf(2);
+        payee1 = FakeDataUtil.buildPayee(1);
+        payable1 = FakeDataUtil.buildPayable(payee1, 1, null);
+        payable1AmountDue = payable1.getAmountDue();
     }
 
     @Test
     public void findAllPayables() {
+        Mockito.when(payableRepository.findAll()).thenReturn(new ArrayList<>());
+        Iterable<Payable> payables = payableService.findAllPayables();
+        assertFalse(payables.iterator().hasNext());
     }
 
     @Test
-    public void findPayableById() {
+    public void findPayableById() throws Exception {
+        Mockito.when(payableRepository.findById(payable1Id)).thenReturn(Optional.of(payable1));
+        Payable payable = payableService.findPayableById(payable1Id);
+        assertEquals(0, payable1AmountDue.compareTo(payable.getAmountDue()));
     }
 
     @Test
-    public void savePayable() {
+    public void findPayableByIdNotFound() {
+        Mockito.when(payableRepository.findById(payable2Id)).thenReturn(Optional.empty());
+        try {
+            Payable payable = payableService.findPayableById(payable2Id);
+            fail();
+        } catch (JunkNotFoundException e) {
+        }
+    }
+
+    @Test
+    public void savePayable() throws Exception {
+        Mockito.when(payableRepository.save(payable1)).thenReturn(payable1);
+        Payable payable = payableService.savePayable(payable1);
+        assertEquals(0, payable1AmountDue.compareTo(payable.getAmountDue()));
+    }
+
+    @Test
+    public void savePayableOptimisticLocking() {
+        Mockito.when(payableRepository.save(payable1)).thenThrow(ObjectOptimisticLockingFailureException.class);
+        try {
+            Payable payable = payableService.savePayable(payable1);
+            fail();
+        } catch (JunkOptimisticLockingException e) {
+        }
     }
 
     @Test

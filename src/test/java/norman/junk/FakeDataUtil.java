@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import norman.junk.domain.Acct;
+import norman.junk.domain.AcctNbr;
+import norman.junk.domain.AcctType;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
 import norman.junk.domain.Payment;
@@ -19,14 +22,25 @@ import org.slf4j.LoggerFactory;
 public class FakeDataUtil {
     private static final Logger logger = LoggerFactory.getLogger(FakeDataUtil.class);
     private static Random random = new Random();
+    private static final int NBR_OF_ACCTS = 3;
+    private static final String[] ACCT_NAME_PART_1 = {"Abominable", "Bulimic", "Cosmic", "Desperate", "Evil", "Funky",
+            "Ginormous", "Hungry", "Interstellar", "Jurassic"};
+    private static final String[] ACCT_NAME_PART_2 = {"Bank", "Credit Union", "Countinghouse", "Finance Corp", "Fund",
+            "Investments", "Saving & Loan", "Thrift", "Treasury", "Trust"};
+    private static final int ACCT_BEGIN_DAYS_AGO = 30;
+    private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `credit_limit`, `name`, `type`, `version`) VALUES (%.2f,'%tF',%.2f,'%s','%s',0);%n";
+
+    private static final String INSERT_INTO_ACCT_NBR = "INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
+
+
     private static final int NBR_OF_PAYEES = 5;
     private static final String[] PAYEE_NAME_PART_1 = {"Kick-ass", "Ludicrous", "Malevolent", "Nuclear", "Obsequious",
             "Pedantic", "Quiescent", "Recalcitrant", "Sleazy", "Taciturn"};
     private static final String[] PAYEE_NAME_PART_2 = {"Cable TV", "Credit Card", "Gas", "Gym", "Insurance",
-            "Lawn Service", "Mortgage", "Power", "Subscription Service", "Water & Sewer"};
+            "Lawn Service", "Mortgage", "Power", "Subscription Service", "Water and Sewer"};
     private static final String INSERT_INTO_PAYEE = "INSERT INTO `payee` (`name`, `number`, `version`) VALUES ('%s','%s',0);%n";
     private static final int NBR_OF_PAYABLES = 7;
-    private static final int PAYABLES_BEGIN_DAYS_AGO = 17;
+    private static final int PAYABLE_BEGIN_DAYS_AGO = 17;
     private static final int DAYS_BETWEEN_PAYABLES = 7;
     private static final String INSERT_INTO_PAYABLE = "INSERT INTO `payable` (`amount_due`, `due_date`, `version`, `payee_id`) VALUES (%.2f,'%tF',0,(SELECT `id` FROM `payee` WHERE `name` = '%s'));%n";
     private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`due_date` = '%tF' AND b.`name` = '%s'));%n";
@@ -36,12 +50,22 @@ public class FakeDataUtil {
 
     public static void main(String[] args) {
         logger.debug("Starting FakeDataUtil");
+        long acctId = 1;
+        long acctNbrId = 1;
+        Set<String> uniqueAcctNames = new HashSet<>();
+        for (int i = 0; i< NBR_OF_ACCTS; i++) {
+            Acct acct = buildAcct(acctId++, uniqueAcctNames);
+            System.out.printf(INSERT_INTO_ACCT, acct.getBeginBalance(), acct.getBeginDate(), acct.getCreditLimit(),acct.getName(),acct.getType());
+            AcctNbr acctNbr = buildAcctNbr(acct, acctNbrId++);
+            System.out.printf(INSERT_INTO_ACCT_NBR, acctNbr.getEffDate(),acctNbr.getNumber(),acct.getName());
+        }
+
         long payeeId = 1;
         long payableId = 1;
         long paymentId = 1;
-        Set<String> uniqueNames = new HashSet<>();
+        Set<String> uniquePayeeNames = new HashSet<>();
         for (int i = 0; i < NBR_OF_PAYEES; i++) {
-            Payee payee = buildPayee(payeeId++, uniqueNames);
+            Payee payee = buildPayee(payeeId++, uniquePayeeNames);
             System.out.printf(INSERT_INTO_PAYEE, payee.getName(), payee.getNumber());
             //
             Date previousDueDate = null;
@@ -75,6 +99,48 @@ public class FakeDataUtil {
         }
         logger.debug("Finished FakeDataUtil");
     }
+    public static Acct buildAcct(long id, Set<String> uniqueNames) {
+        String name;
+        do {
+             name = ACCT_NAME_PART_1[random.nextInt(ACCT_NAME_PART_1.length)] + " " +
+                    ACCT_NAME_PART_2[random.nextInt(ACCT_NAME_PART_2.length)];
+
+        } while (uniqueNames.contains(name));
+        uniqueNames.add(name);
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.add(Calendar.DATE, ACCT_BEGIN_DAYS_AGO * -1);
+        Date beginDate = cal.getTime();
+
+        BigDecimal beginBalance = BigDecimal.valueOf(random.nextInt(100000), 2);
+        BigDecimal creditLimit = BigDecimal.valueOf(100000, 2);
+        AcctType acctType = AcctType.values()[random.nextInt(AcctType.values().length)];
+        if (acctType == AcctType.CC) {
+            beginBalance = BigDecimal.ZERO.subtract(beginBalance);
+            creditLimit = BigDecimal.ZERO.subtract(creditLimit);
+        }
+        Acct acct = new Acct();
+        acct.setId(id);
+        acct.setName(name);
+        acct.setBeginDate(beginDate);
+        acct.setBeginBalance(beginBalance);
+        acct.setCreditLimit(creditLimit);
+        acct.setType(acctType);
+        return acct;
+    }
+
+    public static AcctNbr buildAcctNbr(Acct acct, long id) {
+        AcctNbr acctNbr = new AcctNbr();
+        acctNbr.setId(id);
+        acctNbr.setNumber(RandomStringUtils.randomNumeric(12));
+        acctNbr.setEffDate(acct.getBeginDate());
+        acctNbr.setAcct(acct);
+        acct.getAcctNbrs().add(acctNbr);
+        return acctNbr;
+    }
 
     public static Payee buildPayee(long id) {
         Set<String> uniqueNames = new HashSet<>();
@@ -104,7 +170,7 @@ public class FakeDataUtil {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MINUTE, 0);
             cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.add(Calendar.DATE, PAYABLES_BEGIN_DAYS_AGO * -1);
+            cal.add(Calendar.DATE, PAYABLE_BEGIN_DAYS_AGO * -1);
             cal.add(Calendar.DATE, random.nextInt(DAYS_BETWEEN_PAYABLES));
         } else {
             cal.setTime(previousDueDate);
