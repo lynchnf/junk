@@ -12,10 +12,15 @@ import java.util.Set;
 import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.AcctType;
+import norman.junk.domain.Category;
+import norman.junk.domain.Pattern;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
 import norman.junk.domain.Payment;
+import norman.junk.domain.Tran;
+import norman.junk.domain.TranType;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,37 +34,53 @@ public class FakeDataUtil {
             "Investments", "Saving & Loan", "Thrift", "Treasury", "Trust"};
     private static final int ACCT_BEGIN_DAYS_AGO = 30;
     private static final String INSERT_INTO_ACCT = "INSERT INTO `acct` (`begin_balance`, `begin_date`, `credit_limit`, `name`, `type`, `version`) VALUES (%.2f,'%tF',%.2f,'%s','%s',0);%n";
-
     private static final String INSERT_INTO_ACCT_NBR = "INSERT INTO `acct_nbr` (`eff_date`, `number`, `version`, `acct_id`) VALUES ('%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
-
-
+    private static final int MAX_DAYS_BETWEEN_TRANS = 5;
+    private static final int CHECKS_ARE_ONE_IN = 3;
+    private static final String INSERT_INTO_TRAN = "INSERT INTO `tran` (`amount`, `check_number`, `name`, `post_date`, `type`, `version`, `acct_id`) VALUES (%.2f,%s,'%s','%tF','%s',0,(SELECT `id` FROM `acct` WHERE `name` = '%s'));%n";
     private static final int NBR_OF_PAYEES = 5;
     private static final String[] PAYEE_NAME_PART_1 = {"Kick-ass", "Ludicrous", "Malevolent", "Nuclear", "Obsequious",
             "Pedantic", "Quiescent", "Recalcitrant", "Sleazy", "Taciturn"};
     private static final String[] PAYEE_NAME_PART_2 = {"Cable TV", "Credit Card", "Gas", "Gym", "Insurance",
             "Lawn Service", "Mortgage", "Power", "Subscription Service", "Water and Sewer"};
     private static final String INSERT_INTO_PAYEE = "INSERT INTO `payee` (`name`, `number`, `version`) VALUES ('%s','%s',0);%n";
-    private static final int NBR_OF_PAYABLES = 7;
     private static final int PAYABLE_BEGIN_DAYS_AGO = 17;
     private static final int DAYS_BETWEEN_PAYABLES = 7;
     private static final String INSERT_INTO_PAYABLE = "INSERT INTO `payable` (`amount_due`, `due_date`, `version`, `payee_id`) VALUES (%.2f,'%tF',0,(SELECT `id` FROM `payee` WHERE `name` = '%s'));%n";
     private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`due_date` = '%tF' AND b.`name` = '%s'));%n";
+    private static final int NBR_OF_CATEGORIES = 10;
+    private static final String INSERT_INTO_CATEGORY = "INSERT INTO `category` (`name`, `version`) VALUES ('%s',0);%n";
+    private static final String INSERT_INTO_PATTERN = "INSERT INTO `pattern` (`seq`, `tran_name`, `version`, `category_id`) VALUES (%d,'%s',0,(SELECT `id` FROM `category` WHERE `name` = '%s'));%n";
 
     private FakeDataUtil() {
     }
 
     public static void main(String[] args) {
         logger.debug("Starting FakeDataUtil");
+        Date now = new Date();
         long acctId = 1;
         long acctNbrId = 1;
+        long tranId = 1;
         Set<String> uniqueAcctNames = new HashSet<>();
-        for (int i = 0; i< NBR_OF_ACCTS; i++) {
+        for (int i = 0; i < NBR_OF_ACCTS; i++) {
             Acct acct = buildAcct(acctId++, uniqueAcctNames);
-            System.out.printf(INSERT_INTO_ACCT, acct.getBeginBalance(), acct.getBeginDate(), acct.getCreditLimit(),acct.getName(),acct.getType());
+            System.out.printf(INSERT_INTO_ACCT, acct.getBeginBalance(), acct.getBeginDate(), acct.getCreditLimit(),
+                    acct.getName(), acct.getType());
             AcctNbr acctNbr = buildAcctNbr(acct, acctNbrId++);
-            System.out.printf(INSERT_INTO_ACCT_NBR, acctNbr.getEffDate(),acctNbr.getNumber(),acct.getName());
+            System.out.printf(INSERT_INTO_ACCT_NBR, acctNbr.getEffDate(), acctNbr.getNumber(), acct.getName());
+            Date postDate = null;
+            do {
+                Tran tran = buildTran(acct, tranId++, postDate);
+                postDate = tran.getPostDate();
+                if (postDate.before(now)) {
+                    String checkNumber = "NULL";
+                    if (tran.getCheckNumber() != null)
+                        checkNumber = "'" + tran.getCheckNumber() + "'";
+                    System.out.printf(INSERT_INTO_TRAN, tran.getAmount(), checkNumber, tran.getName(), postDate,
+                            tran.getType(), acct.getName());
+                }
+            } while (postDate.before(now));
         }
-
         long payeeId = 1;
         long payableId = 1;
         long paymentId = 1;
@@ -68,43 +89,60 @@ public class FakeDataUtil {
             Payee payee = buildPayee(payeeId++, uniquePayeeNames);
             System.out.printf(INSERT_INTO_PAYEE, payee.getName(), payee.getNumber());
             //
-            Date previousDueDate = null;
-            for (int j = 0; j < NBR_OF_PAYABLES; j++) {
-                Payable payable = buildPayable(payee, payableId++, previousDueDate);
-                System.out.printf(INSERT_INTO_PAYABLE, payable.getAmountDue(), payable.getDueDate(), payee.getName());
-                // 0 = No payment.
-                // 1 = One payment, paid in full.
-                // 2 = Two payments, paid in full.
-                // 3 = One payment, partial payment.
-                // 4 = Two payments, partial payment.
-                int paymentCase = random.nextInt(5);
-                List<Payment> payments = new ArrayList<>();
-                if (paymentCase == 1) {
-                    payments.add(buildFullPayment(payable, paymentId++));
-                } else if (paymentCase == 2) {
-                    payments.add(buildPartialPayment(payable, paymentId++));
-                    payments.add(buildFullPayment(payable, paymentId++));
-                } else if (paymentCase == 3) {
-                    payments.add(buildPartialPayment(payable, paymentId++));
-                } else if (paymentCase == 4) {
-                    payments.add(buildPartialPayment(payable, paymentId++));
-                    payments.add(buildPartialPayment(payable, paymentId++));
+            Date dueDate = null;
+            do {
+                Payable payable = buildPayable(payee, payableId++, dueDate);
+                dueDate = payable.getDueDate();
+                if (dueDate.before(now)) {
+                    System.out
+                            .printf(INSERT_INTO_PAYABLE, payable.getAmountDue(), payable.getDueDate(), payee.getName());
+                    // 0 = No payment.
+                    // 1 = One payment, paid in full.
+                    // 2 = Two payments, paid in full.
+                    // 3 = One payment, partial payment.
+                    // 4 = Two payments, partial payment.
+                    int paymentCase = random.nextInt(5);
+                    List<Payment> payments = new ArrayList<>();
+                    if (paymentCase == 1) {
+                        payments.add(buildFullPayment(payable, paymentId++));
+                    } else if (paymentCase == 2) {
+                        payments.add(buildPartialPayment(payable, paymentId++));
+                        payments.add(buildFullPayment(payable, paymentId++));
+                    } else if (paymentCase == 3) {
+                        payments.add(buildPartialPayment(payable, paymentId++));
+                    } else if (paymentCase == 4) {
+                        payments.add(buildPartialPayment(payable, paymentId++));
+                        payments.add(buildPartialPayment(payable, paymentId++));
+                    }
+                    for (Payment payment : payments) {
+                        System.out.printf(INSERT_INTO_PAYMENT, payment.getAmountPaid(), payment.getPaidDate(),
+                                payable.getDueDate(), payee.getName());
+                    }
                 }
-                for (Payment payment : payments) {
-                    System.out.printf(INSERT_INTO_PAYMENT, payment.getAmountPaid(), payment.getPaidDate(),
-                            payable.getDueDate(), payee.getName());
-                }
-                previousDueDate = payable.getDueDate();
-            }
+            } while (dueDate.before(now));
+        }
+        long categoryId = 1;
+        long patternId = 1;
+        Set<String> uniqueCategoryNames = new HashSet<>();
+        for (int i = 0; i < NBR_OF_CATEGORIES; i++) {
+            Category category = buildCategory(categoryId++, uniqueCategoryNames);
+            System.out.printf(INSERT_INTO_CATEGORY, category.getName());
+            Pattern pattern = buildPattern(category, patternId++);
+            System.out.printf(INSERT_INTO_PATTERN, pattern.getSeq(), pattern.getTranName(), category.getName());
         }
         logger.debug("Finished FakeDataUtil");
     }
+
+    public static Acct buildAcct(long id) {
+        Set<String> uniqueNames = new HashSet<>();
+        return buildAcct(id, uniqueNames);
+    }
+
     public static Acct buildAcct(long id, Set<String> uniqueNames) {
         String name;
         do {
-             name = ACCT_NAME_PART_1[random.nextInt(ACCT_NAME_PART_1.length)] + " " +
+            name = ACCT_NAME_PART_1[random.nextInt(ACCT_NAME_PART_1.length)] + " " +
                     ACCT_NAME_PART_2[random.nextInt(ACCT_NAME_PART_2.length)];
-
         } while (uniqueNames.contains(name));
         uniqueNames.add(name);
         Calendar cal = Calendar.getInstance();
@@ -114,7 +152,6 @@ public class FakeDataUtil {
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.add(Calendar.DATE, ACCT_BEGIN_DAYS_AGO * -1);
         Date beginDate = cal.getTime();
-
         BigDecimal beginBalance = BigDecimal.valueOf(random.nextInt(100000), 2);
         BigDecimal creditLimit = BigDecimal.valueOf(100000, 2);
         AcctType acctType = AcctType.values()[random.nextInt(AcctType.values().length)];
@@ -140,6 +177,45 @@ public class FakeDataUtil {
         acctNbr.setAcct(acct);
         acct.getAcctNbrs().add(acctNbr);
         return acctNbr;
+    }
+
+    public static Tran buildTran(Acct acct, long id, Date previousPostDate) {
+        Calendar cal = Calendar.getInstance();
+        if (previousPostDate == null) {
+            cal.setTime(acct.getBeginDate());
+        } else {
+            cal.setTime(previousPostDate);
+        }
+        cal.add(Calendar.DATE, random.nextInt(MAX_DAYS_BETWEEN_TRANS));
+        Date postDate = cal.getTime();
+        BigDecimal amount = BigDecimal.valueOf(random.nextInt(20000) - 10000, 2);
+        String checkNumber = null;
+        TranType tranType = TranType.CREDIT;
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            tranType = TranType.DEBIT;
+            if (acct.getType() == AcctType.CHECKING && random.nextInt(CHECKS_ARE_ONE_IN) == 0) {
+                checkNumber = RandomStringUtils.randomNumeric(4);
+                tranType = TranType.CHECK;
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            sb.append(StringUtils.capitalize(RandomStringUtils.randomAlphabetic(1, 10).toLowerCase()));
+            sb.append(" ");
+        }
+        String name = sb.toString();
+        if (name.length() > 50)
+            name = name.substring(0, 50);
+        Tran tran = new Tran();
+        tran.setId(id);
+        tran.setPostDate(postDate);
+        tran.setAmount(amount);
+        tran.setName(name);
+        tran.setCheckNumber(checkNumber);
+        tran.setType(tranType);
+        tran.setAcct(acct);
+        acct.getTrans().add(tran);
+        return tran;
     }
 
     public static Payee buildPayee(long id) {
@@ -209,5 +285,34 @@ public class FakeDataUtil {
         payment.setPayable(payable);
         payable.getPayments().add(payment);
         return payment;
+    }
+
+    public static Category buildCategory(long id) {
+        Set<String> uniqueNames = new HashSet<>();
+        return buildCategory(id, uniqueNames);
+    }
+
+    public static Category buildCategory(long id, Set<String> uniqueNames) {
+        String name;
+        do {
+            name = StringUtils.capitalize(RandomStringUtils.randomAlphabetic(1, 10).toLowerCase());
+        } while (uniqueNames.contains(name));
+        uniqueNames.add(name);
+        Category category = new Category();
+        category.setId(id);
+        category.setName(name);
+        return category;
+    }
+
+    public static Pattern buildPattern(Category category, long id) {
+        String tranName = category.getName();
+        if (tranName.length() > 1)
+            tranName = tranName.substring(0, 1);
+        tranName += ".*";
+        Pattern pattern = new Pattern();
+        pattern.setId(id);
+        pattern.setSeq((int) id);
+        pattern.setTranName(tranName);
+        return pattern;
     }
 }

@@ -85,14 +85,15 @@ public class PayableServiceTest {
 
     @Test
     public void savePayable() throws Exception {
-        Mockito.when(payableRepository.save(payable1)).thenReturn(payable1);
+        Mockito.when(payableRepository.save(Mockito.any(Payable.class))).thenReturn(payable1);
         Payable payable = payableService.savePayable(payable1);
         assertEquals(0, payable1AmountDue.compareTo(payable.getAmountDue()));
     }
 
     @Test
     public void savePayableOptimisticLocking() {
-        Mockito.when(payableRepository.save(payable1)).thenThrow(ObjectOptimisticLockingFailureException.class);
+        Mockito.when(payableRepository.save(Mockito.any(Payable.class)))
+                .thenThrow(ObjectOptimisticLockingFailureException.class);
         try {
             Payable payable = payableService.savePayable(payable1);
             fail();
