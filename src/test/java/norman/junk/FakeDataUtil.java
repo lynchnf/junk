@@ -313,6 +313,7 @@ public class FakeDataUtil {
         pattern.setId(id);
         pattern.setSeq((int) id);
         pattern.setTranName(tranName);
+        pattern.setCategory(category);
         return pattern;
     }
 }

@@ -1,7 +1,7 @@
 package norman.junk.controller;
 
-import norman.junk.service.AcctService;
-import norman.junk.service.PayableService;
+import norman.junk.service.CategoryService;
+import norman.junk.service.PatternService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,20 +15,35 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(DashboardController.class)
-public class DashboardControllerTest {
+@WebMvcTest(PatternController.class)
+public class OldPatternControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private AcctService acctService;
+    private PatternService patternService;
     @MockBean
-    private PayableService payableService;
+    private CategoryService categoryService;
 
     @Test
-    public void loadView() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/");
+    public void loadList() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/patternList");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
-        resultActions.andExpect(MockMvcResultMatchers.view().name("index"));
+        resultActions.andExpect(MockMvcResultMatchers.view().name("patternList"));
+    }
+
+    @Test
+    public void loadEdit() {
+        // TODO Write test.
+    }
+
+    @Test
+    public void processEdit() {
+        // TODO Write test.
+    }
+
+    @Test
+    public void loadCategoryDropDown() {
+        // TODO Write test.
     }
 }

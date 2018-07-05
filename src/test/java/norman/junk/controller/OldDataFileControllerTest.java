@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(DataFileController.class)
-public class DataFileControllerTest {
+public class OldDataFileControllerTest {
     private final Random random = new Random();
     @Autowired
     private MockMvc mockMvc;

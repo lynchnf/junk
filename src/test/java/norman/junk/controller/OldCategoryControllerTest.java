@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(CategoryController.class)
-public class CategoryControllerTest {
+public class OldCategoryControllerTest {
     private final Random random = new Random();
     @Autowired
     private MockMvc mockMvc;
