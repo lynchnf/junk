@@ -57,7 +57,8 @@ public class CategoryControllerTest {
     @Test
     public void loadEdit() throws Exception {
         Mockito.when(categoryService.findCategoryById(category1Id)).thenReturn(category1);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/categoryEdit").param("categoryId", "1");
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/categoryEdit")
+                .param("categoryId", "1");
         ResultActions resultActions = mockMvc.perform(requestBuilder);
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
         resultActions.andExpect(MockMvcResultMatchers.view().name("categoryEdit"));
