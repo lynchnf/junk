@@ -1,9 +1,13 @@
 package norman.junk.controller;
 
+import norman.junk.FakeDataUtil;
 import norman.junk.service.AcctService;
 import norman.junk.service.PayableService;
+import org.hamcrest.core.StringContains;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,7 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(DashboardController.class)
-public class OldDashboardControllerTest {
+public class DashboardControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
