@@ -3,6 +3,7 @@ package norman.junk.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +66,7 @@ public class AcctService {
             Acct acct = optionalAcct.get();
             BigDecimal balance = acct.getBeginBalance();
             List<Tran> trans = acct.getTrans();
+            trans.sort(Comparator.comparing(Tran::getPostDate));
             for (Tran tran : trans) {
                 BigDecimal amount = tran.getAmount();
                 balance = balance.add(amount);
