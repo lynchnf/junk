@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import static norman.junk.controller.MessagesConstants.MULTI_OPTIMISTIC_LOCK_ERROR;
+import static norman.junk.controller.MessagesConstants.SUCCESSFULLY_UPDATED_MULTI;
 
 @Controller
 public class PatternController {
-    // FIXME REFACTOR
     private static final Logger logger = LoggerFactory.getLogger(PatternController.class);
     @Autowired
     private PatternService patternService;
@@ -31,14 +31,14 @@ public class PatternController {
     private CategoryService categoryService;
 
     @RequestMapping("/patternList")
-    public String loadList(Model model, RedirectAttributes redirectAttributes) {
+    public String loadList(Model model) {
         Iterable<Pattern> patterns = patternService.findAllPatterns();
         model.addAttribute("patterns", patterns);
         return "patternList";
     }
 
     @GetMapping("/patternEdit")
-    public String loadEdit(Model model, RedirectAttributes redirectAttributes) {
+    public String loadEdit(Model model) {
         Iterable<Pattern> patterns = patternService.findAllPatterns();
         PatternForm patternForm = new PatternForm(patterns);
         model.addAttribute("patternForm", patternForm);
@@ -51,17 +51,18 @@ public class PatternController {
         if (bindingResult.hasErrors()) {
             return "patternEdit";
         }
+        // Convert form to entities and save.
         List<Pattern> patterns = patternForm.toPatterns(categoryService);
         try {
-            Iterable<Pattern> saveAll = patternService.saveAllPatterns(patterns);
-            String successMessage = "Category Patterns successfully saved";
+            patternService.saveAllPatterns(patterns);
+            String successMessage = String.format(SUCCESSFULLY_UPDATED_MULTI, "Patterns");
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             return "redirect:/patternList";
         } catch (JunkOptimisticLockingException e) {
             String msg = String.format(MULTI_OPTIMISTIC_LOCK_ERROR, "Patterns");
             logger.warn(msg, e);
             redirectAttributes.addFlashAttribute("errorMessage", msg);
-            return "redirect:/";
+            return "redirect:/patternList";
         }
     }
 

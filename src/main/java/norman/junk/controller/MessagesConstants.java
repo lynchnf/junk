@@ -11,6 +11,7 @@ public class MessagesConstants {
     public static final String UNEXPECTED_ERROR = "UNEXPECTED ERROR";
     public static final String SUCCESSFULLY_ADDED = "%s successfully added, id=%d.";
     public static final String SUCCESSFULLY_UPDATED = "%s successfully updated, id=%d.";
+    public static final String SUCCESSFULLY_UPDATED_MULTI = "%s successfully updated.";
     public static final String SUCCESSFULLY_ASSIGNED_CATEGORIES = "Categories successfully assigned to %d Transactions.";
     public static final String SUCCESSFULLY_UPLOADED_TRANS = "Account successfully updated with %d Transactions, acct id=%d.";
     public static final String SUCCESSFULLY_RECONCILED = "Account successfully reconciled, acct id=%d.";
