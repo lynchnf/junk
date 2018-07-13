@@ -85,11 +85,11 @@ public class AcctService {
         for (Tran tran : trans) {
             BigDecimal amount = tran.getAmount();
             balance = balance.add(amount);
-            String acctName = null;
-            if (tran.getAcct() != null)
-                acctName = tran.getAcct().getName();
+            String categoryName = null;
+            if (tran.getCategory() != null)
+                categoryName = tran.getCategory().getName();
             TranBalanceBean tranBalance = new TranBalanceBean(tran.getId(), tran.getType(), tran.getPostDate(),
-                    tran.getCheckNumber(), tran.getName(), tran.getReconciled(), amount, balance, acctName);
+                    tran.getCheckNumber(), tran.getName(), tran.getReconciled(), amount, balance, categoryName);
             tranBalances.add(tranBalance);
         }
         Collections.reverse(tranBalances);
