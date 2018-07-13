@@ -46,6 +46,7 @@ public class FakeDataUtil {
     private static final String INSERT_INTO_PAYEE = "INSERT INTO `payee` (`name`, `number`, `version`) VALUES ('%s','%s',0);%n";
     private static final int PAYABLE_BEGIN_DAYS_AGO = 17;
     private static final int DAYS_BETWEEN_PAYABLES = 7;
+    private static final int PAYABLE_FUTURE_DAYS_AHEAD = 30;
     private static final String INSERT_INTO_PAYABLE = "INSERT INTO `payable` (`amount_due`, `due_date`, `version`, `payee_id`) VALUES (%.2f,'%tF',0,(SELECT `id` FROM `payee` WHERE `name` = '%s'));%n";
     private static final String INSERT_INTO_PAYMENT = "INSERT INTO `payment` (`amount_paid`, `paid_date`, `version`, `payable_id`) VALUES (%.2f,'%tF',0,(SELECT a.`id` FROM `payable` a JOIN `payee` b ON b.`id` = a.`payee_id` WHERE a.`due_date` = '%tF' AND b.`name` = '%s'));%n";
     private static final int NBR_OF_CATEGORIES = 10;
@@ -57,7 +58,12 @@ public class FakeDataUtil {
 
     public static void main(String[] args) {
         logger.debug("Starting FakeDataUtil");
-        Date now = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        Date today = cal.getTime();
         long acctId = 1;
         long acctNbrId = 1;
         long tranId = 1;
@@ -72,28 +78,32 @@ public class FakeDataUtil {
             do {
                 Tran tran = buildTran(acct, tranId++, postDate);
                 postDate = tran.getPostDate();
-                if (postDate.before(now)) {
+                if (postDate.before(today)) {
                     String checkNumber = "NULL";
                     if (tran.getCheckNumber() != null)
                         checkNumber = "'" + tran.getCheckNumber() + "'";
                     System.out.printf(INSERT_INTO_TRAN, tran.getAmount(), checkNumber, tran.getName(), postDate,
                             tran.getType(), acct.getName());
                 }
-            } while (postDate.before(now));
+            } while (postDate.before(today));
         }
         long payeeId = 1;
         long payableId = 1;
         long paymentId = 1;
+        cal.setTime(today);
+        cal.add(Calendar.DATE, PAYABLE_FUTURE_DAYS_AHEAD);
+        Date future = cal.getTime();
         Set<String> uniquePayeeNames = new HashSet<>();
         for (int i = 0; i < NBR_OF_PAYEES; i++) {
             Payee payee = buildPayee(payeeId++, uniquePayeeNames);
             System.out.printf(INSERT_INTO_PAYEE, payee.getName(), payee.getNumber());
             //
+
             Date dueDate = null;
             do {
                 Payable payable = buildPayable(payee, payableId++, dueDate);
                 dueDate = payable.getDueDate();
-                if (dueDate.before(now)) {
+                if (dueDate.before(future)) {
                     System.out
                             .printf(INSERT_INTO_PAYABLE, payable.getAmountDue(), payable.getDueDate(), payee.getName());
                     // 0 = No payment.
@@ -119,7 +129,7 @@ public class FakeDataUtil {
                                 payable.getDueDate(), payee.getName());
                     }
                 }
-            } while (dueDate.before(now));
+            } while (dueDate.before(future));
         }
         long categoryId = 1;
         long patternId = 1;
