@@ -46,7 +46,7 @@ public class CategoryServiceTest {
     public void setUp() throws Exception {
         category1Id = Long.valueOf(1);
         category2Id = Long.valueOf(2);
-        category1 = FakeDataUtil.buildCategory(1);
+        category1 = FakeDataUtil.buildCategory(category1Id);
         category1Name = category1.getName();
     }
 

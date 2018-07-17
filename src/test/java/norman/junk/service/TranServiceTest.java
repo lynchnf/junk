@@ -50,8 +50,8 @@ public class TranServiceTest {
     public void setUp() throws Exception {
         tran1Id = Long.valueOf(1);
         tran2Id = Long.valueOf(2);
-        acct1 = FakeDataUtil.buildAcct(1);
-        tran1 = FakeDataUtil.buildTran(acct1, 1, null);
+        acct1 = FakeDataUtil.buildAcct(3);
+        tran1 = FakeDataUtil.buildTran(acct1, tran1Id, null);
         tran1Name = tran1.getName();
     }
 

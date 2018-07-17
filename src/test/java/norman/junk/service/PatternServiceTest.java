@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 public class PatternServiceTest {
-    private Long pattern1Id;
-    private Long pattern2Id;
     private Category category1;
     private Pattern pattern1;
     private Integer pattern1Seq;
@@ -46,10 +44,8 @@ public class PatternServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        pattern1Id = Long.valueOf(1);
-        pattern2Id = Long.valueOf(2);
         category1 = FakeDataUtil.buildCategory(1);
-        pattern1 = FakeDataUtil.buildPattern(category1, 1);
+        pattern1 = FakeDataUtil.buildPattern(category1, 2);
         pattern1Seq = pattern1.getSeq();
     }
 

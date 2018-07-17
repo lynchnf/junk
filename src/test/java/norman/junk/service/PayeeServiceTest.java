@@ -46,7 +46,7 @@ public class PayeeServiceTest {
     public void setUp() throws Exception {
         payee1Id = Long.valueOf(1);
         payee2Id = Long.valueOf(2);
-        payee1 = FakeDataUtil.buildPayee(1);
+        payee1 = FakeDataUtil.buildPayee(payee1Id);
         payee1Name = payee1.getName();
     }
 

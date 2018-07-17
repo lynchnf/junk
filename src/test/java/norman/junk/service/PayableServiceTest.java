@@ -54,8 +54,8 @@ public class PayableServiceTest {
     public void setUp() throws Exception {
         payable1Id = Long.valueOf(1);
         payable2Id = Long.valueOf(2);
-        payee1 = FakeDataUtil.buildPayee(1);
-        payable1 = FakeDataUtil.buildPayable(payee1, 1, null);
+        payee1 = FakeDataUtil.buildPayee(3);
+        payable1 = FakeDataUtil.buildPayable(payee1, payable1Id, null);
         payable1AmountDue = payable1.getAmountDue();
     }
 

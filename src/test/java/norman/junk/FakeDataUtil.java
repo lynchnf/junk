@@ -13,6 +13,8 @@ import norman.junk.domain.Acct;
 import norman.junk.domain.AcctNbr;
 import norman.junk.domain.AcctType;
 import norman.junk.domain.Category;
+import norman.junk.domain.DataFile;
+import norman.junk.domain.DataLine;
 import norman.junk.domain.Pattern;
 import norman.junk.domain.Payable;
 import norman.junk.domain.Payee;
@@ -98,7 +100,6 @@ public class FakeDataUtil {
             Payee payee = buildPayee(payeeId++, uniquePayeeNames);
             System.out.printf(INSERT_INTO_PAYEE, payee.getName(), payee.getNumber());
             //
-
             Date dueDate = null;
             do {
                 Payable payable = buildPayable(payee, payableId++, dueDate);
@@ -171,6 +172,7 @@ public class FakeDataUtil {
         }
         Acct acct = new Acct();
         acct.setId(id);
+        acct.setFid(RandomStringUtils.randomNumeric(8));
         acct.setName(name);
         acct.setBeginDate(beginDate);
         acct.setBeginBalance(beginBalance);
@@ -325,5 +327,51 @@ public class FakeDataUtil {
         pattern.setTranName(tranName);
         pattern.setCategory(category);
         return pattern;
+    }
+
+    public static List<String> buildOfxFile(Acct acct, Tran... trans) {
+        List<String> ofxFile = new ArrayList<>();
+        ofxFile.add(String.format("<OFX>"));
+        ofxFile.add(String.format("    <FI>"));
+        ofxFile.add(String.format("        <ORG>%s", acct.getOrganization()));
+        ofxFile.add(String.format("        <FID>%s", acct.getFid()));
+        ofxFile.add(String.format("    </FI>"));
+        ofxFile.add(String.format("    <BANKACCTFROM>"));
+        ofxFile.add(String.format("        <ACCTID>%s", acct.getAcctNbrs().iterator().next().getNumber()));
+        ofxFile.add(String.format("        <ACCTTYPE>%s", acct.getType()));
+        ofxFile.add(String.format("    </BANKACCTFROM>"));
+        ofxFile.add(String.format("    <BANKTRANLIST>"));
+        for (Tran tran : trans) {
+            ofxFile.add(String.format("        <STMTTRN>"));
+            ofxFile.add(String.format("            <TRNTYPE>%s", tran.getType()));
+            ofxFile.add(String.format("            <DTPOSTED>%1$tY%1$tm%1$td120000.000", tran.getPostDate()));
+            ofxFile.add(String.format("            <TRNAMT>%.2f", tran.getAmount()));
+            ofxFile.add(String.format("            <FITID>%s", tran.getFitId()));
+            ofxFile.add(String.format("            <NAME>%s", tran.getName()));
+            ofxFile.add(String.format("        </STMTTRN>"));
+        }
+        ofxFile.add(String.format("    </BANKTRANLIST>"));
+        ofxFile.add(String.format("</OFX>"));
+        return ofxFile;
+    }
+
+    public static DataFile buildDataFile(List<String> ofxFile, long id, long firstLineId) {
+        DataFile dataFile = new DataFile();
+        dataFile.setId(id);
+        dataFile.setOriginalFilename("activity.ofx");
+        dataFile.setContentType("application/octet-stream");
+        dataFile.setSize(Long.valueOf(700));
+        dataFile.setUploadTimestamp(new Date());
+        long lineId = firstLineId;
+        int seq = 0;
+        for (String ofxLine : ofxFile) {
+            DataLine dataLine = new DataLine();
+            dataLine.setId(lineId++);
+            dataLine.setSeq(seq++);
+            dataLine.setText(ofxLine);
+            dataLine.setDataFile(dataFile);
+            dataFile.getDataLines().add(dataLine);
+        }
+        return dataFile;
     }
 }

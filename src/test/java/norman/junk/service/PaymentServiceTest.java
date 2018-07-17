@@ -51,9 +51,9 @@ public class PaymentServiceTest {
     public void setUp() throws Exception {
         payment1Id = Long.valueOf(1);
         payment2Id = Long.valueOf(2);
-        payee1 = FakeDataUtil.buildPayee(1);
-        payable1 = FakeDataUtil.buildPayable(payee1, 1, null);
-        payment1 = FakeDataUtil.buildPartialPayment(payable1, 1);
+        payee1 = FakeDataUtil.buildPayee(3);
+        payable1 = FakeDataUtil.buildPayable(payee1, 4, null);
+        payment1 = FakeDataUtil.buildPartialPayment(payable1, payment1Id);
         payment1AmountPaid = payment1.getAmountPaid();
     }
 
